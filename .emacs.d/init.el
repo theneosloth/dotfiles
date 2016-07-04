@@ -1,4 +1,4 @@
-;;; dot-prog.el --- changes some of the emacs default settings
+;;; init.el --- changes some of the emacs default settings
 ;;; Commentary:
 ;; Nothing yet
 
@@ -12,10 +12,7 @@
     t)
   (package-initialize))
 
-;; USER SETTINGS
-;;(mapc 'load (directory-files
-;;             (concat user-emacs-directory "/custom") t ".\.el"))
-
+;; Load in all of my custom settings
 (add-to-list 'load-path "~/.emacs.d/custom")
 (require 'dot-defaults)
 (require 'dot-org)
@@ -26,20 +23,20 @@
 (setq inferior-lisp-program "/usr/bin/sbcl")
 (setq slime-contribs '(slime-fancy))
 
-(require 'ivy)
+(autoload 'ivy "ivy")
 (ivy-mode 1)
 (setq projectile-completion-system 'ivy)
 
 ;; Evil init
-(require 'evil)
+(autoload 'evil "evil")
 (evil-mode 1)
 
 ;;Pdf tool init
 (pdf-tools-install)
 
 
-(require 'powerline)
-(require 'powerline-evil)
+(autoload 'powerline "powerline")
+(autoload 'powerline-evil  "powerline-evil")
 (powerline-default-theme)
 (powerline-evil-vim-color-theme)
 
@@ -47,7 +44,7 @@
 (ac-config-default)
 
 ;; Relative line package
-(require 'nlinum-relative)
+(autoload 'nlinum-relative "nlinum")
 (nlinum-relative-setup-evil)
 (add-hook 'prog-mode-hook 'nlinum-relative-mode)
 (setq nlinum-relative-redisplay-delay 0)
