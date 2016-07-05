@@ -18,6 +18,9 @@
                             (rainbow-delimiters-mode)
                             (prettify-symbols-mode)
                             (whitespace-mode)
+                            (which-function-mode)
+                            (show-paren-mode)
+                            (flyspell-prog-mode)
                             ))
 (provide 'dot-prog)
 ;;; dot-prog.el ends here

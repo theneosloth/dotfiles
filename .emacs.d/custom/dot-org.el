@@ -6,6 +6,8 @@
 
 (add-hook 'org-mode-hook (lambda()
                            (global-whitespace-mode 0)
+                           (flyspell-mode 1)
+                           (org-toggle-pretty-entities)
                            ))
 
 (org-babel-do-load-languages

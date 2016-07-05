@@ -12,12 +12,20 @@
     t)
   (package-initialize))
 
+(defun compile-dotfiles()
+  (byte-recompile-directory
+   (expand-file-name "~/.emacs.d/custom") 0 )
+  (byte-recompile-file
+   (expand-file-name "init.el" user-emacs-directory)))
+
+(add-hook 'kill-emacs-hook (lambda()(compile-dotfiles)))
+
 ;; Load in all of my custom settings
 (add-to-list 'load-path "~/.emacs.d/custom")
 (require 'dot-defaults)
 (require 'dot-org)
 (require 'dot-prog)
-
+(require 'dot-erc)
 
 ;;CUSTOM PACKAGES
 (setq inferior-lisp-program "/usr/bin/sbcl")
@@ -53,5 +61,4 @@
 
 ;;flycheck
 (add-hook 'after-init-hook #'global-flycheck-mode)
-
 ;;; init.el ends here
