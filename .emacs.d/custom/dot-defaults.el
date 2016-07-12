@@ -1,11 +1,12 @@
 ;;; dot-defaults.el --- changes some of the emacs default settings
 ;;; Commentary:
-;; Nothing yet
+;; Some changes to the default emacs behavior. No addon packages here.
 
 ;;; Code:
 
 ;; Switch between buffers with S-arrow
 (windmove-default-keybindings)
+;; Delete all the trailing whitespaces every time I save
 (push 'delete-trailing-whitespace before-save-hook)
 ;;Show current buffer name
 (setq frame-title-format "emacs - %b")
@@ -14,7 +15,8 @@
 ;; Always treat tabs as spaces
 (setq-default indent-tabs-mode nil)
 
-;;(setq tab-always-indent 'complete)
+;; Makes double pressing tab act as M-Tab (completions)
+(setq tab-always-indent 'complete)
 
 ;; Move the auto saved and backed up files into the OS temp directory
 (setq backup-directory-alist

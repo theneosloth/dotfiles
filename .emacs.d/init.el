@@ -1,8 +1,13 @@
 ;;; init.el --- changes some of the emacs default settings
 ;;; Commentary:
-;; Nothing yet
+;; This loads all the custom packages I use and my custom settings files
 
 ;;; Code:
+
+;; Allocate more memory to the garbage collector during initialization.
+(setq gc-cons-threshold 100000000)
+;; Reset it to the default after initialization
+(add-hook 'after-init-hook (lambda () (setq gc-cons-threshold 800000)))
 
 (when (>= emacs-major-version 24)
   (require 'package)
@@ -12,13 +17,15 @@
     t)
   (package-initialize))
 
+;; Recompile everything in custom and init.el
 (defun compile-dotfiles()
   (byte-recompile-directory
-   (expand-file-name "~/.emacs.d/custom") 0 )
-  (byte-recompile-file
-   (expand-file-name "init.el" user-emacs-directory)))
+   (expand-file-name "custom/" user-emacs-directory) 0 )
+  (byte-compile-file
+   (expand-file-name "./init.el" user-emacs-directory) 0))
 
-(add-hook 'kill-emacs-hook (lambda()(compile-dotfiles)))
+(add-hook 'kill-emacs-hook 'compile-dotfiles)
+
 
 ;; Load in all of my custom settings
 (add-to-list 'load-path "~/.emacs.d/custom")
@@ -40,8 +47,8 @@
 (evil-mode 1)
 
 ;;Pdf tool init
-(pdf-tools-install)
-
+; The function is a huge time hog so I threw it on a hook.
+(add-hook 'doc-view-mode-hook #'pdf-tools-install)
 
 (autoload 'powerline "powerline")
 (autoload 'powerline-evil  "powerline-evil")

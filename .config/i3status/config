@@ -20,7 +20,14 @@ order += "wireless _first_"
 order += "battery 0"
 order += "load"
 order += "tztime local"
-
+#order += "volume master"
+volume master {
+        format = "♪: %volume"
+        format_muted = "♪: muted (%volume)"
+        device = "default"
+        mixer = "Master"
+        mixer_idx = 0
+}
 wireless _first_ {
         format_up = "W: (%quality at %essid) %ip"
         format_down = "W: down"

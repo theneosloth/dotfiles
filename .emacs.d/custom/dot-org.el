@@ -1,4 +1,4 @@
-;;; dot-defaults.el --- changes some of the emacs default settings
+;;; dot-org.el --- changes some of the emacs default settings
 ;;; Commentary:
 ;; Nothing yet
 

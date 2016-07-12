@@ -8,19 +8,19 @@
 (defun indent-c-mode-hook ()
   (setq c-basic-offset 4
         c-indent-level 4
-        indent-tabs-mode nil
-        c-default-style "bsd"))
+        c-default-style "linux"))
 
 (add-hook 'c-mode-common-hook 'indent-c-mode-hook)
-
+(add-hook 'python-mode-hook (lambda()
+                              (elpy-mode)
+                              (setq elpy-rpc-backend "jedi")
+                              ))
 (add-hook 'prog-mode-hook (lambda()
                             (electric-pair-mode)
                             (rainbow-delimiters-mode)
                             (prettify-symbols-mode)
                             (whitespace-mode)
-                            (which-function-mode)
                             (show-paren-mode)
-                            (flyspell-prog-mode)
                             ))
 (provide 'dot-prog)
 ;;; dot-prog.el ends here
