@@ -34,8 +34,5 @@
 (setq inhibit-splash-screen t
       inhibit-startup-echo-area-message t
       inhibit-startup-message t)
-;;Theme
-(load-theme 'material t)
-
 (provide 'dot-defaults)
 ;;; dot-defaults.el ends here

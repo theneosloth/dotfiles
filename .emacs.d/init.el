@@ -92,4 +92,8 @@
 
 ;;flycheck
 (add-hook 'after-init-hook #'global-flycheck-mode)
+
+;;Theme
+(load-theme 'material t)
+
 ;;; init.el ends here
