@@ -16,10 +16,12 @@
    (java . t)
    (C . t)
    ))
+
  (setq org-src-preserve-indentation nil
        org-edit-src-content-indentation 0
        org-src-fontify-natively t
-       org-src-tab-acts-natively t)
+       org-src-tab-acts-natively t
+       )
 
 (provide 'dot-org)
 ;;; dot-org.el ends here

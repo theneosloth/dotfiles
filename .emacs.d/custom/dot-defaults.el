@@ -18,6 +18,11 @@
 ;; Makes double pressing tab act as M-Tab (completions)
 (setq tab-always-indent 'complete)
 
+;;Truncate lines instead of word wrapping them
+(setq-default truncate-lines t)
+;; Use y or no instead of yes or no
+(defalias 'yes-or-no-p 'y-or-n-p)
+
 ;; Move the auto saved and backed up files into the OS temp directory
 (setq backup-directory-alist
       `((".*" . ,temporary-file-directory)))
@@ -29,7 +34,6 @@
 (setq inhibit-splash-screen t
       inhibit-startup-echo-area-message t
       inhibit-startup-message t)
-
 ;;Theme
 (load-theme 'material t)
 

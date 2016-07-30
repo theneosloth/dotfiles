@@ -17,6 +17,29 @@
     t)
   (package-initialize))
 
+(unless package-archive-contents
+  (package-refresh-contents))
+
+;;List of packages that are going to be automatically installed
+(defvar package-list
+      '(evil
+        powerline-evil
+        ivy
+        nlinum-relative
+        slime
+        auto-complete
+        material-theme
+        flycheck
+        elpy
+        rainbow-delimiters
+        ))
+(defvar linux-only
+  '(pdf-tools))
+
+(dolist (package package-list)
+  (unless (package-installed-p package)
+    (package-install package)))
+
 ;; Recompile everything in custom and init.el
 (defun compile-dotfiles()
   (byte-recompile-directory
@@ -35,6 +58,7 @@
 (require 'dot-erc)
 
 ;;CUSTOM PACKAGES
+
 (setq inferior-lisp-program "/usr/bin/sbcl")
 (setq slime-contribs '(slime-fancy))
 

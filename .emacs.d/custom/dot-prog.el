@@ -18,9 +18,10 @@
 (add-hook 'prog-mode-hook (lambda()
                             (electric-pair-mode)
                             (rainbow-delimiters-mode)
-                            (prettify-symbols-mode)
                             (whitespace-mode)
                             (show-paren-mode)
+                            (unless (eq system-type 'windows-nt)
+                              (prettify-symbols-mode))
                             ))
 (provide 'dot-prog)
 ;;; dot-prog.el ends here
