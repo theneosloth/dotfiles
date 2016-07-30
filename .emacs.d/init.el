@@ -33,7 +33,7 @@
         elpy
         rainbow-delimiters
         ))
-(defvar linux-only
+(defvar linux-only-packages
   '(pdf-tools))
 
 (dolist (package package-list)
@@ -59,6 +59,14 @@
 
 ;;CUSTOM PACKAGES
 
+;; Linux only things
+(unless (eq system-type 'windows-nt)
+  (dolist (package linux-only-packages)
+    (unless (package-installed-p package)
+      package-install package))
+
+  (add-hook 'doc-view-mode #'pdf-tools-install))
+
 (setq inferior-lisp-program "/usr/bin/sbcl")
 (setq slime-contribs '(slime-fancy))
 
@@ -71,7 +79,8 @@
 (evil-mode 1)
 
 ;;Pdf tool init
-; The function is a huge time hog so I threw it on a hook.
+;; The function is a huge time hog so I threw it on a hook.
+
 (add-hook 'doc-view-mode-hook #'pdf-tools-install)
 
 (autoload 'powerline "powerline")

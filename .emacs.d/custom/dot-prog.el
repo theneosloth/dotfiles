@@ -20,6 +20,7 @@
                             (rainbow-delimiters-mode)
                             (whitespace-mode)
                             (show-paren-mode)
+                            ;;For some reason prettify lags on windows
                             (unless (eq system-type 'windows-nt)
                               (prettify-symbols-mode))
                             ))
