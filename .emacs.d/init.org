@@ -2,6 +2,36 @@
 #+PROPERTY: header-args :tangle yes
 
 * Package Initialization and Installation
+** Automatic tangling and Byte Compliation
+Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
+#+BEGIN_SRC emacs-lisp
+(defun tangle-init ()
+  (when (equal (buffer-file-name)
+               (expand-file-name (concat user-emacs-directory "init.org")))
+    (let ((prog-mode-hook nil))
+      (org-babel-tangle)
+      (byte-compile-file (concat user-emacs-directory "init.el")))))
+
+(add-hook 'after-save-hook 'tangle-init)
+#+END_SRC
+** Garbage Collection and MELPA
+#+BEGIN_SRC emacs-lisp
+;; Allocate more memory to the garbage collector during initialization.
+(setq gc-cons-threshold (* 500 1024 1024))
+;; Reset it to the default after initialization
+(when (>= emacs-major-version 24)
+  (require 'package)
+  (add-to-list
+    'package-archives
+    '("melpa" . "http://melpa.org/packages/")
+    t)
+  (package-initialize))
+
+(unless package-archive-contents
+  (package-refresh-contents))
+
+(add-hook 'after-init-hook (lambda () (setq gc-cons-threshold (* 5 1024 1024))))
+#+END_SRC
 ** Package List
 This is the list of all the packages that I want to have installed
 #+BEGIN_SRC emacs-lisp
@@ -32,13 +62,58 @@ This snippet of code installs every package in the package list.
 #+BEGIN_SRC emacs-lisp
 (dolist (package package-list)
 (unless (package-installed-p package)
-    (package-install package)))
+  (package-install package)
+  (setq frame-title-format "Installing Packages. Please Wait...")))
 ;; Linux only things
 (unless (eq system-type 'windows-nt)
 (dolist (package linux-only-packages)
     (unless (package-installed-p package)
     package-install package)))
     #+END_SRC
+* Better Defaults
+** Random Quality of Life Things
+#+BEGIN_SRC emacs-lisp
+;; Switch between buffers with S-arrow
+(windmove-default-keybindings)
+;; Delete all the trailing whitespaces every time I save
+(push 'delete-trailing-whitespace before-save-hook)
+;;Show current buffer name
+(setq frame-title-format "emacs - %b")
+;;Hide the toolbar
+(tool-bar-mode -1)
+;; Always treat tabs as spaces
+(setq-default indent-tabs-mode nil)
+
+;; Makes double pressing tab act as M-Tab (completions)
+(setq tab-always-indent 'complete)
+
+;;Truncate lines instead of word wrapping them
+(setq-default truncate-lines t)
+;; Use y or no instead of yes or no
+(defalias 'yes-or-no-p 'y-or-n-p)
+
+(setq visible-bell nil)
+(setq ring-bell-function 'ignore)
+#+END_SRC
+** Auto saves
+#+BEGIN_SRC emacs-lisp
+;; Move the auto saved and backed up files into the OS temp directory
+(setq backup-directory-alist
+      `((".*" . ,temporary-file-directory)))
+
+(setq auto-save-file-name-transforms
+      `((".*" , temporary-file-directory t)))
+#+END_SRC
+** Startup Message and Screen
+#+BEGIN_SRC emacs-lisp
+;;Disable splash screen
+(setq inhibit-splash-screen t
+      inhibit-startup-echo-area-message t
+      inhibit-startup-message t)
+
+(defun display-startup-echo-area-message()
+  (message "Welcome."))
+#+END_SRC
 
 * Custom Package Configuration
 ** Ivy
@@ -73,6 +148,7 @@ This snippet of code installs every package in the package list.
 #+END_SRC
 ** Misc
 #+BEGIN_SRC emacs-lisp
+(ac-config-default)
 ;;flycheck
 (add-hook 'after-init-hook #'global-flycheck-mode)
 
@@ -81,45 +157,6 @@ This snippet of code installs every package in the package list.
 
 ;;Theme
 (load-theme 'material t)
-#+END_SRC
-
-* Better Defaults
-#+BEGIN_SRC emacs-lisp
-;; Switch between buffers with S-arrow
-(windmove-default-keybindings)
-;; Delete all the trailing whitespaces every time I save
-(push 'delete-trailing-whitespace before-save-hook)
-;;Show current buffer name
-(setq frame-title-format "emacs - %b")
-;;Hide the toolbar
-(tool-bar-mode -1)
-;; Always treat tabs as spaces
-(setq-default indent-tabs-mode nil)
-
-;; Makes double pressing tab act as M-Tab (completions)
-(setq tab-always-indent 'complete)
-
-;;Truncate lines instead of word wrapping them
-(setq-default truncate-lines t)
-;; Use y or no instead of yes or no
-(defalias 'yes-or-no-p 'y-or-n-p)
-
-;; Move the auto saved and backed up files into the OS temp directory
-(setq backup-directory-alist
-      `((".*" . ,temporary-file-directory)))
-
-(setq auto-save-file-name-transforms
-      `((".*" , temporary-file-directory t)))
-#+END_SRC
-** Startup Message and Screen
-#+BEGIN_SRC emacs-lisp
-;;Disable splash screen
-(setq inhibit-splash-screen t
-      inhibit-startup-echo-area-message t
-      inhibit-startup-message t)
-
-(defun display-startup-echo-area-message()
-  (message "Welcome."))
 #+END_SRC
 
 * ERC
