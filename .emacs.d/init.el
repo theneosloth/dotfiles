@@ -24,6 +24,8 @@
 (defvar package-list
       '(evil
         powerline-evil
+        evil-surround
+        evil-nerd-commenter
         ivy
         nlinum-relative
         slime
@@ -33,6 +35,7 @@
         elpy
         rainbow-delimiters
         ))
+
 (defvar linux-only-packages
   '(pdf-tools))
 
@@ -64,35 +67,34 @@
   (dolist (package linux-only-packages)
     (unless (package-installed-p package)
       package-install package))
-
+  ;; The function is a huge time hog so I threw it on a hook.
   (add-hook 'doc-view-mode #'pdf-tools-install))
 
 (setq inferior-lisp-program "/usr/bin/sbcl")
 (setq slime-contribs '(slime-fancy))
 
-(autoload 'ivy "ivy")
+(require 'ivy)
 (ivy-mode 1)
 (setq projectile-completion-system 'ivy)
 
 ;; Evil init
-(autoload 'evil "evil")
+(require 'evil)
 (evil-mode 1)
 
-;;Pdf tool init
-;; The function is a huge time hog so I threw it on a hook.
-
-(add-hook 'doc-view-mode-hook #'pdf-tools-install)
-
-(autoload 'powerline "powerline")
-(autoload 'powerline-evil  "powerline-evil")
+(require 'powerline-evil)
 (powerline-default-theme)
 (powerline-evil-vim-color-theme)
+
+(require 'evil-surround)
+(global-evil-surround-mode 1)
+
+(evilnc-default-hotkeys)
 
 ;; autocomplete default options
 (ac-config-default)
 
 ;; Relative line package
-(autoload 'nlinum-relative "nlinum")
+(require 'nlinum-relative)
 (nlinum-relative-setup-evil)
 (add-hook 'prog-mode-hook 'nlinum-relative-mode)
 (setq nlinum-relative-redisplay-delay 0)
@@ -104,5 +106,4 @@
 
 ;;Theme
 (load-theme 'material t)
-
 ;;; init.el ends here
