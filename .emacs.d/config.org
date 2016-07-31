@@ -30,14 +30,14 @@ This is the list of all the packages that I want to have installed
 
 This snippet of code installs every package in the package list.
 #+BEGIN_SRC emacs-lisp
-    (dolist (package package-list)
+(dolist (package package-list)
+(unless (package-installed-p package)
+    (package-install package)))
+;; Linux only things
+(unless (eq system-type 'windows-nt)
+(dolist (package linux-only-packages)
     (unless (package-installed-p package)
-        (package-install package)))
-    ;; Linux only things
-    (unless (eq system-type 'windows-nt)
-    (dolist (package linux-only-packages)
-        (unless (package-installed-p package)
-        package-install package))
+    package-install package)))
     #+END_SRC
 
 * Custom Package Configuration
@@ -77,7 +77,7 @@ This snippet of code installs every package in the package list.
 (add-hook 'after-init-hook #'global-flycheck-mode)
 
 ;; The function is a huge time hog so I threw it on a hook.
-(add-hook 'doc-view-mode #'pdf-tools-install))
+(add-hook 'doc-view-mode #'pdf-tools-install)
 
 ;;Theme
 (load-theme 'material t)
