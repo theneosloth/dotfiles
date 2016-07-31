@@ -1,0 +1,197 @@
+#+TITLE: Emacs Configuration
+#+PROPERTY: header-args :tangle yes
+
+* Package Initialization and Installation
+** Package List
+This is the list of all the packages that I want to have installed
+#+BEGIN_SRC emacs-lisp
+(defvar package-list
+    '(evil
+        powerline-evil
+        evil-surround
+        evil-nerd-commenter
+        ivy
+        nlinum-relative
+        slime
+        auto-complete
+        material-theme
+        flycheck
+        elpy
+        rainbow-delimiters
+
+        ;;Org mode stuff
+        htmlize
+        org-bullets
+        ))
+(defvar linux-only-packages
+'(pdf-tools))
+
+#+END_SRC
+
+This snippet of code installs every package in the package list.
+#+BEGIN_SRC emacs-lisp
+    (dolist (package package-list)
+    (unless (package-installed-p package)
+        (package-install package)))
+    ;; Linux only things
+    (unless (eq system-type 'windows-nt)
+    (dolist (package linux-only-packages)
+        (unless (package-installed-p package)
+        package-install package))
+    #+END_SRC
+
+* Custom Package Configuration
+** Ivy
+#+BEGIN_SRC emacs-lisp
+(require 'ivy)
+(ivy-mode 1)
+(setq projectile-completion-system 'ivy)
+#+END_SRC
+** Evil
+#+BEGIN_SRC emacs-lisp
+(require 'evil)
+(evil-mode 1)
+(require 'powerline-evil)
+(powerline-default-theme)
+(powerline-evil-vim-color-theme)
+
+(require 'evil-surround)
+(global-evil-surround-mode 1)
+
+(evilnc-default-hotkeys)
+
+#+END_SRC
+** Relative Line Number
+#+BEGIN_SRC emacs-lisp
+;; Relative line package
+(require 'nlinum-relative)
+(nlinum-relative-setup-evil)
+(add-hook 'prog-mode-hook 'nlinum-relative-mode)
+(setq nlinum-relative-redisplay-delay 0)
+(setq nlinum-relative-current-symbol "")
+(setq nlinum-relative-offset 0)
+#+END_SRC
+** Misc
+#+BEGIN_SRC emacs-lisp
+;;flycheck
+(add-hook 'after-init-hook #'global-flycheck-mode)
+
+;; The function is a huge time hog so I threw it on a hook.
+(add-hook 'doc-view-mode #'pdf-tools-install))
+
+;;Theme
+(load-theme 'material t)
+#+END_SRC
+
+* Better Defaults
+#+BEGIN_SRC emacs-lisp
+;; Switch between buffers with S-arrow
+(windmove-default-keybindings)
+;; Delete all the trailing whitespaces every time I save
+(push 'delete-trailing-whitespace before-save-hook)
+;;Show current buffer name
+(setq frame-title-format "emacs - %b")
+;;Hide the toolbar
+(tool-bar-mode -1)
+;; Always treat tabs as spaces
+(setq-default indent-tabs-mode nil)
+
+;; Makes double pressing tab act as M-Tab (completions)
+(setq tab-always-indent 'complete)
+
+;;Truncate lines instead of word wrapping them
+(setq-default truncate-lines t)
+;; Use y or no instead of yes or no
+(defalias 'yes-or-no-p 'y-or-n-p)
+
+;; Move the auto saved and backed up files into the OS temp directory
+(setq backup-directory-alist
+      `((".*" . ,temporary-file-directory)))
+
+(setq auto-save-file-name-transforms
+      `((".*" , temporary-file-directory t)))
+#+END_SRC
+** Startup Message and Screen
+#+BEGIN_SRC emacs-lisp
+;;Disable splash screen
+(setq inhibit-splash-screen t
+      inhibit-startup-echo-area-message t
+      inhibit-startup-message t)
+
+(defun display-startup-echo-area-message()
+  (message "Welcome."))
+#+END_SRC
+
+* ERC
+#+BEGIN_SRC emacs-lisp
+(require 'erc)
+(setq erc-prompt-for-password nil)
+
+;; Switch current buffere whenever you are mentioned
+(setq erc-auto-query 'buffer)
+(setq erc-nick "neosloth")
+
+(setq erc-fill-function 'erc-fill-static)
+(setq erc-fill-static-center 22)
+
+(setq erc-autojoin-channels-alist
+      '(("freenode.net" "#emacs")))
+
+#+END_SRC
+
+* Org Mode
+#+BEGIN_SRC emacs-lisp
+(add-hook 'org-mode-hook (lambda()
+                           (global-whitespace-mode 0)
+                           (flyspell-mode 1)
+                           (org-toggle-pretty-entities)
+                           (org-bullets-mode 1)
+                           ))
+
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((python . t)
+   (java . t)
+   (C . t)
+   ))
+
+ (setq org-src-preserve-indentation nil
+       org-edit-src-content-indentation 0
+       org-src-fontify-natively t
+       org-src-tab-acts-natively t
+       org-confirm-babel-evaluate nil
+       )
+
+#+END_SRC
+
+* Programming Mode
+** Language Independent Settings
+#+BEGIN_SRC emacs-lisp
+(add-hook 'prog-mode-hook (lambda()
+                            (electric-pair-mode)
+                            (rainbow-delimiters-mode)
+                            (whitespace-mode)
+                            (show-paren-mode)
+                            ;;For some reason prettify lags on windows
+                            (unless (eq system-type 'windows-nt)
+                              (prettify-symbols-mode))
+                            ))
+
+#+END_SRC
+** C-Mode
+#+BEGIN_SRC emacs-lisp
+;;Indent c++ code with 4 spaces
+(defun indent-c-mode-hook ()
+  (setq c-basic-offset 4
+        c-indent-level 4
+        c-default-style "linux"))
+
+(add-hook 'c-mode-common-hook 'indent-c-mode-hook)
+#+END_SRC
+** Python Mode
+#+BEGIN_SRC emacs-lisp
+(add-hook 'python-mode-hook (lambda()
+                              (elpy-mode)
+                              (setq elpy-rpc-backend "jedi")
+                              ))
+#+END_SRC
