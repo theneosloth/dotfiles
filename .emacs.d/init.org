@@ -181,24 +181,27 @@ Disable Evil in some buffers
 #+END_SRC
 * ERC
 #+BEGIN_SRC emacs-lisp
-  (require 'erc)
-  (setq erc-prompt-for-password nil)
+(require 'erc)
+(add-hook 'erc-mode-hook (lambda()
+          (erc-hl-nicks-mode 1)
+          ))
+(setq erc-prompt-for-password nil)
 
-  (erc-spelling-mode 1)
+(erc-spelling-mode 1)
 
-  ;; Switch current buffere whenever you are mentioned
-  (setq erc-auto-query 'buffer)
-  (setq erc-nick "neosloth")
+;; Switch current buffere whenever you are mentioned
+(setq erc-auto-query 'buffer)
+(setq erc-nick "neosloth")
 
-  (setq erc-fill-function 'erc-fill-static)
-  (setq erc-fill-static-center 22)
+(setq erc-fill-prefix "      ")
+(setq erc-timestamp-format "[%H:%M] ")
 
-  (setq erc-autojoin-channels-alist
-        '(("freenode.net" "#emacs" "#lainchan")
-          ("irc.choopa.net" "#mtg" "#mtgrules")
-          ("irc.gamesurge.net" "#mtg-reddit")
-          ("irc.globalgamers.net" "#mtgsalvation")
-          ("irc.rizon.net" "#/csg/" "#/g/punk")))
+(setq erc-autojoin-channels-alist
+      '(("freenode.net" "#emacs")
+        ("irc.choopa.net" "#mtg" "#mtgrules")
+        ("irc.gamesurge.net" "#mtg-reddit")
+        ("irc.globalgamers.net" "#mtgsalvation")
+        ))
 
 #+END_SRC
 * Programming Mode
