@@ -176,7 +176,10 @@ This snippet of code installs every package in the package list.
 (setq erc-fill-static-center 22)
 
 (setq erc-autojoin-channels-alist
-      '(("freenode.net" "#emacs")))
+      '(("freenode.net" "#emacs" "#lainchan")
+        ("irc.choopa.net" "#mtg" "#mtgrules")
+        ("irc.gamesurge.net" "#mtg-reddit")
+        ("irc.globalgamers.net" "#mtgsalvation")))
 
 #+END_SRC
 
