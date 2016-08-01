@@ -1,4 +1,4 @@
-#+TITLE: Emacs Configuration
+:#+TITLE: Emacs Configuration
 #+PROPERTY: header-args :tangle yes
 * Package Initialization and Installation
 ** Automatic tangling and Byte Compliation
@@ -48,9 +48,9 @@ This is the list of all the packages that I want to have installed
       ;; elpy
       rainbow-delimiters
       magit
+      erc-hl-nicks
 
       ;;Org mode stuff
-      evil-org
       htmlize
       org-bullets
       ))
@@ -118,7 +118,7 @@ This snippet of code installs every package in the package list.
   (message "Welcome."))
 #+END_SRC
 
-* Custom Package Configuration
+* Custom Packages
 ** Ivy
 #+BEGIN_SRC emacs-lisp
 (require 'ivy)
@@ -139,6 +139,13 @@ This snippet of code installs every package in the package list.
 ;;Evil nerd commenter setup
 (evilnc-default-hotkeys)
 #+END_SRC
+
+Disable Evil in some buffers
+#+BEGIN_SRC emacs-lisp
+(evil-set-initial-state 'dired-mode 'emacs)
+(evil-set-initial-state 'erc-mode 'emacs)
+#+END_SRC
+
 ** Relative Line Number
 #+BEGIN_SRC emacs-lisp
 ;; Relative line package
@@ -149,39 +156,6 @@ This snippet of code installs every package in the package list.
 (setq nlinum-relative-current-symbol "")
 (setq nlinum-relative-offset 0)
 #+END_SRC
-** Misc
-#+BEGIN_SRC emacs-lisp
-(ac-config-default)
-;;flycheck
-(add-hook 'after-init-hook #'global-flycheck-mode)
-
-;; The function is a huge time hog so I threw it on a hook.
-(unless (string-equal system-type "windows-nt")
-  (add-hook 'doc-view-mode #'pdf-tools-install))
-
-;;Theme
-(load-theme 'material t)
-#+END_SRC
-
-* ERC
-#+BEGIN_SRC emacs-lisp
-(require 'erc)
-(setq erc-prompt-for-password nil)
-
-;; Switch current buffere whenever you are mentioned
-(setq erc-auto-query 'buffer)
-(setq erc-nick "neosloth")
-
-(setq erc-fill-function 'erc-fill-static)
-(setq erc-fill-static-center 22)
-
-(setq erc-autojoin-channels-alist
-      '(("freenode.net" "#emacs" "#lainchan")
-        ("irc.choopa.net" "#mtg" "#mtgrules")
-        ("irc.gamesurge.net" "#mtg-reddit")
-        ("irc.globalgamers.net" "#mtgsalvation")))
-
-#+END_SRC
 
 * Org Mode
 #+BEGIN_SRC emacs-lisp
@@ -190,7 +164,6 @@ This snippet of code installs every package in the package list.
                            (flyspell-mode 1)
                            (org-toggle-pretty-entities)
                            (org-bullets-mode 1)
-                           (require 'evil-org)
                            ))
 
 (org-babel-do-load-languages
@@ -200,15 +173,34 @@ This snippet of code installs every package in the package list.
    (C . t)
    ))
 
- (setq org-src-preserve-indentation nil
-       org-edit-src-content-indentation 0
-       org-src-fontify-natively t
-       org-src-tab-acts-natively t
-       org-confirm-babel-evaluate nil
-       )
+(setq org-src-preserve-indentation nil
+      org-edit-src-content-indentation 0
+      org-src-fontify-natively t
+      org-src-tab-acts-natively t
+      org-confirm-babel-evaluate nil)
+#+END_SRC
+* ERC
+#+BEGIN_SRC emacs-lisp
+  (require 'erc)
+  (setq erc-prompt-for-password nil)
+
+  (erc-spelling-mode 1)
+
+  ;; Switch current buffere whenever you are mentioned
+  (setq erc-auto-query 'buffer)
+  (setq erc-nick "neosloth")
+
+  (setq erc-fill-function 'erc-fill-static)
+  (setq erc-fill-static-center 22)
+
+  (setq erc-autojoin-channels-alist
+        '(("freenode.net" "#emacs" "#lainchan")
+          ("irc.choopa.net" "#mtg" "#mtgrules")
+          ("irc.gamesurge.net" "#mtg-reddit")
+          ("irc.globalgamers.net" "#mtgsalvation")
+          ("irc.rizon.net" "#/csg/" "#/g/punk")))
 
 #+END_SRC
-
 * Programming Mode
 ** Language Independent Settings
 #+BEGIN_SRC emacs-lisp
@@ -239,4 +231,17 @@ This snippet of code installs every package in the package list.
 ;;                               (elpy-mode)
 ;;                               (setq elpy-rpc-backend "jedi")
 ;;                               ))
+#+END_SRC
+* Misc
+#+BEGIN_SRC emacs-lisp
+(ac-config-default)
+;;flycheck
+(add-hook 'after-init-hook #'global-flycheck-mode)
+
+;; The function is a huge time hog so I threw it on a hook.
+(unless (string-equal system-type "windows-nt")
+  (add-hook 'doc-view-mode #'pdf-tools-install))
+
+;;Theme
+(load-theme 'material t)
 #+END_SRC
