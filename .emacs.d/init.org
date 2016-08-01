@@ -1,6 +1,5 @@
 #+TITLE: Emacs Configuration
 #+PROPERTY: header-args :tangle yes
-
 * Package Initialization and Installation
 ** Automatic tangling and Byte Compliation
 Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
@@ -37,24 +36,26 @@ This is the list of all the packages that I want to have installed
 #+BEGIN_SRC emacs-lisp
 (defvar package-list
     '(evil
-        powerline-evil
-        evil-surround
-        evil-nerd-commenter
-        ivy
-        nlinum-relative
-        slime
-        auto-complete
-        material-theme
-        flycheck
-        elpy
-        rainbow-delimiters
+      powerline-evil
+      evil-surround
+      evil-nerd-commenter
+      ivy
+      nlinum-relative
+      slime
+      auto-complete
+      material-theme
+      flycheck
+      ;; elpy
+      rainbow-delimiters
+      magit
 
-        ;;Org mode stuff
-        htmlize
-        org-bullets
-        ))
+      ;;Org mode stuff
+      evil-org
+      htmlize
+      org-bullets
+      ))
 (defvar linux-only-packages
-'(pdf-tools))
+  '(pdf-tools))
 
 #+END_SRC
 
@@ -64,12 +65,13 @@ This snippet of code installs every package in the package list.
 (unless (package-installed-p package)
   (package-install package)
   (setq frame-title-format "Installing Packages. Please Wait...")))
-;; Linux only things
-(unless (eq system-type 'windows-nt)
-(dolist (package linux-only-packages)
+
+;;Only install pdftools on non windows machines
+(unless (string-equal system-type "windows-nt")
+  (dolist (package linux-only-packages)
     (unless (package-installed-p package)
-    package-install package)))
-    #+END_SRC
+      (package-install package))))
+#+END_SRC
 * Better Defaults
 ** Random Quality of Life Things
 #+BEGIN_SRC emacs-lisp
@@ -92,6 +94,7 @@ This snippet of code installs every package in the package list.
 ;; Use y or no instead of yes or no
 (defalias 'yes-or-no-p 'y-or-n-p)
 
+;; Disable the visual bell and the audio bell
 (setq visible-bell nil)
 (setq ring-bell-function 'ignore)
 #+END_SRC
@@ -133,8 +136,8 @@ This snippet of code installs every package in the package list.
 (require 'evil-surround)
 (global-evil-surround-mode 1)
 
+;;Evil nerd commenter setup
 (evilnc-default-hotkeys)
-
 #+END_SRC
 ** Relative Line Number
 #+BEGIN_SRC emacs-lisp
@@ -153,7 +156,8 @@ This snippet of code installs every package in the package list.
 (add-hook 'after-init-hook #'global-flycheck-mode)
 
 ;; The function is a huge time hog so I threw it on a hook.
-(add-hook 'doc-view-mode #'pdf-tools-install)
+(unless (string-equal system-type "windows-nt")
+  (add-hook 'doc-view-mode #'pdf-tools-install))
 
 ;;Theme
 (load-theme 'material t)
@@ -183,6 +187,7 @@ This snippet of code installs every package in the package list.
                            (flyspell-mode 1)
                            (org-toggle-pretty-entities)
                            (org-bullets-mode 1)
+                           (require 'evil-org)
                            ))
 
 (org-babel-do-load-languages
@@ -227,8 +232,8 @@ This snippet of code installs every package in the package list.
 #+END_SRC
 ** Python Mode
 #+BEGIN_SRC emacs-lisp
-(add-hook 'python-mode-hook (lambda()
-                              (elpy-mode)
-                              (setq elpy-rpc-backend "jedi")
-                              ))
+;; (add-hook 'python-mode-hook (lambda()
+;;                               (elpy-mode)
+;;                               (setq elpy-rpc-backend "jedi")
+;;                               ))
 #+END_SRC
