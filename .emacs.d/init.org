@@ -178,6 +178,13 @@ Disable Evil in some buffers
       org-src-fontify-natively t
       org-src-tab-acts-natively t
       org-confirm-babel-evaluate nil)
+
+;; Store the default location for the user notes
+(setq org-notes-location "~/Sync/Notes/")
+(setq org-todo-location (expand-file-name
+                         (concat org-notes-location "TODO.org")))
+
+(setq org-agenda-files (list org-todo-location))
 #+END_SRC
 * ERC
 #+BEGIN_SRC emacs-lisp
@@ -189,7 +196,7 @@ Disable Evil in some buffers
 
 (erc-spelling-mode 1)
 
-;; Switch current buffere whenever you are mentioned
+;; Switch current buffer whenever you are mentioned
 (setq erc-auto-query 'buffer)
 (setq erc-nick "neosloth")
 
@@ -237,6 +244,7 @@ Disable Evil in some buffers
 #+END_SRC
 * Misc
 #+BEGIN_SRC emacs-lisp
+;; Launch auto-complete with default settings
 (ac-config-default)
 ;;flycheck
 (add-hook 'after-init-hook #'global-flycheck-mode)
@@ -247,4 +255,8 @@ Disable Evil in some buffers
 
 ;;Theme
 (load-theme 'material t)
+
+;;Open TODO whenever user opens emacs.
+;; This is done last to ensure that the entire config file is loaded
+(find-file org-todo-location)
 #+END_SRC
