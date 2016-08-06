@@ -31,6 +31,10 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
 
 (add-hook 'after-init-hook (lambda () (setq gc-cons-threshold (* 5 1024 1024))))
 #+END_SRC
+** OS Detection
+#+BEGIN_SRC emacs-lisp
+(setq is-windows (eq system-type 'windows-nt))
+#+END_SRC
 ** Package List
 This is the list of all the packages that I want to have installed
 #+BEGIN_SRC emacs-lisp
@@ -67,7 +71,7 @@ This snippet of code installs every package in the package list.
   (setq frame-title-format "Installing Packages. Please Wait...")))
 
 ;;Only install pdftools on non windows machines
-(unless (string-equal system-type "windows-nt")
+(unless is-windows
   (dolist (package linux-only-packages)
     (unless (package-installed-p package)
       (package-install package))))
@@ -188,10 +192,11 @@ Disable Evil in some buffers
 #+END_SRC
 * ERC
 #+BEGIN_SRC emacs-lisp
-(require 'erc)
+(autoload 'erc "erc" "" t)
 (add-hook 'erc-mode-hook (lambda()
-          (erc-hl-nicks-mode 1)
-          ))
+                           (unless is-windows
+                             (erc-hl-nicks-mode 1))
+                           ))
 (setq erc-prompt-for-password nil)
 
 (erc-spelling-mode 1)
@@ -204,12 +209,21 @@ Disable Evil in some buffers
 (setq erc-timestamp-format "[%H:%M] ")
 
 (setq erc-autojoin-channels-alist
-      '(("freenode.net" "#emacs")
+      '((".*freenode.net" "#emacs")
+        ;;EFnet
         ("irc.choopa.net" "#mtg" "#mtgrules")
-        ("irc.gamesurge.net" "#mtg-reddit")
-        ("irc.globalgamers.net" "#mtgsalvation")
+        ("portlane.se.quakenet.org" "#unrealvidya")
         ))
-
+(defun irc-connect ()
+  "Connect to IRC."
+  (interactive)
+  (when (y-or-n-p "IRC? ")
+  (erc :server "irc.freenode.net" :port 6667
+       :nick "neosloth")
+  (erc :server "irc.choopa.net" :port 6667
+       :nick "neosloth")
+  (erc :server "portlane.se.quakenet.org" :port 6667)
+  ))
 #+END_SRC
 * Programming Mode
 ** Language Independent Settings
@@ -220,7 +234,7 @@ Disable Evil in some buffers
                             (whitespace-mode)
                             (show-paren-mode)
                             ;;For some reason prettify lags on windows
-                            (unless (eq system-type 'windows-nt)
+                            (unless is-windows
                               (prettify-symbols-mode))
                             ))
 
@@ -258,5 +272,5 @@ Disable Evil in some buffers
 
 ;;Open TODO whenever user opens emacs.
 ;; This is done last to ensure that the entire config file is loaded
-(find-file org-todo-location)
+;;(find-file org-todo-location)
 #+END_SRC
