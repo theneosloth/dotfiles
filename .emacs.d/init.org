@@ -49,7 +49,7 @@ This is the list of all the packages that I want to have installed
       auto-complete
       material-theme
       flycheck
-      ;; elpy
+      elpy
       rainbow-delimiters
       magit
       erc-hl-nicks
@@ -251,10 +251,8 @@ Disable Evil in some buffers
 #+END_SRC
 ** Python Mode
 #+BEGIN_SRC emacs-lisp
-;; (add-hook 'python-mode-hook (lambda()
-;;                               (elpy-mode)
-;;                               (setq elpy-rpc-backend "jedi")
-;;                               ))
+(elpy-enable)
+(setq elpy-rpc-backend "jedi")
 #+END_SRC
 * Misc
 #+BEGIN_SRC emacs-lisp
