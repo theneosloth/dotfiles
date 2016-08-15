@@ -5,6 +5,7 @@
 Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
 #+BEGIN_SRC emacs-lisp
 (defun tangle-init ()
+  (interactive)
   (when (equal (buffer-file-name)
                (expand-file-name (concat user-emacs-directory "init.org")))
     (let ((prog-mode-hook nil))
@@ -196,6 +197,7 @@ Disable Evil in some buffers
 (add-hook 'erc-mode-hook (lambda()
                            (unless is-windows
                              (erc-hl-nicks-mode 1))
+                           (toggle-truncate-lines)
                            ))
 (setq erc-prompt-for-password nil)
 
@@ -210,8 +212,6 @@ Disable Evil in some buffers
 
 (setq erc-autojoin-channels-alist
       '((".*freenode.net" "#emacs")
-        ;;EFnet
-        ("irc.choopa.net" "#mtg" "#mtgrules")
         ("portlane.se.quakenet.org" "#unrealvidya")
         ))
 (defun irc-connect ()
@@ -219,8 +219,6 @@ Disable Evil in some buffers
   (interactive)
   (when (y-or-n-p "IRC? ")
   (erc :server "irc.freenode.net" :port 6667
-       :nick "neosloth")
-  (erc :server "irc.choopa.net" :port 6667
        :nick "neosloth")
   (erc :server "portlane.se.quakenet.org" :port 6667)
   ))
@@ -233,6 +231,7 @@ Disable Evil in some buffers
                             (rainbow-delimiters-mode)
                             (whitespace-mode)
                             (show-paren-mode)
+                            (yas-minor-mode)
                             ;;For some reason prettify lags on windows
                             (unless is-windows
                               (prettify-symbols-mode))
@@ -251,7 +250,8 @@ Disable Evil in some buffers
 #+END_SRC
 ** Python Mode
 #+BEGIN_SRC emacs-lisp
-(elpy-enable)
+(add-hook 'python-mode-hook (lambda()
+                              (elpy-enable)))
 (setq elpy-rpc-backend "jedi")
 #+END_SRC
 * Misc
@@ -262,7 +262,7 @@ Disable Evil in some buffers
 (add-hook 'after-init-hook #'global-flycheck-mode)
 
 ;; The function is a huge time hog so I threw it on a hook.
-(unless (string-equal system-type "windows-nt")
+(unless 'is-windows
   (add-hook 'doc-view-mode #'pdf-tools-install))
 
 ;;Theme
