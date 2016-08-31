@@ -9,8 +9,9 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
   (when (equal (buffer-file-name)
                (expand-file-name (concat user-emacs-directory "init.org")))
     (let ((prog-mode-hook nil))
-      (org-babel-tangle)
-      (byte-compile-file (concat user-emacs-directory "init.el")))))
+      (org-babel-tangle))))
+      ;;(byte-compile-file (concat user-emacs-directory "init.el")))))
+
 
 (add-hook 'after-save-hook 'tangle-init)
 #+END_SRC
@@ -40,42 +41,23 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
 This is the list of all the packages that I want to have installed
 #+BEGIN_SRC emacs-lisp
 (defvar package-list
-    '(evil
-      powerline-evil
-      evil-surround
-      evil-nerd-commenter
-      ivy
-      nlinum-relative
+    '(
       slime
       auto-complete
-      material-theme
-      flycheck
-      elpy
-      rainbow-delimiters
-      magit
-      erc-hl-nicks
-
       ;;Org mode stuff
       htmlize
       org-bullets
       ))
 (defvar linux-only-packages
   '(pdf-tools))
-
 #+END_SRC
 
 This snippet of code installs every package in the package list.
 #+BEGIN_SRC emacs-lisp
-(dolist (package package-list)
-(unless (package-installed-p package)
-  (package-install package)
-  (setq frame-title-format "Installing Packages. Please Wait...")))
-
-;;Only install pdftools on non windows machines
-(unless is-windows
-  (dolist (package linux-only-packages)
-    (unless (package-installed-p package)
-      (package-install package))))
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+(setq use-package-always-ensure t)
 #+END_SRC
 * Better Defaults
 ** Random Quality of Life Things
@@ -126,116 +108,148 @@ This snippet of code installs every package in the package list.
 * Custom Packages
 ** Ivy
 #+BEGIN_SRC emacs-lisp
-(require 'ivy)
-(ivy-mode 1)
-(setq projectile-completion-system 'ivy)
+(use-package ivy
+  :init
+  (setq projectile-completion-system 'ivy)
+  :config
+  (ivy-mode 1))
 #+END_SRC
 ** Evil
 #+BEGIN_SRC emacs-lisp
-(require 'evil)
-(evil-mode 1)
-(require 'powerline-evil)
-(powerline-default-theme)
-(powerline-evil-vim-color-theme)
-
-(require 'evil-surround)
-(global-evil-surround-mode 1)
-
-;;Evil nerd commenter setup
-(evilnc-default-hotkeys)
-#+END_SRC
-
-Disable Evil in some buffers
-#+BEGIN_SRC emacs-lisp
-(evil-set-initial-state 'dired-mode 'emacs)
-(evil-set-initial-state 'erc-mode 'emacs)
+(use-package evil
+  :config
+  (progn
+    (evil-mode 1)
+    ;;Disable evil in these modes
+    (evil-set-initial-state 'dired-mode 'emacs)
+    (evil-set-initial-state 'erc-mode 'emacs)
+    (use-package powerline-evil
+      :config
+      (progn
+        (powerline-default-theme)
+        (powerline-evil-vim-color-theme)))
+    (use-package evil-surround
+      :config
+      (evil-surround-mode 1))
+    (use-package evil-nerd-commenter
+      :config
+      (evilnc-default-hotkeys))))
 #+END_SRC
 
 ** Relative Line Number
 #+BEGIN_SRC emacs-lisp
 ;; Relative line package
-(require 'nlinum-relative)
-(nlinum-relative-setup-evil)
-(add-hook 'prog-mode-hook 'nlinum-relative-mode)
-(setq nlinum-relative-redisplay-delay 0)
-(setq nlinum-relative-current-symbol "")
-(setq nlinum-relative-offset 0)
+(use-package nlinum-relative
+  :init
+  (progn
+    (setq nlinum-relative-redisplay-delay 0)
+    (setq nlinum-relative-current-symbol "")
+    (setq nlinum-relative-offset 0))
+  :config
+  (progn
+    (nlinum-relative-setup-evil)
+    (add-hook 'prog-mode-hook 'nlinum-relative-mode)))
 #+END_SRC
 
+** Magit
+#+BEGIN_SRC emacs-lisp
+(use-package magit
+  :defer t)
+#+END_SRC
+** Slime
+#+BEGIN_SRC emacs-lisp
+(use-package slime
+  :defer t)
+#+END_SRC
 * Org Mode
 #+BEGIN_SRC emacs-lisp
-(add-hook 'org-mode-hook (lambda()
-                           (global-whitespace-mode 0)
-                           (flyspell-mode 1)
-                           (org-toggle-pretty-entities)
-                           (org-bullets-mode 1)
-                           ))
+(use-package org
+  :defer t
+  :init
+  (setq org-src-preserve-indentation nil
+        org-edit-src-content-indentation 0
+        org-src-fontify-natively t
+        org-src-tab-acts-natively t
+        org-confirm-babel-evaluate nil
+        org-notes-location "~/Sync/Notes/"
+        org-todo-location (expand-file-name
+                           (concat org-notes-location "TODO.org"))
+        org-agenda-files (list org-todo-location))
+  :config
+  (progn
+    (use-package org-bullets)
+    (use-package htmlize)
+    (add-hook 'org-mode-hook (lambda()
+                               (global-whitespace-mode 0)
+                               (flyspell-mode 1)
+                               (org-toggle-pretty-entities)
+                               (org-bullets-mode 1)
+                               ))
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((python . t)
+       (java . t)
+       (C . t)
+       ))))
 
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((python . t)
-   (java . t)
-   (C . t)
-   ))
-
-(setq org-src-preserve-indentation nil
-      org-edit-src-content-indentation 0
-      org-src-fontify-natively t
-      org-src-tab-acts-natively t
-      org-confirm-babel-evaluate nil)
-
-;; Store the default location for the user notes
-(setq org-notes-location "~/Sync/Notes/")
-(setq org-todo-location (expand-file-name
-                         (concat org-notes-location "TODO.org")))
-
-(setq org-agenda-files (list org-todo-location))
 #+END_SRC
 * ERC
 #+BEGIN_SRC emacs-lisp
-(autoload 'erc "erc" "" t)
-(add-hook 'erc-mode-hook (lambda()
-                           (unless is-windows
-                             (erc-hl-nicks-mode 1))
-                           (toggle-truncate-lines)
-                           ))
-(setq erc-prompt-for-password nil)
+(use-package erc
+  :defer t
+  :init
+  (progn
+    (use-package erc-hl-nicks)
+    (setq erc-prompt-for-password nil)
+    ;; Switch current buffer whenever you are mentioned
+    (setq erc-auto-query 'buffer)
+    (setq erc-nick "neosloth")
+    (setq erc-kill-buffer-on-part t)
+    (setq erc-fill-prefix "      ")
+    (setq erc-timestamp-format "[%H:%M] ")
+    (setq erc-autojoin-channels-alist
+          '((".*freenode.net" "#emacs")
+            ("portlane.se.quakenet.org" "#unrealvidya")
+            ))
 
-(erc-spelling-mode 1)
+    (defun irc-connect ()
+      "Connect to IRC."
+      (interactive)
+      (when (y-or-n-p "IRC? ")
+        (erc :server "irc.freenode.net" :port 6667
+             :nick "neosloth")
+        (erc :server "portlane.se.quakenet.org" :port 6667)
+        )))
+  :config
+  (progn
+    (add-hook 'erc-mode-hook (lambda()
+                               (unless is-windows
+                                 (erc-hl-nicks-mode 1))
+                               (toggle-truncate-lines)
+                               ))
+    (erc-spelling-mode 1)))
 
-;; Switch current buffer whenever you are mentioned
-(setq erc-auto-query 'buffer)
-(setq erc-nick "neosloth")
-
-(setq erc-fill-prefix "      ")
-(setq erc-timestamp-format "[%H:%M] ")
-
-(setq erc-autojoin-channels-alist
-      '((".*freenode.net" "#emacs")
-        ("portlane.se.quakenet.org" "#unrealvidya")
-        ))
-(defun irc-connect ()
-  "Connect to IRC."
-  (interactive)
-  (when (y-or-n-p "IRC? ")
-  (erc :server "irc.freenode.net" :port 6667
-       :nick "neosloth")
-  (erc :server "portlane.se.quakenet.org" :port 6667)
-  ))
 #+END_SRC
 * Programming Mode
 ** Language Independent Settings
 #+BEGIN_SRC emacs-lisp
-(add-hook 'prog-mode-hook (lambda()
-                            (electric-pair-mode)
-                            (rainbow-delimiters-mode)
-                            (whitespace-mode)
-                            (show-paren-mode)
-                            (yas-minor-mode)
-                            ;;For some reason prettify lags on windows
-                            (unless is-windows
-                              (prettify-symbols-mode))
-                            ))
+(use-package electric
+  :commands electric-pair-mode
+  :config
+  (add-hook 'prog-mode-hook 'electric-pair-mode))
+
+(use-package yasnippet
+  :commands (yas-minor-mode)
+  :init
+  (add-hook 'prog-mode-hook 'yas-minor-mode))
+
+(use-package whitespace
+  :config
+  (add-hook 'prog-mode-hook 'whitespace-mode))
+
+(use-package rainbow-delimiters
+  :config
+  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
 
 #+END_SRC
 ** C-Mode
@@ -245,29 +259,44 @@ Disable Evil in some buffers
   (setq c-basic-offset 4
         c-indent-level 4
         c-default-style "linux"))
-
 (add-hook 'c-mode-common-hook 'indent-c-mode-hook)
 #+END_SRC
 ** Python Mode
 #+BEGIN_SRC emacs-lisp
-(add-hook 'python-mode-hook (lambda()
-                              (elpy-enable)))
-(setq elpy-rpc-backend "jedi")
+(use-package elpy
+  :defer t
+  :init
+  (progn
+    (setq elpy-rpc-backend "jedi")
+    (with-eval-after-load 'python (elpy-enable))))
+#+END_SRC
+** HTML
+#+BEGIN_SRC emacs-lisp
+(use-package web-mode
+  :mode (("\\.html$" . web-mode)))
+
+(use-package impatient-mode
+  :defer t
+  :commands impatient-mode)
 #+END_SRC
 * Misc
 #+BEGIN_SRC emacs-lisp
-;; Launch auto-complete with default settings
-(ac-config-default)
-;;flycheck
-(add-hook 'after-init-hook #'global-flycheck-mode)
+(use-package auto-complete
+  :config
+  ;; Launch auto-complete with default settings
+  (ac-config-default))
 
-;; The function is a huge time hog so I threw it on a hook.
-(unless 'is-windows
-  (add-hook 'doc-view-mode #'pdf-tools-install))
+(use-package flycheck
+  :config
+  (add-hook 'after-init-hook 'global-flycheck-mode))
 
-;;Theme
-(load-theme 'material t)
-
+(use-package pdf-tools
+  :defer t
+  :config
+  (add-hook 'doc-view-mode 'pdf-tools-install))
+(use-package material-theme
+  :init
+  (load-theme 'material t))
 ;;Open TODO whenever user opens emacs.
 ;; This is done last to ensure that the entire config file is loaded
 ;;(find-file org-todo-location)
