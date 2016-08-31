@@ -37,22 +37,7 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
 #+BEGIN_SRC emacs-lisp
 (setq is-windows (eq system-type 'windows-nt))
 #+END_SRC
-** Package List
-This is the list of all the packages that I want to have installed
-#+BEGIN_SRC emacs-lisp
-(defvar package-list
-    '(
-      slime
-      auto-complete
-      ;;Org mode stuff
-      htmlize
-      org-bullets
-      ))
-(defvar linux-only-packages
-  '(pdf-tools))
-#+END_SRC
-
-This snippet of code installs every package in the package list.
+** Install use-package
 #+BEGIN_SRC emacs-lisp
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
@@ -276,7 +261,6 @@ This snippet of code installs every package in the package list.
   :mode (("\\.html$" . web-mode)))
 
 (use-package impatient-mode
-  :defer t
   :commands impatient-mode)
 #+END_SRC
 * Misc
