@@ -10,6 +10,7 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
                (expand-file-name (concat user-emacs-directory "init.org")))
     (let ((prog-mode-hook nil))
       (org-babel-tangle))))
+      ;;Byte compilation breaks use-package
       ;;(byte-compile-file (concat user-emacs-directory "init.el")))))
 
 
@@ -33,10 +34,6 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
 
 (add-hook 'after-init-hook (lambda () (setq gc-cons-threshold (* 5 1024 1024))))
 #+END_SRC
-** OS Detection
-#+BEGIN_SRC emacs-lisp
-(setq is-windows (eq system-type 'windows-nt))
-#+END_SRC
 ** Install use-package
 #+BEGIN_SRC emacs-lisp
 (unless (package-installed-p 'use-package)
@@ -55,6 +52,7 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
 (setq frame-title-format "emacs - %b")
 ;;Hide the toolbar
 (tool-bar-mode -1)
+
 ;; Always treat tabs as spaces
 (setq-default indent-tabs-mode nil)
 
@@ -63,7 +61,7 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
 
 ;;Truncate lines instead of word wrapping them
 (setq-default truncate-lines t)
-;; Use y or no instead of yes or no
+;; Use y or n instead of yes or no
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 ;; Disable the visual bell and the audio bell
@@ -144,7 +142,7 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
 ** Slime
 #+BEGIN_SRC emacs-lisp
 (use-package slime
-  :defer t)
+  :commands slime)
 #+END_SRC
 * Org Mode
 #+BEGIN_SRC emacs-lisp
@@ -201,15 +199,13 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
       "Connect to IRC."
       (interactive)
       (when (y-or-n-p "IRC? ")
-        (erc :server "irc.freenode.net" :port 6667
-             :nick "neosloth")
+        (erc :server "irc.freenode.net" :port 6667)
         (erc :server "portlane.se.quakenet.org" :port 6667)
         )))
   :config
   (progn
     (add-hook 'erc-mode-hook (lambda()
-                               (unless is-windows
-                                 (erc-hl-nicks-mode 1))
+                               (erc-hl-nicks-mode 1)
                                (toggle-truncate-lines)
                                ))
     (erc-spelling-mode 1)))
@@ -229,13 +225,19 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
   (add-hook 'prog-mode-hook 'yas-minor-mode))
 
 (use-package whitespace
+  :commands whitespace-mode
   :config
   (add-hook 'prog-mode-hook 'whitespace-mode))
 
 (use-package rainbow-delimiters
+  :commands rainbow-delimiters-mode
   :config
   (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
 
+(use-package paren
+  :commands show-paren-mode
+  :config
+  (add-hook 'prog-mode-hook 'show-paren-mode))
 #+END_SRC
 ** C-Mode
 #+BEGIN_SRC emacs-lisp
@@ -249,7 +251,6 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
 ** Python Mode
 #+BEGIN_SRC emacs-lisp
 (use-package elpy
-  :defer t
   :init
   (progn
     (setq elpy-rpc-backend "jedi")
@@ -265,17 +266,17 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
 #+END_SRC
 * Misc
 #+BEGIN_SRC emacs-lisp
-(use-package auto-complete
+(use-package company
   :config
   ;; Launch auto-complete with default settings
-  (ac-config-default))
+  (add-hook 'after-init-hook 'global-company-mode))
 
 (use-package flycheck
   :config
   (add-hook 'after-init-hook 'global-flycheck-mode))
 
 (use-package pdf-tools
-  :defer t
+  :commands pdf-tools-install
   :config
   (add-hook 'doc-view-mode 'pdf-tools-install))
 (use-package material-theme
