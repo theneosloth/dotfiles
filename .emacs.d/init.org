@@ -52,6 +52,9 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
 ;;Hide the toolbar
 (tool-bar-mode -1)
 
+;;Switch list-buffers
+(global-set-key (kbd "C-x C-b") 'ibuffer)
+
 ;; Always treat tabs as spaces
 (setq-default indent-tabs-mode nil)
 
@@ -191,8 +194,6 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
     (setq erc-auto-query 'buffer)
     (setq erc-nick "neosloth")
     (setq erc-kill-buffer-on-part t)
-    (setq erc-fill-prefix "      ")
-    (setq erc-timestamp-format "[%H:%M] ")
     (setq erc-autojoin-channels-alist
           '((".*freenode.net" "#emacs")
             ("portlane.se.quakenet.org" "#unrealvidya")
@@ -207,6 +208,9 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
         )))
   :config
   (progn
+    (add-hook 'window-configuration-change-hook
+              '(lambda()
+                 (setq erc-fill-column (- (window-width) 2))))
     (add-hook 'erc-mode-hook (lambda()
                                (erc-hl-nicks-mode 1)
                                (toggle-truncate-lines)
@@ -241,6 +245,11 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
   :commands show-paren-mode
   :init
   (add-hook 'prog-mode-hook 'show-paren-mode))
+
+(use-package aggressive-indent
+  :commands aggressive-indent-mode
+  :init
+  (add-hook 'prog-mode-hook 'aggressive-indent-mode))
 #+END_SRC
 ** C-Mode
 #+BEGIN_SRC emacs-lisp
