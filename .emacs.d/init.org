@@ -13,7 +13,6 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
       ;;Byte compilation breaks use-package
       ;;(byte-compile-file (concat user-emacs-directory "init.el")))))
 
-
 (add-hook 'after-save-hook 'tangle-init)
 #+END_SRC
 ** Garbage Collection and MELPA
@@ -116,7 +115,10 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
       (evil-surround-mode 1))
     (use-package evil-nerd-commenter
       :config
-      (evilnc-default-hotkeys))))
+      (evilnc-default-hotkeys))
+    (use-package evil-matchit
+      :config
+      (global-evil-matchit-mode 1))))
 #+END_SRC
 
 ** Relative Line Number
@@ -182,7 +184,8 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
   :defer t
   :init
   (progn
-    (use-package erc-hl-nicks)
+    (use-package erc-hl-nicks
+      :commands erc-hl-nicks-mode)
     (setq erc-prompt-for-password nil)
     ;; Switch current buffer whenever you are mentioned
     (setq erc-auto-query 'buffer)
@@ -216,7 +219,7 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
 #+BEGIN_SRC emacs-lisp
 (use-package electric
   :commands electric-pair-mode
-  :config
+  :init
   (add-hook 'prog-mode-hook 'electric-pair-mode))
 
 (use-package yasnippet
@@ -226,17 +229,17 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
 
 (use-package whitespace
   :commands whitespace-mode
-  :config
+  :init
   (add-hook 'prog-mode-hook 'whitespace-mode))
 
 (use-package rainbow-delimiters
   :commands rainbow-delimiters-mode
-  :config
+  :init
   (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
 
 (use-package paren
   :commands show-paren-mode
-  :config
+  :init
   (add-hook 'prog-mode-hook 'show-paren-mode))
 #+END_SRC
 ** C-Mode
@@ -251,6 +254,7 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
 ** Python Mode
 #+BEGIN_SRC emacs-lisp
 (use-package elpy
+  :defer t
   :init
   (progn
     (setq elpy-rpc-backend "jedi")
