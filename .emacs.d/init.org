@@ -9,7 +9,8 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
   (when (equal (buffer-file-name)
                (expand-file-name (concat user-emacs-directory "init.org")))
     (let ((prog-mode-hook nil))
-      (org-babel-tangle))))
+      (org-babel-tangle)
+      (load-file (expand-file-name (concat user-emacs-directory "init.el"))))))
       ;;Byte compilation breaks use-package
       ;;(byte-compile-file (concat user-emacs-directory "init.el")))))
 
@@ -115,7 +116,7 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
         (powerline-evil-vim-color-theme)))
     (use-package evil-surround
       :config
-      (evil-surround-mode 1))
+      (global-evil-surround-mode 1))
     (use-package evil-nerd-commenter
       :config
       (evilnc-default-hotkeys))
@@ -272,7 +273,9 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
 ** HTML
 #+BEGIN_SRC emacs-lisp
 (use-package web-mode
-  :mode (("\\.html$" . web-mode)))
+  :mode (("\\.html$" . web-mode)
+         ("\\.css$" . web-mode)
+         ))
 
 (use-package impatient-mode
   :commands impatient-mode)
