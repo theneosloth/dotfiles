@@ -148,6 +148,7 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
 ** Slime
 #+BEGIN_SRC emacs-lisp
 (use-package slime
+  :disabled t
   :commands slime)
 #+END_SRC
 * Org Mode
@@ -198,14 +199,16 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
     (setq erc-autojoin-channels-alist
           '((".*freenode.net" "#emacs")
             ("portlane.se.quakenet.org" "#unrealvidya")
+            (".*undernet.org" "#bookz")
             ))
-
     (defun irc-connect ()
       "Connect to IRC."
       (interactive)
-      (when (y-or-n-p "IRC? ")
-        (erc :server "irc.freenode.net" :port 6667)
-        )))
+      (setq servers '("irc.freenode.net" "ix1.undernet.org"))
+      (dolist (server servers)
+        (when (y-or-n-p server)
+          (erc :server server :port 6667)))
+      ))
   :config
   (progn
     (add-hook 'window-configuration-change-hook
