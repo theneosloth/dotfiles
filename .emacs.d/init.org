@@ -109,6 +109,7 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
     ;;Disable evil in these modes
     (evil-set-initial-state 'dired-mode 'emacs)
     (evil-set-initial-state 'erc-mode 'emacs)
+    (evil-set-initial-state 'term-mode 'emacs)
     (use-package powerline-evil
       :config
       (progn
