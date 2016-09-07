@@ -205,7 +205,6 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
       (interactive)
       (when (y-or-n-p "IRC? ")
         (erc :server "irc.freenode.net" :port 6667)
-        (erc :server "portlane.se.quakenet.org" :port 6667)
         )))
   :config
   (progn
@@ -292,9 +291,7 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
   (add-hook 'after-init-hook 'global-flycheck-mode))
 
 (use-package pdf-tools
-  :commands pdf-tools-install
-  :config
-  (add-hook 'doc-view-mode 'pdf-tools-install))
+  :mode ("\\.pdf$" . pdf-view-mode))
 (use-package material-theme
   :init
   (load-theme 'material t))
