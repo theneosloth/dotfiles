@@ -70,6 +70,9 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
 ;; Disable the visual bell and the audio bell
 (setq visible-bell nil)
 (setq ring-bell-function 'ignore)
+
+(set-frame-parameter (selected-frame) 'alpha '(85 . 50))
+(add-to-list 'default-frame-alist '(alpha . (85 . 50)))
 #+END_SRC
 ** Auto saves
 #+BEGIN_SRC emacs-lisp
@@ -295,7 +298,9 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
   (add-hook 'after-init-hook 'global-flycheck-mode))
 
 (use-package pdf-tools
-  :mode ("\\.pdf$" . pdf-view-mode))
+  :mode ("\\.pdf$" . pdf-view-mode)
+  :config
+  (pdf-tools-install))
 (use-package material-theme
   :init
   (load-theme 'material t))
