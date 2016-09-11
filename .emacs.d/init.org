@@ -71,8 +71,8 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
 (setq visible-bell nil)
 (setq ring-bell-function 'ignore)
 
-(set-frame-parameter (selected-frame) 'alpha '(85 . 50))
-(add-to-list 'default-frame-alist '(alpha . (85 . 50)))
+(set-frame-parameter (selected-frame) 'alpha '(99 . 50))
+(add-to-list 'default-frame-alist '(alpha . (99 . 50)))
 #+END_SRC
 ** Auto saves
 #+BEGIN_SRC emacs-lisp
@@ -148,6 +148,19 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
 #+BEGIN_SRC emacs-lisp
 (use-package magit
   :defer t)
+#+END_SRC
+** Auctex
+#+BEGIN_SRC emacs-lisp
+(use-package auctex
+  ;;latex-mode is vanilla emacs, LaTeX-mode is auctex.
+  :mode (("\\.tex$" . latex-mode)
+         ("\\.latex$" . latex-mode))
+  :config
+  (progn
+    (add-hook 'latex-mode-hook 'turn-on-auto-fill)
+    (use-package company-auctex
+      :config
+      (company-auctex-init))))
 #+END_SRC
 ** Slime
 #+BEGIN_SRC emacs-lisp
