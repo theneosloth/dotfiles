@@ -187,10 +187,11 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
     (use-package org-bullets)
     (use-package htmlize)
     (add-hook 'org-mode-hook (lambda()
-                               (global-whitespace-mode 0)
                                (flyspell-mode 1)
                                (org-toggle-pretty-entities)
                                (org-bullets-mode 1)
+                               (org-indent-mode 1)
+                               (visual-line-mode 1)
                                ))
     (org-babel-do-load-languages
      'org-babel-load-languages
