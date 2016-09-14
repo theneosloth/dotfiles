@@ -119,7 +119,6 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
           '((nil    . (telephone-line-misc-info-segment))
             (accent . (telephone-line-major-mode-segment))
             (evil   . (telephone-line-airline-position-segment))))
-
     (telephone-line-mode 1)
     ))
 #+END_SRC
@@ -213,6 +212,7 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
      '((python . t)
        (java . t)
        (C . t)
+       (gnuplot . t)
        ))))
 
 #+END_SRC
@@ -296,7 +296,15 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
         c-default-style "linux"))
 (add-hook 'c-mode-common-hook 'indent-c-mode-hook)
 #+END_SRC
+** Clojure
+*** Cider
+#+BEGIN_SRC emacs-lisp
+(use-package cider
+  :defer t)
+
+#+END_SRC
 ** Python Mode
+*** Elpy
 #+BEGIN_SRC emacs-lisp
 (use-package elpy
   :defer t
@@ -318,20 +326,21 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
 * Misc
 #+BEGIN_SRC emacs-lisp
 (use-package company
-  :config
+  :init
   ;; Launch auto-complete with default settings
   (add-hook 'after-init-hook 'global-company-mode))
 
 (use-package flycheck
-  :config
+  :init
   (add-hook 'after-init-hook 'global-flycheck-mode))
 
 (use-package pdf-tools
   :mode ("\\.pdf$" . pdf-view-mode)
   :config
   (pdf-tools-install))
+
 (use-package material-theme
-  :init
+  :config
   (load-theme 'material t))
 ;;Open TODO whenever user opens emacs.
 ;; This is done last to ensure that the entire config file is loaded
