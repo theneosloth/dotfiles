@@ -265,7 +265,9 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
 (use-package yasnippet
   :commands (yas-minor-mode)
   :init
-  (add-hook 'prog-mode-hook 'yas-minor-mode))
+  (progn
+    (use-package java-snippets)
+    (add-hook 'prog-mode-hook 'yas-minor-mode)))
 
 (use-package whitespace
   :commands whitespace-mode
