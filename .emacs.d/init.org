@@ -6,13 +6,12 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
 #+BEGIN_SRC emacs-lisp
 (defun tangle-init ()
   (interactive)
+  ;; Continue only if init.org is the current file
   (when (equal (buffer-file-name)
                (expand-file-name (concat user-emacs-directory "init.org")))
     (let ((prog-mode-hook nil))
       (org-babel-tangle)
       (load-file (expand-file-name (concat user-emacs-directory "init.el"))))))
-      ;;Byte compilation breaks use-package
-      ;;(byte-compile-file (concat user-emacs-directory "init.el")))))
 
 (add-hook 'after-save-hook 'tangle-init)
 #+END_SRC
@@ -32,9 +31,11 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
 (unless package-archive-contents
   (package-refresh-contents))
 
+;; Rever the garbage collector back to default
 (add-hook 'after-init-hook (lambda () (setq gc-cons-threshold (* 5 1024 1024))))
 #+END_SRC
-** Install use-package
+** Install use-packag
+Make sure that use-package is installed and that ensure is always on so that use-package downloads every package that is not installed.
 #+BEGIN_SRC emacs-lisp
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
@@ -71,12 +72,13 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
 (setq visible-bell nil)
 (setq ring-bell-function 'ignore)
 
-(set-frame-parameter (selected-frame) 'alpha '(99 . 50))
-(add-to-list 'default-frame-alist '(alpha . (99 . 50)))
+;; 91% opacity when the window is active, 90% when it is in the background.
+(set-frame-parameter (selected-frame) 'alpha '(99 . 90))
+(add-to-list 'default-frame-alist '(alpha . (99 . 90)))
 #+END_SRC
 ** Auto saves
+Move the auto-save and backup files into the temp fire directory so that emacs doesn't flood the working folders with junk.
 #+BEGIN_SRC emacs-lisp
-;; Move the auto saved and backed up files into the OS temp directory
 (setq backup-directory-alist
       `((".*" . ,temporary-file-directory)))
 
@@ -100,6 +102,9 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
 (use-package ivy
   :init
   (setq projectile-completion-system 'ivy)
+  (use-package counsel
+    :bind (("M-x" . counsel-M-x)
+           ("C-x C-f" . counsel-find-file)))
   :config
   (ivy-mode 1))
 #+END_SRC
@@ -216,10 +221,10 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
        ))))
 
 #+END_SRC
-* ERC
+* ER
 #+BEGIN_SRC emacs-lisp
 (use-package erc
-  :defer t
+  :commands irc-connect
   :init
   (progn
     (use-package erc-hl-nicks
@@ -230,7 +235,7 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
     (setq erc-nick "neosloth")
     (setq erc-kill-buffer-on-part t)
     (setq erc-autojoin-channels-alist
-          '((".*freenode.net" "#emacs")
+          '((".*freenode.net" "#emacs" "##crawl")
             ("portlane.se.quakenet.org" "#unrealvidya")
             (".*undernet.org" "#bookz")
             ))
