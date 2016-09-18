@@ -265,12 +265,15 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 * Programming Mode
 ** Language Independent Settings
 #+BEGIN_SRC emacs-lisp
-(use-package evil-smartparens
+(use-package smartparens
+  :ensure evil-smartparens
   :init
-  (add-hook 'prog-mode-hook #'evil-smartparens-mode)
+  (progn
+    (add-hook 'smartparens-enabled-hook #'evil-smartparens-mode)
+    (add-hook 'prog-mode-hook #'smartparens-mode))
   :config
   (progn
-    (show-smartparens-mode t)
+    (show-smartparens-mode)
     (smartparens-strict-mode t)))
 
 (use-package yasnippet
