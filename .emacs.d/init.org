@@ -56,6 +56,7 @@ Make sure that use-package is installed and that ensure is always on so that use
 
 ;;Switch list-buffers
 (global-set-key (kbd "C-x C-b") 'ibuffer)
+(global-set-key (kbd "C-c C-RET") 'ansi-term)
 
 ;; Always treat tabs as spaces
 (setq-default indent-tabs-mode nil)
@@ -130,6 +131,7 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 ** Evil
 #+BEGIN_SRC emacs-lisp
 (use-package evil
+  :diminish undo-tree-mode
   :config
   (progn
     (evil-mode 1)
@@ -191,6 +193,7 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 #+BEGIN_SRC emacs-lisp
 (use-package org
   :defer t
+  :diminish (org-indent-mode visual-line-mode flyspell-mode)
   :init
   (setq org-src-preserve-indentation nil
         org-edit-src-content-indentation 0
@@ -221,7 +224,7 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
        ))))
 
 #+END_SRC
-* ER
+* ERC
 #+BEGIN_SRC emacs-lisp
 (use-package erc
   :commands irc-connect
@@ -262,13 +265,20 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 * Programming Mode
 ** Language Independent Settings
 #+BEGIN_SRC emacs-lisp
-(use-package electric
-  :commands electric-pair-mode
+(use-package evil-smartparens
+  :commands evil-smartparens-mode
+  :ensure smartparens
+  :diminish evil-smartparens-mode
   :init
-  (add-hook 'prog-mode-hook 'electric-pair-mode))
+  (add-hook 'prog-mode-hook #'evil-smartparens-mode)
+  :config
+  (progn
+    (show-smartparens-mode t)
+    (smartparens-strict-mode t)))
 
 (use-package yasnippet
-  :commands (yas-minor-mode)
+  :commands yas-minor-mode
+  :diminish yas-minor-mode
   :init
   (progn
     (use-package java-snippets)
@@ -276,6 +286,7 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 
 (use-package whitespace
   :commands whitespace-mode
+  :diminish whitespace-mode
   :init
   (add-hook 'prog-mode-hook 'whitespace-mode))
 
@@ -284,13 +295,9 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
   :init
   (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
 
-(use-package paren
-  :commands show-paren-mode
-  :init
-  (add-hook 'prog-mode-hook 'show-paren-mode))
-
 (use-package aggressive-indent
   :commands aggressive-indent-mode
+  :diminish aggressive-indent-mode
   :init
   (add-hook 'prog-mode-hook 'aggressive-indent-mode))
 #+END_SRC
