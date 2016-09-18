@@ -266,9 +266,6 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 ** Language Independent Settings
 #+BEGIN_SRC emacs-lisp
 (use-package evil-smartparens
-  :commands evil-smartparens-mode
-  :ensure smartparens
-  :diminish evil-smartparens-mode
   :init
   (add-hook 'prog-mode-hook #'evil-smartparens-mode)
   :config
