@@ -1,4 +1,4 @@
-#+TITLE: Emacs Configuration
++TITLE: Emacs Configuration
 #+PROPERTY: header-args :tangle yes
 * Package Initialization and Installation
 ** Automatic tangling and Byte Compliation
@@ -56,7 +56,7 @@ Make sure that use-package is installed and that ensure is always on so that use
 
 ;;Switch list-buffers
 (global-set-key (kbd "C-x C-b") 'ibuffer)
-(global-set-key (kbd "C-c C-RET") 'ansi-term)
+(global-set-key (kbd "C-c C-RET") 'eshell)
 
 ;; Always treat tabs as spaces
 (setq-default indent-tabs-mode nil)
@@ -77,6 +77,9 @@ Make sure that use-package is installed and that ensure is always on so that use
 (set-frame-parameter (selected-frame) 'alpha '(99 . 90))
 (add-to-list 'default-frame-alist '(alpha . (99 . 90)))
 #+END_SRC
+
+#+RESULTS:
+
 ** Auto saves
 Move the auto-save and backup files into the temp fire directory so that emacs doesn't flood the working folders with junk.
 #+BEGIN_SRC emacs-lisp
@@ -129,6 +132,7 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
     (evil-set-initial-state 'dired-mode 'emacs)
     (evil-set-initial-state 'erc-mode 'emacs)
     (evil-set-initial-state 'term-mode 'emacs)
+    (evil-set-initial-state 'eshell-mode 'emacs)
     (use-package evil-surround
       :config
       (global-evil-surround-mode 1))
@@ -192,7 +196,7 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
         org-confirm-babel-evaluate nil
         org-notes-location "~/Sync/Notes/"
         org-todo-location (expand-file-name
-                           (concat org-notes-location "TODO.org"))
+                           (concat org-notes-location "agenda.org"))
         org-agenda-files (list org-todo-location))
   :config
   (progn
@@ -210,7 +214,6 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
      '((python . t)
        (java . t)
        (C . t)
-       (gnuplot . t)
        ))))
 
 #+END_SRC
@@ -279,7 +282,8 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
   :commands whitespace-mode
   :diminish whitespace-mode
   :init
-  (add-hook 'prog-mode-hook 'whitespace-mode))
+  (add-hook 'prog-mode-hook 'whitespace-mode)
+  )
 
 (use-package rainbow-delimiters
   :commands rainbow-delimiters-mode
@@ -306,7 +310,6 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 #+BEGIN_SRC emacs-lisp
 (use-package cider
   :defer t)
-
 #+END_SRC
 ** Python Mode
 *** Elpy
