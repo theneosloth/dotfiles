@@ -258,6 +258,7 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
   :commands newsticker-show-news
   :init
   (progn
+    ;; Disable evil in all the newsticker panes
     (add-to-list 'evil-emacs-state-modes 'newsticker-treeview-mode)
     (add-to-list 'evil-emacs-state-modes 'newsticker-treeview-list-mode)
     (add-to-list 'evil-emacs-state-modes 'newsticker-treeview-item-mode)
@@ -266,11 +267,10 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
      newsticker-url-list
      '(
        ("XKCD" "https://www.xkcd.com/rss.xml")
-       ("Awkward Zombie" "http://www.awkwardzombie.com/awkward.php")
-       ("The Oatmeal" "http://feeds.feedburner.com/oatmealfeed?format=xml")
        ("Saturday Morning Breakfast Cereal" "http://www.smbc-comics.com/rss.php")
-       ;;("r/emacs" "http://www.reddit.com/r/emacs/.rss")
-       ))))
+       ("Nedroid" "http://nedroid.com/feed/")
+       )
+     )))
 #+END_SRC
 * Programming Mode
 ** Language Independent Settings
@@ -326,7 +326,6 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 #+BEGIN_SRC emacs-lisp
 (use-package cider
   :defer t)
-
 #+END_SRC
 ** Python Mode
 *** Elpy
