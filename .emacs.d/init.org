@@ -34,7 +34,7 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
 ;; Rever the garbage collector back to default
 (add-hook 'after-init-hook (lambda () (setq gc-cons-threshold (* 5 1024 1024))))
 #+END_SRC
-** Install use-packag
+** Install use-package
 Make sure that use-package is installed and that ensure is always on so that use-package downloads every package that is not installed.
 #+BEGIN_SRC emacs-lisp
 (unless (package-installed-p 'use-package)
@@ -56,7 +56,7 @@ Make sure that use-package is installed and that ensure is always on so that use
 
 ;;Switch list-buffers
 (global-set-key (kbd "C-x C-b") 'ibuffer)
-(global-set-key (kbd "C-c <C-return>") 'ansi-term)
+(global-set-key (kbd "C-c <C-return>") 'eshell)
 
 ;; Always treat tabs as spaces
 (setq-default indent-tabs-mode nil)
@@ -171,7 +171,6 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 ** Auctex
 #+BEGIN_SRC emacs-lisp
 (use-package auctex
-  ;;latex-mode is vanilla emacs, LaTeX-mode is auctex.
   :mode (("\\.tex$" . latex-mode)
          ("\\.latex$" . latex-mode))
   :config
@@ -200,7 +199,7 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
         org-confirm-babel-evaluate nil
         org-notes-location "~/Sync/Notes/"
         org-todo-location (expand-file-name
-                           (concat org-notes-location "TODO.org"))
+                           (concat org-notes-location "agenda.org"))
         org-agenda-files (list org-todo-location))
   :config
   (progn
@@ -241,7 +240,7 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
             (".*undernet.org" "#bookz")
             ))
     (defun irc-connect ()
-      "Connect to IRC."
+      "Connect to IRC interactively. This prompts you with a y-n for each server"
       (interactive)
       (setq servers '("irc.freenode.net" "ix1.undernet.org"))
       (dolist (server servers)
@@ -380,7 +379,4 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 (use-package material-theme
   :config
   (load-theme 'material t))
-;;Open TODO whenever user opens emacs.
-;; This is done last to ensure that the entire config file is loaded
-;;(find-file org-todo-location)
 #+END_SRC
