@@ -42,7 +42,7 @@ Make sure that use-package is installed and that ensure is always on so that use
   (package-install 'use-package))
 (setq use-package-always-ensure t)
 #+END_SRC
-* Better Defaults
+* Misc options
 ** Random Quality of Life Things
 #+BEGIN_SRC emacs-lisp
 ;; Switch between buffers with S-arrow
@@ -56,7 +56,7 @@ Make sure that use-package is installed and that ensure is always on so that use
 
 ;;Switch list-buffers
 (global-set-key (kbd "C-x C-b") 'ibuffer)
-(global-set-key (kbd "C-c C-RET") 'ansi-term)
+(global-set-key (kbd "C-c <C-return>") 'ansi-term)
 
 ;; Always treat tabs as spaces
 (setq-default indent-tabs-mode nil)
@@ -76,6 +76,14 @@ Make sure that use-package is installed and that ensure is always on so that use
 ;; 91% opacity when the window is active, 90% when it is in the background.
 (set-frame-parameter (selected-frame) 'alpha '(99 . 90))
 (add-to-list 'default-frame-alist '(alpha . (99 . 90)))
+#+END_SRC
+** Always force UTF8
+#+BEGIN_SRC emacs-lisp
+(prefer-coding-system 'utf-8)
+(set-default-coding-systems 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(set-language-environment 'utf-8)
 #+END_SRC
 ** Auto saves
 Move the auto-save and backup files into the temp fire directory so that emacs doesn't flood the working folders with junk.
@@ -269,8 +277,14 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
        ("XKCD" "https://www.xkcd.com/rss.xml")
        ("Saturday Morning Breakfast Cereal" "http://www.smbc-comics.com/rss.php")
        ("Nedroid" "http://nedroid.com/feed/")
+       ("Mega64 Cast" "http://mega64.com/category/podcast/feed/")
+       ("Color Commontary" "http://colorcommontary.com/feed/podcast")
        )
-     )))
+     ))
+  :config
+  (progn
+    ;; Allows for html rendering of feeds.
+    (autoload 'w3m-region "w3m" t)))
 #+END_SRC
 * Programming Mode
 ** Language Independent Settings
