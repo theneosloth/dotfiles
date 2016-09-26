@@ -283,6 +283,52 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
     (erc-spelling-mode 1)))
 
 #+END_SRC
+* EMMS
+#+BEGIN_SRC emacs-lisp
+(use-package emms
+  :commands emms-add-directory-tree
+  :commands emms-add-directory
+  :commands emms-add-file
+
+  :init
+  (progn
+    ;;I would pretty much never want to add directory without browsing it recursively
+    (defalias 'emms-add-directory 'emms-add-directory-tree)
+
+    ;;Custom key bindings. My laptop has no media next/previous so home and end are used instead
+    (global-set-key (kbd "<XF86AudioPlay>") 'emms-pause)
+    (global-set-key (kbd "<home>") 'emms-previous)
+    (global-set-key (kbd "<end>") 'emms-next)
+    ;;Disable evin in emms
+    (add-to-list 'evil-emacs-state-modes 'emms-browser-mode)
+    (add-to-list 'evil-emacs-state-modes 'emms-playlist-mode)
+
+    (setq emms-source-file-default-directory "~/Sync/Music")
+    (setq emms-playlist-buffer-name "*Music*")
+
+    ;; Faster search function
+    (setq emms-source-file-directory-tree-function 'emms-source-file-directory-tree-find)
+    (setq emms-source-file-directory-tree-function 'emms-source-file-directory-tree-internal)
+
+    ;;Switch to the playlist whenever I add something to it
+    (add-hook 'emms-playlist-source-inserted-hook 'emms-playlist-mode-go)
+    )
+
+  :config
+  (progn
+    ;;Base emms configuration
+    (emms-minimalistic)
+
+    ;;Load all the extensions I want
+    (eval-and-compile
+      (require 'emms-playlist-mode)
+      (require 'emms-mode-line))
+    (emms-mode-line 1)
+    (setq emms-playlist-default-major-mode 'emms-playlist-mode)
+    (emms-default-players)
+    )
+  )
+#+END_SRC
 * TODO Newsticker (Needs to be more evil friendly.)
 #+BEGIN_SRC emacs-lisp
 (use-package newsticker
@@ -320,6 +366,7 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
     (add-hook 'prog-mode-hook #'smartparens-mode))
   :config
   (progn
+    (require 'smartparens-config)
     (show-smartparens-mode)
     (smartparens-strict-mode t)))
 
@@ -347,7 +394,10 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
   :commands aggressive-indent-mode
   :diminish aggressive-indent-mode
   :init
-  (add-hook 'prog-mode-hook 'aggressive-indent-mode))
+  (add-hook 'prog-mode-hook 'aggressive-indent-mode)
+  :config
+  (progn
+    (add-to-list 'aggressive-indent-excluded-modes 'python-mode)))
 #+END_SRC
 ** C-Mode
 #+BEGIN_SRC emacs-lisp
