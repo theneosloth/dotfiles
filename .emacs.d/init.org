@@ -93,10 +93,13 @@ Credit goes to [[https://www.reddit.com/r/emacs/comments/1zkj2d/advanced_usage_o
     (insert (concat "ls"))
     (eshell-send-input)))
 
-(global-set-key (kbd "C-c <C-return>") 'eshell-here)
+(global-set-key (kbd "C-c s") 'eshell-here)
 #+END_SRC
-** Always force UTF8
+** UTF-8 and Fonts
 #+BEGIN_SRC emacs-lisp
+(set-face-attribute 'default nil :family "DejaVu Sans Mono")
+
+;;The following lines force UTF-8 whenever possible
 (prefer-coding-system 'utf-8)
 (set-default-coding-systems 'utf-8)
 (set-terminal-coding-system 'utf-8)
@@ -122,7 +125,6 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 (defun display-startup-echo-area-message()
   (message (emacs-init-time)))
 #+END_SRC
-
 * Custom Packages
 ** Ivy
 #+BEGIN_SRC emacs-lisp
@@ -205,154 +207,23 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
   :disabled t
   :commands slime)
 #+END_SRC
-* Org Mode
+** Misc
 #+BEGIN_SRC emacs-lisp
-(use-package org
-  :defer t
-  :diminish (org-indent-mode visual-line-mode flyspell-mode)
+(use-package company
   :init
-  (setq org-src-preserve-indentation nil
-        org-edit-src-content-indentation 0
-        org-src-fontify-natively t
-        org-src-tab-acts-natively t
-        org-confirm-babel-evaluate nil
-        org-notes-location "~/Sync/Notes/"
-        org-todo-location (expand-file-name
-                           (concat org-notes-location "TODO.org"))
-        org-agenda-files (list org-todo-location))
-  :config
-  (progn
-    (use-package org-bullets)
-    (use-package htmlize)
-    (add-hook 'org-mode-hook (lambda()
-                               (flyspell-mode 1)
-                               (org-toggle-pretty-entities)
-                               (org-bullets-mode 1)
-                               (org-indent-mode 1)
-                               (visual-line-mode 1)
-                               ))
-    (org-babel-do-load-languages
-     'org-babel-load-languages
-     '((python . t)
-       (java . t)
-       (C . t)
-       (gnuplot . t)
-       ))))
+  ;; Launch auto-complete with default settings
+  (add-hook 'after-init-hook 'global-company-mode))
 
-#+END_SRC
-* ERC
-#+BEGIN_SRC emacs-lisp
-(use-package erc
-  :commands irc-connect
+(use-package flycheck
   :init
-  (progn
-    (use-package erc-hl-nicks
-      :commands erc-hl-nicks-mode)
-    (setq erc-prompt-for-password nil)
-    ;; Switch current buffer whenever you are mentioned
-    (setq erc-auto-query 'buffer)
-    (setq erc-nick "neosloth")
-    (setq erc-kill-buffer-on-part t)
-    (setq erc-autojoin-channels-alist
-          '((".*freenode.net" "#emacs")
-            ("portlane.se.quakenet.org" "#unrealvidya")
-            (".*undernet.org" "#bookz")
-            ))
-    (defun irc-connect ()
-      "Connect to IRC."
-      (interactive)
-      (setq servers '(
-                      ("Freenode" . "irc.freenode.net")
-                      ("Undernet" . "ix1.undernet.org")))
-      (dolist (server servers)
-        (when (y-or-n-p (car server))
-          (erc :server (cdr server) :port 6667)))
-      ))
+  (add-hook 'after-init-hook 'global-flycheck-mode))
+
+(use-package pdf-tools
+  :mode ("\\.pdf$" . pdf-view-mode)
   :config
-  (progn
-    (add-hook 'window-configuration-change-hook
-              '(lambda()
-                 (setq erc-fill-column (- (window-width) 2))))
-    (add-hook 'erc-mode-hook (lambda()
-                               (erc-hl-nicks-mode 1)
-                               (toggle-truncate-lines)
-                               ))
-    (erc-spelling-mode 1)))
-
+  (pdf-tools-install))
 #+END_SRC
-* EMMS
-#+BEGIN_SRC emacs-lisp
-(use-package emms
-  :commands emms-add-directory-tree
-  :commands emms-add-directory
-  :commands emms-add-file
-  :defer t
-
-  :init
-  (progn
-    ;;I would pretty much never want to add directory without browsing it recursively
-    (defalias 'emms-add-directory 'emms-add-directory-tree)
-
-    ;;Custom key bindings. My laptop has no media next/previous so home and end are used instead
-    (global-set-key (kbd "<XF86AudioPlay>") 'emms-pause)
-    ;; (global-set-key (kbd "<home>") 'emms-previous)
-    ;; (global-set-key (kbd "<end>") 'emms-next)
-    ;;Disable evil in emms
-    (add-to-list 'evil-emacs-state-modes 'emms-browser-mode)
-    (add-to-list 'evil-emacs-state-modes 'emms-playlist-mode)
-
-    (setq emms-source-file-default-directory "~/Sync/Music")
-    (setq emms-playlist-buffer-name "*Music*")
-
-    ;; Faster search function
-    (setq emms-source-file-directory-tree-function 'emms-source-file-directory-tree-find)
-    (setq emms-source-file-directory-tree-function 'emms-source-file-directory-tree-internal)
-
-    ;;Switch to the playlist whenever I add something to it
-    (add-hook 'emms-playlist-source-inserted-hook 'emms-playlist-mode-go)
-    )
-
-  :config
-  (progn
-    ;;Base emms configuration
-    (emms-minimalistic)
-    ;;Load all the extensions I want
-    (eval-and-compile
-      (require 'emms-playlist-mode)
-      (require 'emms-mode-line))
-    (emms-mode-line 1)
-    (setq emms-playlist-default-major-mode 'emms-playlist-mode)
-    (emms-default-players)
-    )
-  )
-#+END_SRC
-* TODO Newsticker (Needs to be more evil friendly.)
-#+BEGIN_SRC emacs-lisp
-(use-package newsticker
-  :commands newsticker-show-news
-  :init
-  (progn
-    ;; Disable evil in all the newsticker panes
-    (add-to-list 'evil-emacs-state-modes 'newsticker-treeview-mode)
-    (add-to-list 'evil-emacs-state-modes 'newsticker-treeview-list-mode)
-    (add-to-list 'evil-emacs-state-modes 'newsticker-treeview-item-mode)
-    (setq
-     newsticker-url-list-defaults nil
-     newsticker-url-list
-     '(
-       ("XKCD" "https://www.xkcd.com/rss.xml")
-       ("Saturday Morning Breakfast Cereal" "http://www.smbc-comics.com/rss.php")
-       ("Nedroid" "http://nedroid.com/feed/")
-       ("Mega64 Cast" "http://mega64.com/category/podcast/feed/")
-       ("Color Commontary" "http://colorcommontary.com/feed/podcast")
-       )
-     ))
-  :config
-  (progn
-    ;; Allows for html rendering of feeds.
-    (autoload 'w3m-region "w3m" t)))
-#+END_SRC
-* Programming Mode
+* Programming Modes
 ** Language Independent Settings
 #+BEGIN_SRC emacs-lisp
 (use-package smartparens
@@ -421,36 +292,173 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
     (setq elpy-rpc-backend "jedi")
     (with-eval-after-load 'python (elpy-enable))))
 #+END_SRC
-** HTML
+** Web
 #+BEGIN_SRC emacs-lisp
 (use-package web-mode
   :mode (("\\.html$" . web-mode)
          ("\\.css$" . web-mode)
          ))
 
-(use-package impatient-mode
-  :commands impatient-mode)
-#+END_SRC
-* Misc
-#+BEGIN_SRC emacs-lisp
-(use-package company
-  :init
-  ;; Launch auto-complete with default settings
-  (add-hook 'after-init-hook 'global-company-mode))
+(use-package js2-mode
+  :mode (("\\.js\\'" . js2-mode)))
 
-(use-package flycheck
-  :init
-  (add-hook 'after-init-hook 'global-flycheck-mode))
-
-(use-package pdf-tools
-  :mode ("\\.pdf$" . pdf-view-mode)
+(use-package skewer-mode
+  :commands run-skewer
+  :disabled t
   :config
-  (pdf-tools-install))
+  (progn
+    (skewer-setup)))
+#+END_SRC
+* Org Mode
+#+BEGIN_SRC emacs-lisp
+(use-package org
+  :defer t
+  :diminish (org-indent-mode visual-line-mode flyspell-mode)
+  :init
+  (setq org-src-preserve-indentation nil
+        org-edit-src-content-indentation 0
+        org-src-fontify-natively t
+        org-src-tab-acts-natively t
+        org-confirm-babel-evaluate nil
+        org-notes-location "~/Sync/Notes/"
+        org-todo-location (expand-file-name
+                           (concat org-notes-location "agenda.org"))
+        org-agenda-files (list org-todo-location))
+  :config
+  (progn
+    (use-package org-bullets)
+    (use-package htmlize)
+    (add-hook 'org-mode-hook (lambda()
+                               (flyspell-mode 1)
+                               (org-toggle-pretty-entities)
+                               (org-bullets-mode 1)
+                               (org-indent-mode 1)
+                               (visual-line-mode 1)
+                               ))
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((python . t)
+       (java . t)
+       (C . t)
+       (gnuplot . t)
+       ))))
 
+#+END_SRC
+* ERC
+#+BEGIN_SRC emacs-lisp
+(use-package erc
+  :commands irc-connect
+  :init
+  (progn
+    (use-package erc-hl-nicks
+      :commands erc-hl-nicks-mode)
+    (setq erc-prompt-for-password nil)
+    ;; Switch current buffer whenever you are mentioned
+    (setq erc-auto-query 'buffer)
+    (setq erc-nick "neosloth")
+    (setq erc-kill-buffer-on-part t)
+    (setq erc-autojoin-channels-alist
+          '((".*freenode.net" "#emacs")
+            ("portlane.se.quakenet.org" "#unrealvidya")
+            (".*undernet.org" "#bookz")
+            ))
+    (defun irc-connect ()
+      "Connect to IRC interactively."
+      (interactive)
+      (setq servers '(
+                      ("Freenode" . "irc.freenode.net")
+                      ("Undernet" . "ix1.undernet.org")
+                      ))
+      (dolist (server servers)
+        (when (y-or-n-p (car server))
+          (erc :server (cdr server) :port 6667)))
+      ))
+  :config
+  (progn
+    (add-hook 'window-configuration-change-hook
+              '(lambda()
+                 (setq erc-fill-column (- (window-width) 2))))
+    (add-hook 'erc-mode-hook (lambda()
+                               (erc-hl-nicks-mode 1)
+                               (toggle-truncate-lines)
+                               ))
+    (erc-spelling-mode 1)))
+
+#+END_SRC
+* EMMS
+#+BEGIN_SRC emacs-lisp
+(use-package emms
+  :commands emms-add-directory-tree
+  :commands emms-add-directory
+  :commands emms-add-file
+
+  :init
+  (progn
+    ;;I would pretty much never want to add directory without browsing it recursively
+    (defalias 'emms-add-directory 'emms-add-directory-tree)
+
+    ;;Custom key bindings. My laptop has no media next/previous so home and end are used instead
+    (global-set-key (kbd "<XF86AudioPlay>") 'emms-pause)
+    ;; (global-set-key (kbd "<home>") 'emms-previous)
+    ;; (global-set-key (kbd "<end>") 'emms-next)
+    ;;Disable evil in emms
+    (add-to-list 'evil-emacs-state-modes 'emms-browser-mode)
+    (add-to-list 'evil-emacs-state-modes 'emms-playlist-mode)
+
+    (setq emms-source-file-default-directory "~/Sync/Music")
+    (setq emms-playlist-buffer-name "*Music*")
+
+    ;; Faster search function
+    (setq emms-source-file-directory-tree-function 'emms-source-file-directory-tree-find)
+    (setq emms-source-file-directory-tree-function 'emms-source-file-directory-tree-internal)
+
+    ;;Switch to the playlist whenever I add something to it
+    (add-hook 'emms-playlist-source-inserted-hook 'emms-playlist-mode-go)
+    )
+
+  :config
+  (progn
+    ;;Base emms configuration
+    (emms-minimalistic)
+    ;;Load all the extensions I want
+    (eval-and-compile
+      (require 'emms-playlist-mode)
+      (require 'emms-mode-line))
+    (emms-mode-line 1)
+    (setq emms-playlist-default-major-mode 'emms-playlist-mode)
+    (emms-default-players)
+    )
+  )
+#+END_SRC
+* TODO Newsticker (Needs to be more evil friendly.)
+#+BEGIN_SRC emacs-lisp
+(use-package newsticker
+  :commands newsticker-show-news
+  :init
+  (progn
+    ;; Disable evil in all the newsticker panes
+    (add-to-list 'evil-emacs-state-modes 'newsticker-treeview-mode)
+    (add-to-list 'evil-emacs-state-modes 'newsticker-treeview-list-mode)
+    (add-to-list 'evil-emacs-state-modes 'newsticker-treeview-item-mode)
+    (setq
+     newsticker-url-list-defaults nil
+     newsticker-url-list
+     '(
+       ("XKCD" "https://www.xkcd.com/rss.xml")
+       ("Saturday Morning Breakfast Cereal" "http://www.smbc-comics.com/rss.php")
+       ("Nedroid" "http://nedroid.com/feed/")
+       ("Mega64 Cast" "http://mega64.com/category/podcast/feed/")
+       ("Color Commontary" "http://colorcommontary.com/feed/podcast")
+       )
+     ))
+  :config
+  (progn
+    ;; Allows for html rendering of feeds.
+    (autoload 'w3m-region "w3m" t)))
+#+END_SRC
+* Theme
+#+BEGIN_SRC emacs-lisp
 (use-package material-theme
   :config
   (load-theme 'material t))
-;;Open TODO whenever user opens emacs.
-;; This is done last to ensure that the entire config file is loaded
-;;(find-file org-todo-location)
 #+END_SRC
