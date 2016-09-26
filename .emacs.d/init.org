@@ -73,7 +73,7 @@ Make sure that use-package is installed and that ensure is always on so that use
 (setq visible-bell nil)
 (setq ring-bell-function 'ignore)
 
-;; 91% opacity when the window is active, 90% when it is in the background.
+;; 99% opacity when the window is active, 90% when it is in the background.
 (set-frame-parameter (selected-frame) 'alpha '(99 . 90))
 (add-to-list 'default-frame-alist '(alpha . (99 . 90)))
 #+END_SRC
@@ -92,11 +92,6 @@ Credit goes to [[https://www.reddit.com/r/emacs/comments/1zkj2d/advanced_usage_o
     (eshell)
     (insert (concat "ls"))
     (eshell-send-input)))
-
-(defun eshell/x (&rest args)
-  "Makes it so the exit command closes the window as well as the buffer"
-  (ignore-errors
-    (kill-buffer-and-window)))
 
 (global-set-key (kbd "C-c <C-return>") 'eshell-here)
 #+END_SRC
@@ -125,7 +120,7 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
       inhibit-startup-message t)
 
 (defun display-startup-echo-area-message()
-  (message "Welcome."))
+  (message (emacs-init-time)))
 #+END_SRC
 
 * Custom Packages
@@ -289,6 +284,7 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
   :commands emms-add-directory-tree
   :commands emms-add-directory
   :commands emms-add-file
+  :defer t
 
   :init
   (progn
