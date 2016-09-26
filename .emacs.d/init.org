@@ -254,17 +254,19 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
     (setq erc-nick "neosloth")
     (setq erc-kill-buffer-on-part t)
     (setq erc-autojoin-channels-alist
-          '((".*freenode.net" "#emacs" "##crawl")
+          '((".*freenode.net" "#emacs")
             ("portlane.se.quakenet.org" "#unrealvidya")
             (".*undernet.org" "#bookz")
             ))
     (defun irc-connect ()
       "Connect to IRC."
       (interactive)
-      (setq servers '("irc.freenode.net" "ix1.undernet.org"))
+      (setq servers '(
+                      ("Freenode" . "irc.freenode.net")
+                      ("Undernet" . "ix1.undernet.org")))
       (dolist (server servers)
-        (when (y-or-n-p server)
-          (erc :server server :port 6667)))
+        (when (y-or-n-p (car server))
+          (erc :server (cdr server) :port 6667)))
       ))
   :config
   (progn
@@ -293,9 +295,9 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 
     ;;Custom key bindings. My laptop has no media next/previous so home and end are used instead
     (global-set-key (kbd "<XF86AudioPlay>") 'emms-pause)
-    (global-set-key (kbd "<home>") 'emms-previous)
-    (global-set-key (kbd "<end>") 'emms-next)
-    ;;Disable evin in emms
+    ;; (global-set-key (kbd "<home>") 'emms-previous)
+    ;; (global-set-key (kbd "<end>") 'emms-next)
+    ;;Disable evil in emms
     (add-to-list 'evil-emacs-state-modes 'emms-browser-mode)
     (add-to-list 'evil-emacs-state-modes 'emms-playlist-mode)
 
@@ -314,7 +316,6 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
   (progn
     ;;Base emms configuration
     (emms-minimalistic)
-
     ;;Load all the extensions I want
     (eval-and-compile
       (require 'emms-playlist-mode)
