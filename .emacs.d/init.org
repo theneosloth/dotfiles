@@ -134,8 +134,13 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
   (use-package counsel
     :bind (("M-x" . counsel-M-x)
            ("C-x C-f" . counsel-find-file)))
+  (use-package swiper
+    :bind (("\C-s" . swiper)))
   :config
-  (ivy-mode 1))
+  (progn
+    (ivy-mode 1)
+    )
+  )
 #+END_SRC
 ** Evil
 #+BEGIN_SRC emacs-lisp
@@ -408,18 +413,16 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 
   :init
   (progn
-    ;;I would pretty much never want to add directory without browsing it recursively
-    (defalias 'emms-add-directory 'emms-add-directory-tree)
-
     ;;Custom key bindings. My laptop has no media next/previous so home and end are used instead
     (global-set-key (kbd "<XF86AudioPlay>") 'emms-pause)
-    ;; (global-set-key (kbd "<home>") 'emms-previous)
-    ;; (global-set-key (kbd "<end>") 'emms-next)
+    (global-set-key (kbd "C-c m") 'emms-playlist-mode-go)
+    (global-set-key (kbd "C-c <home>") 'emms-previous)
+    (global-set-key (kbd "C-c <end>") 'emms-next)
     ;;Disable evil in emms
     (add-to-list 'evil-emacs-state-modes 'emms-browser-mode)
     (add-to-list 'evil-emacs-state-modes 'emms-playlist-mode)
 
-    (setq emms-source-file-default-directory "~/Sync/Music")
+    (setq emms-source-file-default-directory "~/Sync/Music/")
     (setq emms-playlist-buffer-name "*Music*")
 
     ;; Faster search function
@@ -427,7 +430,7 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
     (setq emms-source-file-directory-tree-function 'emms-source-file-directory-tree-internal)
 
     ;;Switch to the playlist whenever I add something to it
-    (add-hook 'emms-playlist-source-inserted-hook 'emms-playlist-mode-go)
+    ;;(add-hook 'emms-playlist-source-inserted-hook 'emms-playlist-mode-go)
     )
 
   :config
@@ -437,7 +440,8 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
     ;;Load all the extensions I want
     (eval-and-compile
       (require 'emms-playlist-mode)
-      (require 'emms-mode-line))
+      (require 'emms-mode-line)
+      )
     (emms-mode-line 1)
     (setq emms-playlist-default-major-mode 'emms-playlist-mode)
     (emms-default-players)
