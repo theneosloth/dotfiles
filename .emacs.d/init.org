@@ -137,15 +137,6 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
   :config
   (ivy-mode 1))
 #+END_SRC
-** Powerline
-#+BEGIN_SRC emacs-lisp
-(use-package powerline
-  :ensure powerline-evil
-  :config
-  (progn
-    (powerline-default-theme)
-    (powerline-evil-vim-color-theme)))
-#+END_SRC
 ** Evil
 #+BEGIN_SRC emacs-lisp
 (use-package evil
@@ -187,6 +178,29 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 #+BEGIN_SRC emacs-lisp
 (use-package magit
   :defer t)
+#+END_SRC
+** Elfeed
+#+BEGIN_SRC emacs-lisp
+(use-package elfeed
+  :commands elfeed
+  :init
+  (progn
+    ;; Disable evil in all the newsticker panes
+    (add-to-list 'evil-emacs-state-modes 'elfeed-show-mode)
+    (add-to-list 'evil-emacs-state-modes 'elfeed-search-mode)
+    (setq
+     elfeed-feeds
+     '(
+       ("https://www.xkcd.com/rss.xml" webcomic)
+       ("http://www.smbc-comics.com/rss.php" webcomic)
+       ("http://nedroid.com/feed/" webcomic)
+       ("http://mega64.com/category/podcast/feed/" podcast)
+       ("http://colorcommontary.com/feed/podcast" podcast)
+       ("http://billburr.libsyn.com/rss" podcast)
+       )
+     ))
+  :config
+  (progn))
 #+END_SRC
 ** Auctex
 #+BEGIN_SRC emacs-lisp
@@ -429,32 +443,6 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
     (emms-default-players)
     )
   )
-#+END_SRC
-* TODO Newsticker (Needs to be more evil friendly.)
-#+BEGIN_SRC emacs-lisp
-(use-package newsticker
-  :commands newsticker-show-news
-  :init
-  (progn
-    ;; Disable evil in all the newsticker panes
-    (add-to-list 'evil-emacs-state-modes 'newsticker-treeview-mode)
-    (add-to-list 'evil-emacs-state-modes 'newsticker-treeview-list-mode)
-    (add-to-list 'evil-emacs-state-modes 'newsticker-treeview-item-mode)
-    (setq
-     newsticker-url-list-defaults nil
-     newsticker-url-list
-     '(
-       ("XKCD" "https://www.xkcd.com/rss.xml")
-       ("Saturday Morning Breakfast Cereal" "http://www.smbc-comics.com/rss.php")
-       ("Nedroid" "http://nedroid.com/feed/")
-       ("Mega64 Cast" "http://mega64.com/category/podcast/feed/")
-       ("Color Commontary" "http://colorcommontary.com/feed/podcast")
-       )
-     ))
-  :config
-  (progn
-    ;; Allows for html rendering of feeds.
-    (autoload 'w3m-region "w3m" t)))
 #+END_SRC
 * Theme
 #+BEGIN_SRC emacs-lisp
