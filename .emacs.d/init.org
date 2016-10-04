@@ -52,6 +52,10 @@ Make sure that use-package is installed and that ensure is always on so that use
 
 ;; Toggle whitespace mode
 (global-set-key (kbd "C-c w") 'whitespace-mode)
+
+;; Quick calc
+(global-set-key (kbd "C-c c") 'quick-calc)
+
 #+END_SRC
 ** Random Quality of Life Things
 #+BEGIN_SRC emacs-lisp
@@ -167,9 +171,6 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
     (use-package evil-surround
       :config
       (global-evil-surround-mode 1))
-    (use-package evil-nerd-commenter
-      :config
-      (evilnc-default-hotkeys))
     (use-package evil-matchit
       :config
       (global-evil-matchit-mode 1))))
