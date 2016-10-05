@@ -56,6 +56,8 @@ Make sure that use-package is installed and that ensure is always on so that use
 ;; Quick calc
 (global-set-key (kbd "C-c c") 'quick-calc)
 
+;;Show what's coming up
+(global-set-key (kbd "C-c a") 'org-agenda-list)
 #+END_SRC
 ** Random Quality of Life Things
 #+BEGIN_SRC emacs-lisp
@@ -223,6 +225,7 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
        ("https://www.xkcd.com/rss.xml" webcomic)
        ("http://www.smbc-comics.com/rss.php" webcomic)
        ("http://nedroid.com/feed/" webcomic)
+       ("http://www.awkwardzombie.com/awkward.php" webcomic)
        ("http://mega64.com/category/podcast/feed/" podcast)
        ("http://colorcommontary.com/feed/podcast" podcast)
        ("http://billburr.libsyn.com/rss" podcast)
