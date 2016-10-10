@@ -268,7 +268,10 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 (use-package pdf-tools
   :mode ("\\.pdf$" . pdf-view-mode)
   :config
-  (pdf-tools-install))
+  (unless (eq system-type 'windows-nt)
+    ;; Only install pdf tools on unix
+    (pdf-tools-install))
+  )
 #+END_SRC
 * Programming Modes
 ** Language Independent Settings
@@ -313,7 +316,7 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
   :diminish aggressive-indent-mode
   :init
   (progn
-    (add-hook 'prog-mode-hook 'aggressive-indent-mode)
+    (global-aggressive-indent-mode)
     )
   :config
   (progn
@@ -330,21 +333,28 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
         c-default-style "linux"))
 (add-hook 'c-mode-common-hook 'indent-c-mode-hook)
 #+END_SRC
+** Python Mode
+*** Python Mode
+#+BEGIN_SRC emacs-lisp
+(use-package company-jedi
+  :mode (("\\.py$" . python-mode))
+  :init
+  (progn
+    (add-to-list 'company-backends 'company-jedi))
+  )
+
+(use-package py-autopep8
+  :mode (("\\.py$" . python-mode))
+  :init
+  (progn
+    (add-hook 'python-mode-hook 'py-autopep8-enable-on-save))
+  )
+#+END_SRC
 ** Clojure
 *** Cider
 #+BEGIN_SRC emacs-lisp
 (use-package cider
   :defer t)
-#+END_SRC
-** Python Mode
-*** Elpy
-#+BEGIN_SRC emacs-lisp
-(use-package elpy
-  :defer t
-  :init
-  (progn
-    (setq elpy-rpc-backend "jedi")
-    (with-eval-after-load 'python (elpy-enable))))
 #+END_SRC
 ** Web
 #+BEGIN_SRC emacs-lisp
