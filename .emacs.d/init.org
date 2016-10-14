@@ -89,6 +89,16 @@ Make sure that use-package is installed and that ensure is always on so that use
 (set-frame-parameter (selected-frame) 'alpha '(99 . 90))
 (add-to-list 'default-frame-alist '(alpha . (99 . 90)))
 #+END_SRC
+*** Easily search for non ASCII Characters
+#+BEGIN_SRC emacs-lisp
+(setq search-default-mode #'char-fold-to-regexp)
+(setq replace-char-fold t)
+#+END_SRC
+*** Prettify symbols mode
+#+BEGIN_SRC emacs-lisp
+(global-prettify-symbols-mode)
+(setq prettify-symbols-unprettify-at-point 'right-edge)
+#+END_SRC
 ** Open eshell in current window
 Credit goes to [[https://www.reddit.com/r/emacs/comments/1zkj2d/advanced_usage_of_eshell/cfugwkt][/u/howardabrams]] and [[https://www.reddit.com/r/emacs/comments/1zkj2d/advanced_usage_of_eshell/cfuuo5y][/u/AndersBakken]]
 #+BEGIN_SRC emacs-lisp
@@ -137,7 +147,7 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 (defun display-startup-echo-area-message()
   (message (emacs-init-time)))
 #+END_SRC
-* Custom Packages
+* Major Custom Packages
 ** Ivy
 #+BEGIN_SRC emacs-lisp
 (use-package ivy
@@ -252,19 +262,24 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
   :disabled t
   :commands slime)
 #+END_SRC
-** Misc
+** Company
 #+BEGIN_SRC emacs-lisp
 (use-package company
   :diminish company-mode
   :init
   ;; Launch auto-complete with default settings
   (add-hook 'after-init-hook 'global-company-mode))
-
+#+END_SRC
+** Flycheck
+#+BEGIN_SRC emacs-lisp
 (use-package flycheck
   :diminish flycheck-mode
   :init
   (add-hook 'after-init-hook 'global-flycheck-mode))
 
+#+END_SRC
+** Pdf-tools
+#+BEGIN_SRC emacs-lisp
 (use-package pdf-tools
   :mode ("\\.pdf$" . pdf-view-mode)
   :config
@@ -334,7 +349,7 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 (add-hook 'c-mode-common-hook 'indent-c-mode-hook)
 #+END_SRC
 ** Python Mode
-*** Python Mode
+*** Company-Jedi
 #+BEGIN_SRC emacs-lisp
 (use-package company-jedi
   :mode (("\\.py$" . python-mode))
@@ -342,7 +357,9 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
   (progn
     (add-to-list 'company-backends 'company-jedi))
   )
-
+#+END_SRC
+*** Autopep8
+#+BEGIN_SRC emacs-lisp
 (use-package py-autopep8
   :mode (("\\.py$" . python-mode))
   :init
