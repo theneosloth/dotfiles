@@ -99,6 +99,11 @@ Make sure that use-package is installed and that ensure is always on so that use
 (global-prettify-symbols-mode)
 (setq prettify-symbols-unprettify-at-point 'right-edge)
 #+END_SRC
+*** Always use palemoon for following links
+#+BEGIN_SRC emacs-lisp
+(setq browse-url-browser-function 'browse-url-generic)
+(setq browse-url-generic-program "palemoon")
+#+END_SRC
 ** Open eshell in current window
 Credit goes to [[https://www.reddit.com/r/emacs/comments/1zkj2d/advanced_usage_of_eshell/cfugwkt][/u/howardabrams]] and [[https://www.reddit.com/r/emacs/comments/1zkj2d/advanced_usage_of_eshell/cfuuo5y][/u/AndersBakken]]
 #+BEGIN_SRC emacs-lisp
@@ -349,7 +354,7 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 (add-hook 'c-mode-common-hook 'indent-c-mode-hook)
 #+END_SRC
 ** Python Mode
-*** Company-Jedi
+** Company-Jedi
 #+BEGIN_SRC emacs-lisp
 (use-package company-jedi
   :mode (("\\.py$" . python-mode))
@@ -373,6 +378,35 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 (use-package cider
   :defer t)
 #+END_SRC
+** Rust
+#+BEGIN_SRC emacs-lisp
+(use-package cargo
+  :mode (("\\.rs$" . rust-mode))
+  :init
+  (progn
+    (add-hook 'rust-mode-hook 'cargo-minor-mode))
+  )
+(use-package rust-mode
+  :mode (("\\.rs$" . rust-mode))
+  :init
+  (progn))
+
+(use-package racer
+  :mode (("\\.rs$" . rust-mode))
+  :init
+  (progn
+    (setq racer-rust-src-path (file-truename "/usr/src/rust/src"))
+    (add-hook 'rust-mode-hook #'racer-mode)
+    (add-hook 'racer-mode-hook #'eldoc-mode)
+    ))
+
+
+(use-package flycheck-rust
+  :mode (("\\.rs$" . rust-mode))
+  :init
+  (progn
+    (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)))
+#+END_SRC
 ** Web
 #+BEGIN_SRC emacs-lisp
 (use-package web-mode
@@ -382,13 +416,6 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 
 (use-package js2-mode
   :mode (("\\.js\\'" . js2-mode)))
-
-(use-package skewer-mode
-  :commands run-skewer
-  :disabled t
-  :config
-  (progn
-    (skewer-setup)))
 #+END_SRC
 * Org Mode
 #+BEGIN_SRC emacs-lisp
