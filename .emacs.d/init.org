@@ -337,9 +337,6 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
   :init
   (progn
     (global-aggressive-indent-mode)
-    )
-  :config
-  (progn
     (add-to-list 'aggressive-indent-excluded-modes 'python-mode)
     )
   )
@@ -354,7 +351,7 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 (add-hook 'c-mode-common-hook 'indent-c-mode-hook)
 #+END_SRC
 ** Python Mode
-** Company-Jedi
+*** Company-Jedi
 #+BEGIN_SRC emacs-lisp
 (use-package company-jedi
   :mode (("\\.py$" . python-mode))
