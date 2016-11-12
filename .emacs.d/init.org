@@ -63,7 +63,7 @@ Make sure that use-package is installed and that ensure is always on so that use
 #+BEGIN_SRC emacs-lisp
 ;; Switch between buffers with S-arrow
 (windmove-default-keybindings)
-;; Delete all the trailing whitespaces every time I save
+;; Delete all the trailing whitespaces every time the file is saved
 (push 'delete-trailing-whitespace before-save-hook)
 ;;Show current buffer name
 (setq frame-title-format "emacs - %b")
@@ -99,11 +99,6 @@ Make sure that use-package is installed and that ensure is always on so that use
 (global-prettify-symbols-mode)
 (setq prettify-symbols-unprettify-at-point 'right-edge)
 #+END_SRC
-*** Always use palemoon for following links
-#+BEGIN_SRC emacs-lisp
-(setq browse-url-browser-function 'browse-url-generic)
-(setq browse-url-generic-program "palemoon")
-#+END_SRC
 ** Open eshell in current window
 Credit goes to [[https://www.reddit.com/r/emacs/comments/1zkj2d/advanced_usage_of_eshell/cfugwkt][/u/howardabrams]] and [[https://www.reddit.com/r/emacs/comments/1zkj2d/advanced_usage_of_eshell/cfuuo5y][/u/AndersBakken]]
 #+BEGIN_SRC emacs-lisp
@@ -117,6 +112,8 @@ Credit goes to [[https://www.reddit.com/r/emacs/comments/1zkj2d/advanced_usage_o
     (split-window-vertically)
     (other-window 1)
     (eshell)
+    (insert (concat "cd " parent))
+    (eshell-send-input)
     (insert (concat "ls"))
     (eshell-send-input)))
 
@@ -164,6 +161,7 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
            ("C-x C-f" . counsel-find-file)))
   (use-package swiper
     :bind (("\C-s" . swiper)))
+
   :config
   (progn
     (ivy-mode 1)
@@ -197,15 +195,18 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 #+BEGIN_SRC emacs-lisp
 ;; Relative line package
 (use-package nlinum-relative
+  :commands nlinum-relative-mode
   :init
   (progn
     (setq nlinum-relative-redisplay-delay 0)
     (setq nlinum-relative-current-symbol "")
-    (setq nlinum-relative-offset 0))
+    (setq nlinum-relative-offset 0)
+    (add-hook 'prog-mode-hook 'nlinum-relative-mode)
+    )
   :config
   (progn
     (nlinum-relative-setup-evil)
-    (add-hook 'prog-mode-hook 'nlinum-relative-mode)))
+    ))
 #+END_SRC
 
 ** Projectile
@@ -215,10 +216,14 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
   :init
   (progn
     (add-hook 'prog-mode-hook 'projectile-mode)
-    (use-package counsel-projectile
-      :commands counsel-projectile-on)
     )
   )
+
+(use-package counsel-projectile
+  :commands counsel-projectile-on
+  :init
+  (progn
+    (add-hook 'projectile-mode-hook 'counsel-projectile-on)))
 #+END_SRC
 ** Magit
 #+BEGIN_SRC emacs-lisp
@@ -244,6 +249,7 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
        ("http://mega64.com/category/podcast/feed/" podcast)
        ("http://colorcommontary.com/feed/podcast" podcast)
        ("http://billburr.libsyn.com/rss" podcast)
+       ("http://planet.emacsen.org/atom.xml" blog emacs)
        )
      ))
   :config
@@ -257,6 +263,7 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
   :config
   (progn
     (add-hook 'latex-mode-hook 'turn-on-auto-fill)
+    (add-hook 'latex-mode-hook 'visual-line-mode)
     (use-package company-auctex
       :config
       (company-auctex-init))))
@@ -293,6 +300,11 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
     (pdf-tools-install))
   )
 #+END_SRC
+** mtg-deck-mode
+#+BEGIN_SRC emacs-lisp
+(use-package mtg-deck-mode
+  :mode (("\\.dec" . mtg-deck-mode)))
+#+END_SRC
 * Programming Modes
 ** Language Independent Settings
 #+BEGIN_SRC emacs-lisp
@@ -302,8 +314,8 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
   :diminish evil-smartparens-mode
   :init
   (progn
-    (add-hook 'smartparens-enabled-hook #'evil-smartparens-mode)
-    (add-hook 'prog-mode-hook #'smartparens-mode))
+    (add-hook 'smartparens-enabled-hook 'evil-smartparens-mode)
+    (add-hook 'prog-mode-hook 'smartparens-mode))
   :config
   (progn
     (require 'smartparens-config)
@@ -336,7 +348,10 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
   :diminish aggressive-indent-mode
   :init
   (progn
-    (global-aggressive-indent-mode)
+    (add-hook 'prog-mode-hook 'aggressive-indent-mode)
+    )
+  :config
+  (progn
     (add-to-list 'aggressive-indent-excluded-modes 'python-mode)
     )
   )
@@ -351,7 +366,7 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 (add-hook 'c-mode-common-hook 'indent-c-mode-hook)
 #+END_SRC
 ** Python Mode
-*** Company-Jedi
+** Company-Jedi
 #+BEGIN_SRC emacs-lisp
 (use-package company-jedi
   :mode (("\\.py$" . python-mode))
