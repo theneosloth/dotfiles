@@ -325,10 +325,9 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 (use-package yasnippet
   :commands yas-minor-mode
   :diminish yas-minor-mode
+  :ensure java-snippets
   :init
   (progn
-    (use-package java-snippets
-      :defer t)
     (add-hook 'prog-mode-hook 'yas-minor-mode)))
 
 (use-package whitespace
@@ -344,15 +343,10 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
   (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
 
 (use-package aggressive-indent
-  :commands aggressive-indent-mode
   :diminish aggressive-indent-mode
   :init
   (progn
-    (add-hook 'prog-mode-hook 'aggressive-indent-mode)
-    )
-  :config
-  (progn
-    (add-to-list 'aggressive-indent-excluded-modes 'python-mode)
+    (global-aggressive-indent-mode)
     )
   )
 #+END_SRC
@@ -365,11 +359,10 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
         c-default-style "linux"))
 (add-hook 'c-mode-common-hook 'indent-c-mode-hook)
 #+END_SRC
-** Python Mode
 ** Company-Jedi
 #+BEGIN_SRC emacs-lisp
 (use-package company-jedi
-  :mode (("\\.py$" . python-mode))
+  :defer t
   :init
   (progn
     (add-to-list 'company-backends 'company-jedi))
@@ -385,10 +378,10 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
   )
 #+END_SRC
 ** Clojure
-*** Cider
 #+BEGIN_SRC emacs-lisp
 (use-package cider
-  :defer t)
+  :defer t
+  :disabled t)
 #+END_SRC
 ** Rust
 #+BEGIN_SRC emacs-lisp
@@ -400,8 +393,7 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
   )
 (use-package rust-mode
   :mode (("\\.rs$" . rust-mode))
-  :init
-  (progn))
+  )
 
 (use-package racer
   :mode (("\\.rs$" . rust-mode))
