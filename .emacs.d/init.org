@@ -73,9 +73,6 @@ Make sure that use-package is installed and that ensure is always on so that use
 ;; Always treat tabs as spaces
 (setq-default indent-tabs-mode nil)
 
-;; Makes double pressing tab act as M-Tab (completions)
-(setq tab-always-indent 'complete)
-
 ;;Truncate lines instead of word wrapping them
 (setq-default truncate-lines t)
 ;; Use y or n instead of yes or no
@@ -129,6 +126,13 @@ Credit goes to [[https://www.reddit.com/r/emacs/comments/1zkj2d/advanced_usage_o
 (set-terminal-coding-system 'utf-8)
 (set-keyboard-coding-system 'utf-8)
 (set-language-environment 'utf-8)
+#+END_SRC
+*** Dos2Unix
+#+BEGIN_SRC emacs-lisp
+(defun dos2unix ()
+  "Not exactly but it's easier to remember"
+  (interactive)
+  (set-buffer-file-coding-system 'unix 't) )
 #+END_SRC
 ** Auto saves
 Move the auto-save and backup files into the temp fire directory so that emacs doesn't flood the working folders with junk.
@@ -280,7 +284,8 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
   :diminish company-mode
   :init
   ;; Launch auto-complete with default settings
-  (add-hook 'after-init-hook 'global-company-mode))
+  (add-hook 'after-init-hook 'global-company-mode)
+  (setq company-idle-delay 0))
 #+END_SRC
 ** Flycheck
 #+BEGIN_SRC emacs-lisp
@@ -536,8 +541,7 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
       (require 'emms-mode-line)
       )
     (emms-mode-line 1)
-    (setq emms-playlist-default-major-mode 'emms-playlist-mode)
-    (emms-default-players)
+    (add-to-list 'emms-player-list 'emms-player-mplayer)
     )
   )
 #+END_SRC
