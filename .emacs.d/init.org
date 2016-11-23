@@ -187,6 +187,8 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
     (evil-set-initial-state 'erc-mode 'emacs)
     (evil-set-initial-state 'term-mode 'emacs)
     (evil-set-initial-state 'eshell-mode 'emacs)
+    (evil-set-initial-state 'ereader-mode 'emacs)
+
     (use-package evil-surround
       :config
       (global-evil-surround-mode 1))
@@ -310,6 +312,14 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 (use-package mtg-deck-mode
   :mode (("\\.dec" . mtg-deck-mode)))
 #+END_SRC
+** E-reader
+#+BEGIN_SRC emacs-lisp
+(use-package ereader
+  :mode (("\\.epub" . ereader-mode))
+  :config
+  (progn
+    (visual-line-mode 1)))
+#+END_SRC
 * Programming Modes
 ** Language Independent Settings
 #+BEGIN_SRC emacs-lisp
@@ -431,6 +441,8 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 (use-package org
   :defer t
   :diminish (org-indent-mode visual-line-mode flyspell-mode)
+  :ensure org-bullets
+  :ensure htmlize
   :init
   (setq org-src-preserve-indentation nil
         org-edit-src-content-indentation 0
@@ -443,8 +455,8 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
         org-agenda-files (list org-todo-location))
   :config
   (progn
-    (use-package org-bullets)
-    (use-package htmlize)
+    (require 'org-bullets)
+    (require 'htmlize)
     (add-hook 'org-mode-hook (lambda()
                                (flyspell-mode 1)
                                (org-toggle-pretty-entities)
@@ -547,7 +559,8 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 #+END_SRC
 * Theme
 #+BEGIN_SRC emacs-lisp
-(use-package material-theme
+(use-package apropospriate-theme
+  :ensure t
   :config
-  (load-theme 'material t))
+  (load-theme 'apropospriate-dark t))
 #+END_SRC
