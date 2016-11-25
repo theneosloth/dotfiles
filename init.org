@@ -320,32 +320,6 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
   (progn
     (visual-line-mode 1)))
 #+END_SRC
-** Mingus
-#+BEGIN_SRC emacs-lisp
-(use-package mingus
-  :commands mingus-browse
-  :commands mingus-add-podcast-and-play
-  :init
-  (progn
-    ;;Custom key bindings. My laptop has no media next/previous so home and end are used instead
-    (global-set-key (kbd "<XF86AudioPlay>") 'mingus-pause)
-    (global-set-key (kbd "C-c m") 'mingus-browse)
-    (global-set-key (kbd "C-c <home>") 'mingus-prev)
-    (global-set-key (kbd "C-c <end>") 'mingus-next)
-    ;;Disable evil in mingus
-    ;; evil-set-initial-state doesn't work for some reason.
-    ;; (evil-set-initial-state 'mingus-help-mode 'emacs)
-    ;; (evil-set-initial-state 'mingus-browse-mode 'emacs)
-    ;; (evil-set-initial-state 'mingus-playlist-mode 'emacs)
-
-    (add-hook 'mingus-browse-hook 'evil-emacs-state)
-    (add-hook 'mingus-playlist-hooks 'evil-emacs-state)
-    )
-  :config
-  (progn
-    (require 'mingus-stays-home))
-  )
-#+END_SRC
 * Programming Modes
 ** Language Independent Settings
 #+BEGIN_SRC emacs-lisp
@@ -503,16 +477,17 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 #+BEGIN_SRC emacs-lisp
 (use-package erc
   :commands irc-connect
-  :ensure erc-hl-nicks
   :init
   (progn
+    (use-package erc-hl-nicks
+      :commands erc-hl-nicks-mode)
     (setq erc-prompt-for-password nil)
     ;; Switch current buffer whenever you are mentioned
     (setq erc-auto-query 'buffer)
     (setq erc-nick "neosloth")
     (setq erc-kill-buffer-on-part t)
     (setq erc-autojoin-channels-alist
-          '((".*freenode.net" "#emacs" "#lainchan")
+          '((".*freenode.net" "#emacs")
             ("portlane.se.quakenet.org" "#unrealvidya")
             (".*undernet.org" "#bookz")
             ))
@@ -527,24 +502,65 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
         (when (y-or-n-p (car server))
           (erc :server (cdr server) :port 6667)))
       ))
-
   :config
   (progn
     (add-hook 'window-configuration-change-hook
               '(lambda()
                  (setq erc-fill-column (- (window-width) 2))))
-    (erc-hl-nicks-mode 1)
-    (toggle-truncate-lines)
-    (erc-spelling-mode 1)
-    (erc-notifications-mode 1)
-    (erc-scrolltobottom-enable)
-    ))
+    (add-hook 'erc-mode-hook (lambda()
+                               (erc-hl-nicks-mode 1)
+                               (toggle-truncate-lines)
+                               ))
+    (erc-spelling-mode 1)))
 
+#+END_SRC
+* EMMS
+#+BEGIN_SRC emacs-lisp
+(use-package emms
+  :commands emms-add-directory-tree
+  :commands emms-add-directory
+  :commands emms-add-file
+
+  :init
+  (progn
+    ;;Custom key bindings. My laptop has no media next/previous so home and end are used instead
+    (global-set-key (kbd "<XF86AudioPlay>") 'emms-pause)
+    (global-set-key (kbd "C-c m") 'emms-playlist-mode-go)
+    (global-set-key (kbd "C-c <home>") 'emms-previous)
+    (global-set-key (kbd "C-c <end>") 'emms-next)
+    ;;Disable evil in emms
+    (add-to-list 'evil-emacs-state-modes 'emms-browser-mode)
+    (add-to-list 'evil-emacs-state-modes 'emms-playlist-mode)
+
+    (setq emms-source-file-default-directory "~/Sync/Music/")
+    (setq emms-playlist-buffer-name "*Music*")
+
+    ;; Faster search function
+    (setq emms-source-file-directory-tree-function 'emms-source-file-directory-tree-find)
+    (setq emms-source-file-directory-tree-function 'emms-source-file-directory-tree-internal)
+
+    ;;Switch to the playlist whenever I add something to it
+    ;;(add-hook 'emms-playlist-source-inserted-hook 'emms-playlist-mode-go)
+    )
+
+  :config
+  (progn
+    ;;Base emms configuration
+    (emms-minimalistic)
+    ;;Load all the extensions I want
+    (eval-and-compile
+      (require 'emms-playlist-mode)
+      (require 'emms-mode-line)
+      )
+    (emms-mode-line 1)
+    (add-to-list 'emms-player-list 'emms-player-mplayer)
+    )
+  )
 #+END_SRC
 * Theme
 #+BEGIN_SRC emacs-lisp
-(use-package material-theme
+(use-package apropospriate-theme
   :ensure t
   :config
-  (load-theme 'material t))
+  (load-theme 'apropospriate-dark t))
 #+END_SRC
