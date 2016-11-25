@@ -61,7 +61,7 @@ Make sure that use-package is installed and that ensure is always on so that use
 #+END_SRC
 ** Random Quality of Life Things
 #+BEGIN_SRC emacs-lisp
-(setq is-windows is-windows)
+(setq is-windows (eq system-type 'windows-nt))
 
 ;; Delete all the trailing whitespaces every time the file is saved
 (push 'delete-trailing-whitespace before-save-hook)
