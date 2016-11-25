@@ -61,8 +61,8 @@ Make sure that use-package is installed and that ensure is always on so that use
 #+END_SRC
 ** Random Quality of Life Things
 #+BEGIN_SRC emacs-lisp
-;; Switch between buffers with S-arrow
-(windmove-default-keybindings)
+(setq is-windows is-windows)
+
 ;; Delete all the trailing whitespaces every time the file is saved
 (push 'delete-trailing-whitespace before-save-hook)
 ;;Show current buffer name
@@ -85,6 +85,13 @@ Make sure that use-package is installed and that ensure is always on so that use
 ;; 99% opacity when the window is active, 90% when it is in the background.
 (set-frame-parameter (selected-frame) 'alpha '(99 . 90))
 (add-to-list 'default-frame-alist '(alpha . (99 . 90)))
+
+;; Generic browser function always opens chrome for some reason.
+;; This forces it to use palemoon
+(unless is-windows
+  (setq browse-url-browser-function 'browse-url-generic
+        browse-url-generic-program "palemoon"))
+
 #+END_SRC
 *** Easily search for non ASCII Characters
 #+BEGIN_SRC emacs-lisp
@@ -264,15 +271,15 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 ** Auctex
 #+BEGIN_SRC emacs-lisp
 (use-package auctex
+  :ensure company-auctex
   :mode (("\\.tex$" . latex-mode)
          ("\\.latex$" . latex-mode))
   :config
   (progn
     (add-hook 'latex-mode-hook 'turn-on-auto-fill)
     (add-hook 'latex-mode-hook 'visual-line-mode)
-    (use-package company-auctex
-      :config
-      (company-auctex-init))))
+    (company-auctex-init)
+    ))
 #+END_SRC
 ** Slime
 #+BEGIN_SRC emacs-lisp
@@ -302,7 +309,7 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 (use-package pdf-tools
   :mode ("\\.pdf$" . pdf-view-mode)
   :config
-  (unless (eq system-type 'windows-nt)
+  (unless is-windows
     ;; Only install pdf tools on unix
     (pdf-tools-install))
   )
