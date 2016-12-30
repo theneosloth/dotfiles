@@ -367,9 +367,9 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
   :config
   (progn
     (require 'smartparens-config)
+    (add-hook 'emacs-lisp-mode-hook 'smartparens-strict-mode)
     (show-smartparens-mode)
-    (smartparens-strict-mode t)))
-
+    ))
 (use-package yasnippet
   :commands yas-minor-mode
   :diminish yas-minor-mode
