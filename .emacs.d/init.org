@@ -367,9 +367,9 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
   :config
   (progn
     (require 'smartparens-config)
-    (add-hook 'emacs-lisp-mode-hook 'smartparens-strict-mode)
     (show-smartparens-mode)
-    ))
+    (smartparens-strict-mode t)))
+
 (use-package yasnippet
   :commands yas-minor-mode
   :diminish yas-minor-mode
@@ -468,6 +468,16 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 
 (use-package js2-mode
   :mode (("\\.js\\'" . js2-mode)))
+
+(use-package emmet-mode
+  :mode (("\\.html$" . web-mode)
+         ("\\.css$" . web-mode)
+         )
+  :init
+  (progn
+    (add-hook 'sgml-mode-hook 'emmet-mode)
+    (add-hook 'css-mode-hook 'emmet-mode)))
+
 #+END_SRC
 * Org Mode
 #+BEGIN_SRC emacs-lisp
@@ -482,6 +492,7 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
         org-src-fontify-natively t
         org-src-tab-acts-natively t
         org-confirm-babel-evaluate nil
+        org-startup-with-inline-images t
         org-notes-location "~/Sync/Notes/"
         org-todo-location (expand-file-name
                            (concat org-notes-location "agenda.org"))
@@ -503,6 +514,7 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
        (java . t)
        (C . t)
        (gnuplot . t)
+       (sh . t)
        ))))
 
 #+END_SRC
