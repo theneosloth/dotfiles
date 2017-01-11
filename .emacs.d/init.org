@@ -61,6 +61,7 @@ Make sure that use-package is installed and that ensure is always on so that use
 #+END_SRC
 ** Random Quality of Life Things
 #+BEGIN_SRC emacs-lisp
+;; Variable that keeps track of whether the current system is a windows system
 (setq is-windows (eq system-type 'windows-nt))
 
 ;; Delete all the trailing whitespaces every time the file is saved
@@ -88,9 +89,9 @@ Make sure that use-package is installed and that ensure is always on so that use
 
 ;; Generic browser function always opens chrome for some reason.
 ;; This forces it to use palemoon
-(unless is-windows
-  (setq browse-url-browser-function 'browse-url-generic
-        browse-url-generic-program "palemoon"))
+;(unless is-windows
+;  (setq browse-url-browser-function 'browse-url-generic
+;        browse-url-generic-program "palemoon"))
 
 #+END_SRC
 *** Easily search for non ASCII Characters
@@ -140,6 +141,14 @@ Credit goes to [[https://www.reddit.com/r/emacs/comments/1zkj2d/advanced_usage_o
   "Not exactly but it's easier to remember"
   (interactive)
   (set-buffer-file-coding-system 'unix 't) )
+#+END_SRC
+** Clipboard
+#+BEGIN_SRC emacs-lisp
+;;Enables copy/paste from the system clipboard.
+(setq select-enable-primary t)
+(setq select-enable-clipboard t)
+(setq save-interprogram-paste-before-kill t)
+(setq kill-do-not-save-duplicates t)
 #+END_SRC
 ** Auto saves
 Move the auto-save and backup files into the temp fire directory so that emacs doesn't flood the working folders with junk.
@@ -472,12 +481,18 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 (use-package emmet-mode
   :mode (("\\.html$" . web-mode)
          ("\\.css$" . web-mode)
+
          )
   :init
   (progn
     (add-hook 'sgml-mode-hook 'emmet-mode)
-    (add-hook 'css-mode-hook 'emmet-mode)))
+    (add-hook 'css-mode-hook 'emmet-mode)
+    (setq emmet-move-cursor-between-quotes t)
+    ))
 
+
+(use-package impatient-mode
+  :commands httpd-start)
 #+END_SRC
 * Org Mode
 #+BEGIN_SRC emacs-lisp
