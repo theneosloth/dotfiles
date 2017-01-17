@@ -1,9 +1,13 @@
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
+export RUST_SRC_PATH=/usr/src/rust/src
+export PATH="$HOME/.cargo/bin:$PATH"
+
+#My Aliases
+alias steam-wine=' wine ~/.wine/drive_c/Program\ Files\ \(x86\)/Steam/Steam.exe >/dev/null 2>&1 &;disown'
 
 # Path to your oh-my-zsh installation.
 export ZSH=/home/superstepa/.oh-my-zsh
-
 # Set name of the theme to load. Optionally, if you set this to "random"
 # it'll load a random theme each time that oh-my-zsh is loaded.
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
@@ -55,7 +59,7 @@ COMPLETION_WAITING_DOTS="true"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git python)
+plugins=(git battery cargo python)
 
 source $ZSH/oh-my-zsh.sh
 
