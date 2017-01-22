@@ -45,6 +45,10 @@ Make sure that use-package is installed and that ensure is always on so that use
 (setq use-package-always-ensure t)
 #+END_SRC
 * Misc options
+** Startup with tramp
+#+BEGIN_SRC emacs-lisp
+(require 'tramp)
+#+END_SRC
 ** Custom Keybinds
 #+BEGIN_SRC emacs-lisp
 ;;Replace the default switch buffer key with the smarter ibuffer window
@@ -174,11 +178,10 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
 (defun display-startup-echo-area-message()
   (message (emacs-init-time)))
 #+END_SRC
-** TRAMP
+** Dired quick copy/paste
+When dired-dwim-target is enabled, dired tries to guess a default target directory. So if there are multiple dired panes open it will use that as the default.
 #+BEGIN_SRC emacs-lisp
-(use-package tramp
-  :config
-  (setq tramp-default-method "ssh"))
+(setq dired-dwim-target t)
 #+END_SRC
 * Major Custom Packages
 ** Ivy
@@ -501,15 +504,12 @@ Move the auto-save and backup files into the temp fire directory so that emacs d
   :mode (("\\.js\\'" . js2-mode)))
 
 (use-package emmet-mode
-  :mode (("\\.html$" . web-mode)
-         ("\\.css$" . web-mode)
-
-         )
+  :defer t
+  :ensure web-mode
   :init
   (progn
-    (add-hook 'sgml-mode-hook 'emmet-mode)
-    (add-hook 'css-mode-hook 'emmet-mode)
     (setq emmet-move-cursor-between-quotes t)
+    (add-hook 'web-mode-hook 'emmet-mode)
     ))
 
 
