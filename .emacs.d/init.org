@@ -60,7 +60,6 @@ Make sure that use-package is installed and that ensure is always on so that use
 ;; Quick calc
 (global-set-key (kbd "C-c c") 'quick-calc)
 
-;;Show what's coming up
 (global-set-key (kbd "C-c a") 'org-agenda-list)
 #+END_SRC
 ** Random Quality of Life Things
@@ -121,8 +120,6 @@ Credit goes to [[https://www.reddit.com/r/emacs/comments/1zkj2d/advanced_usage_o
     (split-window-vertically)
     (other-window 1)
     (eshell)
-    (insert (concat "cd " parent))
-    (eshell-send-input)
     (insert (concat "ls"))
     (eshell-send-input)))
 
@@ -316,15 +313,18 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   :diminish company-mode
   :init
   ;; Launch auto-complete with default settings
-  (add-hook 'after-init-hook 'global-company-mode)
-  (setq company-idle-delay 0))
+  (progn
+    (add-hook 'after-init-hook 'global-company-mode)
+    (setq company-idle-delay 0)))
 #+END_SRC
 ** Flycheck
 #+BEGIN_SRC emacs-lisp
 (use-package flycheck
   :diminish flycheck-mode
   :init
-  (add-hook 'after-init-hook 'global-flycheck-mode))
+  (progn
+    (add-hook 'after-init-hook 'global-flycheck-mode)))
+
 
 #+END_SRC
 ** Pdf-tools
@@ -394,6 +394,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
     (smartparens-strict-mode t)))
 
 (use-package yasnippet
+  :disabled t
   :commands yas-minor-mode
   :diminish yas-minor-mode
   :ensure java-snippets
@@ -453,7 +454,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 *** Autopep8
 #+BEGIN_SRC emacs-lisp
 (use-package py-autopep8
-  :mode (("\\.py$" . python-mode))
+  :commands py-autopep8-enable-on-save
   :init
   (progn
     (add-hook 'python-mode-hook 'py-autopep8-enable-on-save))
@@ -468,7 +469,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 ** Rust
 #+BEGIN_SRC emacs-lisp
 (use-package cargo
-  :mode (("\\.rs$" . rust-mode))
+  :commands cargo-minor-mode
   :init
   (progn
     (add-hook 'rust-mode-hook 'cargo-minor-mode))
@@ -478,7 +479,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   )
 
 (use-package racer
-  :mode (("\\.rs$" . rust-mode))
+  :commands racer-mode
   :init
   (progn
     (setq racer-rust-src-path (file-truename "/usr/src/rust/src"))
@@ -488,7 +489,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 
 
 (use-package flycheck-rust
-  :mode (("\\.rs$" . rust-mode))
+  :commands flycheck-rust-setup
   :init
   (progn
     (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)))
@@ -504,8 +505,8 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   :mode (("\\.js\\'" . js2-mode)))
 
 (use-package emmet-mode
-  :defer t
   :ensure web-mode
+  :commands emmet-mode
   :init
   (progn
     (setq emmet-move-cursor-between-quotes t)
