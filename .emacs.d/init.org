@@ -531,6 +531,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
         org-src-tab-acts-natively t
         org-confirm-babel-evaluate nil
         org-startup-with-inline-images t
+        org-list-allow-alphabetical t
         org-notes-location "~/Sync/Notes/"
         org-todo-location (expand-file-name
                            (concat org-notes-location "agenda.org"))
@@ -539,6 +540,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   (progn
     (require 'org-bullets)
     (require 'htmlize)
+    (require 'ox-md)
     (add-hook 'org-mode-hook (lambda()
                                (flyspell-mode 1)
                                (org-toggle-pretty-entities)
