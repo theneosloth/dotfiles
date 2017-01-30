@@ -246,6 +246,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 #+BEGIN_SRC emacs-lisp
 (use-package projectile
   :commands projectile-mode
+  :disabled t
   :init
   (progn
     (add-hook 'prog-mode-hook 'projectile-mode)
@@ -254,6 +255,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 
 (use-package counsel-projectile
   :commands counsel-projectile-on
+  :disabled t
   :init
   (progn
     (add-hook 'projectile-mode-hook 'counsel-projectile-on)))
@@ -516,6 +518,15 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 
 (use-package impatient-mode
   :commands httpd-start)
+#+END_SRC
+** Markdown
+#+BEGIN_SRC emacs-lisp
+(use-package markdown-mode
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "multimarkdown"))
 #+END_SRC
 * Org Mode
 #+BEGIN_SRC emacs-lisp
