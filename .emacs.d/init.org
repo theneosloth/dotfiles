@@ -557,6 +557,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   :config
   (progn
     (require 'org-bullets)
+    ;; Required for exporting source blocks to html.
     (require 'htmlize)
     (require 'ox-md)
 
@@ -615,7 +616,6 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 * Theme
 #+BEGIN_SRC emacs-lisp
 (use-package material-theme
-  :ensure t
   :config
   (load-theme 'material t))
 #+END_SRC
