@@ -186,12 +186,12 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 (use-package ivy
   :diminish ivy-mode
   :init
-  (setq projectile-completion-system 'ivy)
-  (use-package counsel
-    :bind (("M-x" . counsel-M-x)
-           ("C-x C-f" . counsel-find-file)))
-  (use-package swiper
-    :bind (("\C-s" . swiper)))
+  (progn
+    (use-package counsel
+      :bind (("M-x" . counsel-M-x)
+             ("C-x C-f" . counsel-find-file)))
+    (use-package swiper
+      :bind (("\C-s" . swiper))))
 
   :config
   (progn
@@ -203,6 +203,8 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 #+BEGIN_SRC emacs-lisp
 (use-package evil
   :diminish undo-tree-mode
+  :ensure evil-matchit
+  :ensure evil-surround
   :init
   (progn
     (setq evil-mode-line-format '(before . mode-line-front-space)))
@@ -214,14 +216,9 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
     (evil-set-initial-state 'erc-mode 'emacs)
     (evil-set-initial-state 'term-mode 'emacs)
     (evil-set-initial-state 'eshell-mode 'emacs)
-    (evil-set-initial-state 'ereader-mode 'emacs)
-
-    (use-package evil-surround
-      :config
-      (global-evil-surround-mode 1))
-    (use-package evil-matchit
-      :config
-      (global-evil-matchit-mode 1))))
+    (global-evil-surround-mode 1)
+    (global-evil-matchit-mode 1)
+    ))
 #+END_SRC
 
 ** Relative Line Number
@@ -348,6 +345,10 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 #+BEGIN_SRC emacs-lisp
 (use-package ereader
   :mode (("\\.epub" . ereader-mode))
+  :init
+  (progn
+    (add-to-list 'evil-emacs-state-modes 'ereader-mode)
+    )
   :config
   (progn
     (visual-line-mode 1)))
@@ -466,7 +467,10 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 #+BEGIN_SRC emacs-lisp
 (use-package cider
   :defer t
-  :disabled t)
+  :init
+  (progn
+    (add-to-list 'evil-emacs-state-modes 'cider-repl-mode)
+    ))
 #+END_SRC
 ** Rust
 #+BEGIN_SRC emacs-lisp
@@ -557,7 +561,6 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   :config
   (progn
     (require 'org-bullets)
-    ;; Required for exporting source blocks to html.
     (require 'htmlize)
     (require 'ox-md)
 
@@ -616,6 +619,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 * Theme
 #+BEGIN_SRC emacs-lisp
 (use-package material-theme
+  :ensure t
   :config
   (load-theme 'material t))
 #+END_SRC
