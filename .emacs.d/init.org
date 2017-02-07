@@ -504,8 +504,18 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 #+BEGIN_SRC emacs-lisp
 (use-package web-mode
   :mode (("\\.html$" . web-mode)
-         ("\\.css$" . web-mode)
-         ))
+         ("\\.css$" . web-mode))
+  :init
+  (progn
+    (setq web-mode-markup-indent-offset 4)
+    (setq web-mode-css-indent-offset 4)
+    (setq web-mode-code-indent-offset 4)
+    (setq web-mode-indent-style 4)
+    (setq web-mode-script-padding 1)
+    (setq web-mode-style-padding 1)
+    (setq web-mode-block-padding 1)
+    )
+  )
 
 (use-package js2-mode
   :mode (("\\.js\\'" . js2-mode)))
