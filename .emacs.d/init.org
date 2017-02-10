@@ -310,11 +310,12 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 #+BEGIN_SRC emacs-lisp
 (use-package company
   :diminish company-mode
+  :bind (("TAB" . company-indent-or-complete-common))
   :init
   ;; Launch auto-complete with default settings
   (progn
     (add-hook 'after-init-hook 'global-company-mode)
-    (setq company-idle-delay 0)))
+    ))
 #+END_SRC
 ** Flycheck
 #+BEGIN_SRC emacs-lisp
@@ -323,8 +324,6 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   :init
   (progn
     (add-hook 'after-init-hook 'global-flycheck-mode)))
-
-
 #+END_SRC
 ** Pdf-tools
 #+BEGIN_SRC emacs-lisp
@@ -451,7 +450,9 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   :defer t
   :init
   (progn
-    (add-to-list 'company-backends 'company-jedi))
+    (eval-after-load 'company
+      '(add-to-list 'company-backend 'company-jedi))
+    )
   )
 #+END_SRC
 *** Autopep8
@@ -507,18 +508,24 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
          ("\\.css$" . web-mode))
   :init
   (progn
-    (setq web-mode-markup-indent-offset 4)
-    (setq web-mode-css-indent-offset 4)
-    (setq web-mode-code-indent-offset 4)
-    (setq web-mode-indent-style 4)
-    (setq web-mode-script-padding 1)
-    (setq web-mode-style-padding 1)
-    (setq web-mode-block-padding 1)
+    (defun my-web-mode-hook ()
+      "Hooks for Web mode."
+      (setq web-mode-markup-indent-offset 2)
+      (whitespace-turn-off)
+      )
+    (add-hook 'web-mode-hook  'my-web-mode-hook)
+    ;;(setq web-mode-markup-indent-offset 4)
+    ;; (setq web-mode-css-indent-offset 4)
+    ;; (setq web-mode-code-indent-offset 4)
+    ;; (setq web-mode-indent-style 4)
+    ;; (setq web-mode-script-padding 1)
+    ;;(setq web-mode-style-padding 1)
+    ;;(setq web-mode-block-padding 1)
     )
   )
 
 (use-package js2-mode
-  :mode (("\\.js\\'" . js2-mode)))
+  :mode (("\\.js$\\'" . js2-mode)))
 
 (use-package emmet-mode
   :ensure web-mode
