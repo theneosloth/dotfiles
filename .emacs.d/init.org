@@ -57,7 +57,6 @@ Make sure that use-package is installed and that ensure is always on so that use
 ;; Toggle whitespace mode
 (global-set-key (kbd "C-c w") 'whitespace-mode)
 
-;; Quick calc
 (global-set-key (kbd "C-c c") 'quick-calc)
 
 (global-set-key (kbd "C-c a") 'org-agenda-list)
@@ -185,14 +184,13 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 #+BEGIN_SRC emacs-lisp
 (use-package ivy
   :diminish ivy-mode
-  :init
-  (progn
-    (use-package counsel
-      :bind (("M-x" . counsel-M-x)
-             ("C-x C-f" . counsel-find-file)))
-    (use-package swiper
-      :bind (("\C-s" . swiper))))
-
+  :ensure counsel
+  :ensure swiper
+  :bind (
+         ("M-x" . counsel-M-x)
+         ("C-x C-f" . counsel-find-file)
+         ("\C-s" . swiper)
+         )
   :config
   (progn
     (ivy-mode 1)
@@ -221,7 +219,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
     ))
 #+END_SRC
 
-** Relative Line Number
+** Relative Line Numberssss
 #+BEGIN_SRC emacs-lisp
 ;; Relative line package
 (use-package nlinum-relative
@@ -240,6 +238,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 #+END_SRC
 
 ** Projectile
+Not using projectile right now.
 #+BEGIN_SRC emacs-lisp
 (use-package projectile
   :commands projectile-mode
@@ -266,6 +265,9 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 #+BEGIN_SRC emacs-lisp
 (use-package elfeed
   :commands elfeed
+  :bind (
+         ("C-c e" . elfeed)
+         )
   :init
   (progn
     ;; Disable evil in all the elfeed panes
@@ -300,86 +302,41 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
     (company-auctex-init)
     ))
 #+END_SRC
-** Slime
-#+BEGIN_SRC emacs-lisp
-(use-package slime
-  :disabled t
-  :commands slime)
-#+END_SRC
-** Company
-#+BEGIN_SRC emacs-lisp
-(use-package company
-  :diminish company-mode
-  :bind (("TAB" . company-indent-or-complete-common))
-  :init
-  ;; Launch auto-complete with default settings
-  (progn
-    (add-hook 'after-init-hook 'global-company-mode)
-    ))
-#+END_SRC
-** Flycheck
-#+BEGIN_SRC emacs-lisp
-(use-package flycheck
-  :diminish flycheck-mode
-  :init
-  (progn
-    (add-hook 'after-init-hook 'global-flycheck-mode)))
-#+END_SRC
-** Pdf-tools
-#+BEGIN_SRC emacs-lisp
-(use-package pdf-tools
-  :mode ("\\.pdf$" . pdf-view-mode)
-  :config
-  (unless is-windows
-    ;; Only install pdf tools on unix
-    (pdf-tools-install))
-  )
-#+END_SRC
-** mtg-deck-mode
-#+BEGIN_SRC emacs-lisp
-(use-package mtg-deck-mode
-  :mode (("\\.dec" . mtg-deck-mode)))
-#+END_SRC
-** E-reader
-#+BEGIN_SRC emacs-lisp
-(use-package ereader
-  :mode (("\\.epub" . ereader-mode))
-  :init
-  (progn
-    (add-to-list 'evil-emacs-state-modes 'ereader-mode)
-    )
-  :config
-  (progn
-    (visual-line-mode 1)))
-#+END_SRC
-** Mingus
-#+BEGIN_SRC emacs-lisp
-(use-package mingus
-  :commands mingus-browse
-  :commands mingus-add-podcast-and-play
-  :init
-  (progn
-    ;;Custom key bindings. My laptop has no media next/previous so home and end are used instead
-    (global-set-key (kbd "<XF86AudioPlay>") 'mingus-pause)
-    (global-set-key (kbd "C-c m") 'mingus-browse)
-    (global-set-key (kbd "C-c <home>") 'mingus-prev)
-    (global-set-key (kbd "C-c <end>") 'mingus-next)
-    ;;Disable evil in mingus
-    ;; evil-set-initial-state doesn't work for some reason.
-    ;; (evil-set-initial-state 'mingus-help-mode 'emacs)
-    ;; (evil-set-initial-state 'mingus-browse-mode 'emacs)
-    ;; (evil-set-initial-state 'mingus-playlist-mode 'emacs)
-
-    (add-hook 'mingus-browse-hook 'evil-emacs-state)
-    (add-hook 'mingus-playlist-hooks 'evil-emacs-state)
-    )
-  :config
-  (progn
-    (require 'mingus-stays-home))
-  )
-#+END_SRC
 * Programming Modes
 ** Language Independent Settings
+*** Indentation
+Always enable whitespace mode
+#+BEGIN_SRC emacs-lisp
+(use-package whitespace
+  :commands whitespace-mode
+  :diminish whitespace-mode
+  :init
+  (add-hook 'prog-mode-hook 'whitespace-mode))
+#+END_SRC
+
+Better indent guides.
+#+BEGIN_SRC emacs-lisp
+(use-package highlight-indent-guides
+  :commands highlight-indent-guides-mode
+  :diminish highlight-indent-guides-mode
+  :init
+  (progn
+    (add-hook 'prog-mode-hook 'highlight-indent-guides-mode))
+  :config
+  (progn
+    (setq highlight-indent-guides-method 'character)))
+#+END_SRC
+Automatic indentation.
+#+BEGIN_SRC emacs-lisp
+(use-package aggressive-indent
+  :diminish aggressive-indent-mode
+  :init
+  (progn
+    (global-aggressive-indent-mode)
+    )
+  )
+#+END_SRC
+*** Misc
 #+BEGIN_SRC emacs-lisp
 (use-package smartparens
   :diminish smartparens-mode
@@ -395,6 +352,15 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
     (show-smartparens-mode)
     (smartparens-strict-mode t)))
 
+(use-package rainbow-delimiters
+  :commands rainbow-delimiters-mode
+  :init
+  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
+
+#+END_SRC
+
+Not using yasnippet rightnow but it could become useful in the future.
+#+BEGIN_SRC emacs-lisp
 (use-package yasnippet
   :disabled t
   :commands yas-minor-mode
@@ -404,35 +370,8 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   (progn
     (add-hook 'prog-mode-hook 'yas-minor-mode)))
 
-(use-package highlight-indent-guides
-  :commands highlight-indent-guides-mode
-  :diminish highlight-indent-guides-mode
-  :init
-  (progn
-    (add-hook 'prog-mode-hook 'highlight-indent-guides-mode))
-  :config
-  (progn
-    (setq highlight-indent-guides-method 'character)))
 
-(use-package whitespace
-  :commands whitespace-mode
-  :diminish whitespace-mode
-  :init
 
-  (add-hook 'prog-mode-hook 'whitespace-mode))
-
-(use-package rainbow-delimiters
-  :commands rainbow-delimiters-mode
-  :init
-  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
-
-(use-package aggressive-indent
-  :diminish aggressive-indent-mode
-  :init
-  (progn
-    (global-aggressive-indent-mode)
-    )
-  )
 #+END_SRC
 ** C-Mode
 #+BEGIN_SRC emacs-lisp
@@ -447,7 +386,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 *** Company-Jedi
 #+BEGIN_SRC emacs-lisp
 (use-package company-jedi
-  :defer t
+  :mode "\\.py$"
   :init
   (progn
     (eval-after-load 'company
@@ -459,6 +398,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 #+BEGIN_SRC emacs-lisp
 (use-package py-autopep8
   :commands py-autopep8-enable-on-save
+  :mode "\\.py$"
   :init
   (progn
     (add-hook 'python-mode-hook 'py-autopep8-enable-on-save))
@@ -467,7 +407,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 ** Clojure
 #+BEGIN_SRC emacs-lisp
 (use-package cider
-  :defer t
+  :mode "\\.clj$"
   :init
   (progn
     (add-to-list 'evil-emacs-state-modes 'cider-repl-mode)
@@ -536,7 +476,6 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
     (add-hook 'web-mode-hook 'emmet-mode)
     ))
 
-
 (use-package impatient-mode
   :commands httpd-start)
 #+END_SRC
@@ -548,6 +487,86 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
          ("\\.md\\'" . markdown-mode)
          ("\\.markdown\\'" . markdown-mode))
   :init (setq markdown-command "multimarkdown"))
+#+END_SRC
+** Slime
+I am not using slime right now but it could become relevant when I learn lisp.
+#+BEGIN_SRC emacs-lisp
+(use-package slime
+  :disabled t
+  :commands slime)
+#+END_SRC
+*** Company
+#+BEGIN_SRC emacs-lisp
+(use-package company
+  :diminish company-mode
+  ;;Complete on tab
+  :bind (("TAB" . company-indent-or-complete-common))
+  :init
+  ;; Launch auto-complete with default settings
+  (progn
+    (add-hook 'after-init-hook 'global-company-mode)
+    ))
+#+END_SRC
+*** Flycheck
+#+BEGIN_SRC emacs-lisp
+(use-package flycheck
+  :diminish flycheck-mode
+  :init
+  (progn
+    (add-hook 'after-init-hook 'global-flycheck-mode)))
+#+END_SRC
+*** Pdf-tools
+#+BEGIN_SRC emacs-lisp
+(use-package pdf-tools
+  :mode ("\\.pdf$" . pdf-view-mode)
+  :config
+  (unless is-windows
+    ;; Only install pdf tools on unix
+    (pdf-tools-install))
+  )
+#+END_SRC
+*** mtg-deck-mode
+#+BEGIN_SRC emacs-lisp
+(use-package mtg-deck-mode
+  :mode (("\\.dec" . mtg-deck-mode)))
+#+END_SRC
+*** E-reader
+#+BEGIN_SRC emacs-lisp
+(use-package ereader
+  :mode (("\\.epub" . ereader-mode))
+  :init
+  (progn
+    (add-to-list 'evil-emacs-state-modes 'ereader-mode)
+    )
+  :config
+  (progn
+    (visual-line-mode 1)))
+#+END_SRC
+*** Mingus
+#+BEGIN_SRC emacs-lisp
+(use-package mingus
+  :commands mingus-browse
+  :commands mingus-add-podcast-and-play
+  :init
+  (progn
+    ;;Custom key bindings. My laptop has no media next/previous so home and end are used instead
+    (global-set-key (kbd "<XF86AudioPlay>") 'mingus-pause)
+    (global-set-key (kbd "C-c m") 'mingus-browse)
+    (global-set-key (kbd "C-c <home>") 'mingus-prev)
+    (global-set-key (kbd "C-c <end>") 'mingus-next)
+    ;;Disable evil in mingus
+    ;; evil-set-initial-state doesn't work for some reason.
+    ;; (evil-set-initial-state 'mingus-help-mode 'emacs)
+    ;; (evil-set-initial-state 'mingus-browse-mode 'emacs)
+    ;; (evil-set-initial-state 'mingus-playlist-mode 'emacs)
+
+    (add-hook 'mingus-browse-hook 'evil-emacs-state)
+    (add-hook 'mingus-playlist-hooks 'evil-emacs-state)
+    )
+  :config
+  (progn
+    (require 'mingus-stays-home))
+  )
 #+END_SRC
 * Org Mode
 #+BEGIN_SRC emacs-lisp
