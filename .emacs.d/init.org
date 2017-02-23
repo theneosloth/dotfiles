@@ -219,7 +219,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
     ))
 #+END_SRC
 
-** Relative Line Numbers
+** Relative Line Numberssss
 #+BEGIN_SRC emacs-lisp
 ;; Relative line package
 (use-package nlinum-relative
@@ -386,7 +386,7 @@ Not using yasnippet rightnow but it could become useful in the future.
 *** Company-Jedi
 #+BEGIN_SRC emacs-lisp
 (use-package company-jedi
-  :mode "\\.py$"
+  :mode (("\\.py$" . python-mode))
   :init
   (progn
     (eval-after-load 'company
@@ -398,7 +398,7 @@ Not using yasnippet rightnow but it could become useful in the future.
 #+BEGIN_SRC emacs-lisp
 (use-package py-autopep8
   :commands py-autopep8-enable-on-save
-  :mode "\\.py$"
+  :mode (("\\.py$" . python-mode))
   :init
   (progn
     (add-hook 'python-mode-hook 'py-autopep8-enable-on-save))
@@ -486,10 +486,13 @@ Not using yasnippet rightnow but it could become useful in the future.
   :mode (("README\\.md\\'" . gfm-mode)
          ("\\.md\\'" . markdown-mode)
          ("\\.markdown\\'" . markdown-mode))
-  :init (setq markdown-command "multimarkdown"))
+  :init
+  (progn
+    (setq markdown-command "multimarkdown")
+    (add-hook 'markdown-mode-hook 'visual-line-mode)))
 #+END_SRC
 ** Slime
-I am not using slime right now but it could become relevant when I use common lisp.
+I am not using slime right now but it could become relevant when I learn lisp.
 #+BEGIN_SRC emacs-lisp
 (use-package slime
   :disabled t
