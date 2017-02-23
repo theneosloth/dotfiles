@@ -446,12 +446,14 @@ Not using yasnippet rightnow but it could become useful in the future.
 (use-package web-mode
   :mode (("\\.html$" . web-mode)
          ("\\.css$" . web-mode))
+  :ensure company-web
   :init
   (progn
     (defun my-web-mode-hook ()
       "Hooks for Web mode."
       (setq web-mode-markup-indent-offset 2)
       (whitespace-turn-off)
+      (set (make-local-variable 'company-backends) '(company-web-html))
       )
     (add-hook 'web-mode-hook  'my-web-mode-hook)
     ;;(setq web-mode-markup-indent-offset 4)
