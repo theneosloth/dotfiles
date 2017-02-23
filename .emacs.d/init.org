@@ -219,7 +219,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
     ))
 #+END_SRC
 
-** Relative Line Numberssss
+** Relative Line Numbers
 #+BEGIN_SRC emacs-lisp
 ;; Relative line package
 (use-package nlinum-relative
