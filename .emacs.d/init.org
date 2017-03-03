@@ -219,7 +219,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
     ))
 #+END_SRC
 
-** Relative Line Numbers
+** Relative Line Numberssss
 #+BEGIN_SRC emacs-lisp
 ;; Relative line package
 (use-package nlinum-relative
@@ -280,6 +280,7 @@ Not using projectile right now.
        ("http://www.smbc-comics.com/rss.php" webcomic)
        ("http://nedroid.com/feed/" webcomic)
        ("http://www.awkwardzombie.com/awkward.php" webcomic)
+       ("http://existentialcomics.com/rss.xml" webcomic)
        ("http://mega64.com/category/podcast/feed/" podcast)
        ("http://colorcommontary.com/feed/podcast" podcast)
        ("http://billburr.libsyn.com/rss" podcast)
@@ -446,14 +447,12 @@ Not using yasnippet rightnow but it could become useful in the future.
 (use-package web-mode
   :mode (("\\.html$" . web-mode)
          ("\\.css$" . web-mode))
-  :ensure company-web
   :init
   (progn
     (defun my-web-mode-hook ()
       "Hooks for Web mode."
       (setq web-mode-markup-indent-offset 2)
       (whitespace-turn-off)
-      (set (make-local-variable 'company-backends) '(company-web-html))
       )
     (add-hook 'web-mode-hook  'my-web-mode-hook)
     ;;(setq web-mode-markup-indent-offset 4)
