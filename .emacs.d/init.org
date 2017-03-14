@@ -283,6 +283,7 @@ Not using projectile right now.
        ("http://existentialcomics.com/rss.xml" webcomic)
        ("http://mega64.com/category/podcast/feed/" podcast)
        ("http://colorcommontary.com/feed/podcast" podcast)
+       ("http://www.giantbomb.com/podcast-xml/beastcast" podcast)
        ("http://billburr.libsyn.com/rss" podcast)
        ("http://planet.emacsen.org/atom.xml" blog emacs)
        )
@@ -409,6 +410,7 @@ Not using yasnippet rightnow but it could become useful in the future.
 #+BEGIN_SRC emacs-lisp
 (use-package cider
   :mode "\\.clj$"
+  :disabled t
   :init
   (progn
     (add-to-list 'evil-emacs-state-modes 'cider-repl-mode)
@@ -418,16 +420,19 @@ Not using yasnippet rightnow but it could become useful in the future.
 #+BEGIN_SRC emacs-lisp
 (use-package cargo
   :commands cargo-minor-mode
+  :disabled t
   :init
   (progn
     (add-hook 'rust-mode-hook 'cargo-minor-mode))
   )
 (use-package rust-mode
   :mode (("\\.rs$" . rust-mode))
+  :disabled t
   )
 
 (use-package racer
   :commands racer-mode
+  :disabled t
   :init
   (progn
     (setq racer-rust-src-path (file-truename "/usr/src/rust/src"))
@@ -438,6 +443,7 @@ Not using yasnippet rightnow but it could become useful in the future.
 
 (use-package flycheck-rust
   :commands flycheck-rust-setup
+  :disabled t
   :init
   (progn
     (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)))
@@ -556,8 +562,6 @@ I am not using slime right now but it could become relevant when I learn lisp.
     ;;Custom key bindings. My laptop has no media next/previous so home and end are used instead
     (global-set-key (kbd "<XF86AudioPlay>") 'mingus-pause)
     (global-set-key (kbd "C-c m") 'mingus-browse)
-    (global-set-key (kbd "C-c <home>") 'mingus-prev)
-    (global-set-key (kbd "C-c <end>") 'mingus-next)
     ;;Disable evil in mingus
     ;; evil-set-initial-state doesn't work for some reason.
     ;; (evil-set-initial-state 'mingus-help-mode 'emacs)
