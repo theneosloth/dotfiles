@@ -119,6 +119,7 @@ Credit goes to [[https://www.reddit.com/r/emacs/comments/1zkj2d/advanced_usage_o
     (split-window-vertically)
     (other-window 1)
     (eshell)
+    (rename-buffer (concat "Eshell: " name))
     (insert (concat "ls"))
     (eshell-send-input)))
 
@@ -219,7 +220,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
     ))
 #+END_SRC
 
-** Relative Line Numberssss
+** Relative Line Numbers
 #+BEGIN_SRC emacs-lisp
 ;; Relative line package
 (use-package nlinum-relative
@@ -235,6 +236,78 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   (progn
     (nlinum-relative-setup-evil)
     ))
+#+END_SRC
+
+** Company
+#+BEGIN_SRC emacs-lisp
+(use-package company
+  :diminish company-mode
+  ;;Complete on tab
+  :bind (("TAB" . company-indent-or-complete-common))
+  :init
+  ;; Launch auto-complete with default settings
+  (progn
+    (add-hook 'after-init-hook 'global-company-mode)
+    ))
+#+END_SRC
+** Flycheck
+#+BEGIN_SRC emacs-lisp
+(use-package flycheck
+  :diminish flycheck-mode
+  :init
+  (progn
+    (add-hook 'after-init-hook 'global-flycheck-mode)))
+#+END_SRC
+** Pdf-tools
+#+BEGIN_SRC emacs-lisp
+(use-package pdf-tools
+  :mode ("\\.pdf$" . pdf-view-mode)
+  :config
+  (unless is-windows
+    ;; Only install pdf tools on unix
+    (pdf-tools-install))
+  )
+#+END_SRC
+** mtg-deck-mode
+#+BEGIN_SRC emacs-lisp
+(use-package mtg-deck-mode
+  :mode (("\\.dec" . mtg-deck-mode)))
+#+END_SRC
+** E-reader
+#+BEGIN_SRC emacs-lisp
+(use-package ereader
+  :mode (("\\.epub" . ereader-mode))
+  :init
+  (progn
+    (add-to-list 'evil-emacs-state-modes 'ereader-mode)
+    )
+  :config
+  (progn
+    (visual-line-mode 1)))
+#+END_SRC
+** Mingus
+#+BEGIN_SRC emacs-lisp
+(use-package mingus
+  :commands mingus-browse
+  :commands mingus-add-podcast-and-play
+  :init
+  (progn
+    ;;Custom key bindings. My laptop has no media next/previous so home and end are used instead
+    (global-set-key (kbd "<XF86AudioPlay>") 'mingus-pause)
+    (global-set-key (kbd "C-c m") 'mingus-browse)
+    ;;Disable evil in mingus
+    ;; evil-set-initial-state doesn't work for some reason.
+    ;; (evil-set-initial-state 'mingus-help-mode 'emacs)
+    ;; (evil-set-initial-state 'mingus-browse-mode 'emacs)
+    ;; (evil-set-initial-state 'mingus-playlist-mode 'emacs)
+
+    (add-hook 'mingus-browse-hook 'evil-emacs-state)
+    (add-hook 'mingus-playlist-hooks 'evil-emacs-state)
+    )
+  :config
+  (progn
+    (require 'mingus-stays-home))
+  )
 #+END_SRC
 
 ** Projectile
@@ -504,77 +577,6 @@ I am not using slime right now but it could become relevant when I learn lisp.
 (use-package slime
   :disabled t
   :commands slime)
-#+END_SRC
-*** Company
-#+BEGIN_SRC emacs-lisp
-(use-package company
-  :diminish company-mode
-  ;;Complete on tab
-  :bind (("TAB" . company-indent-or-complete-common))
-  :init
-  ;; Launch auto-complete with default settings
-  (progn
-    (add-hook 'after-init-hook 'global-company-mode)
-    ))
-#+END_SRC
-*** Flycheck
-#+BEGIN_SRC emacs-lisp
-(use-package flycheck
-  :diminish flycheck-mode
-  :init
-  (progn
-    (add-hook 'after-init-hook 'global-flycheck-mode)))
-#+END_SRC
-*** Pdf-tools
-#+BEGIN_SRC emacs-lisp
-(use-package pdf-tools
-  :mode ("\\.pdf$" . pdf-view-mode)
-  :config
-  (unless is-windows
-    ;; Only install pdf tools on unix
-    (pdf-tools-install))
-  )
-#+END_SRC
-*** mtg-deck-mode
-#+BEGIN_SRC emacs-lisp
-(use-package mtg-deck-mode
-  :mode (("\\.dec" . mtg-deck-mode)))
-#+END_SRC
-*** E-reader
-#+BEGIN_SRC emacs-lisp
-(use-package ereader
-  :mode (("\\.epub" . ereader-mode))
-  :init
-  (progn
-    (add-to-list 'evil-emacs-state-modes 'ereader-mode)
-    )
-  :config
-  (progn
-    (visual-line-mode 1)))
-#+END_SRC
-*** Mingus
-#+BEGIN_SRC emacs-lisp
-(use-package mingus
-  :commands mingus-browse
-  :commands mingus-add-podcast-and-play
-  :init
-  (progn
-    ;;Custom key bindings. My laptop has no media next/previous so home and end are used instead
-    (global-set-key (kbd "<XF86AudioPlay>") 'mingus-pause)
-    (global-set-key (kbd "C-c m") 'mingus-browse)
-    ;;Disable evil in mingus
-    ;; evil-set-initial-state doesn't work for some reason.
-    ;; (evil-set-initial-state 'mingus-help-mode 'emacs)
-    ;; (evil-set-initial-state 'mingus-browse-mode 'emacs)
-    ;; (evil-set-initial-state 'mingus-playlist-mode 'emacs)
-
-    (add-hook 'mingus-browse-hook 'evil-emacs-state)
-    (add-hook 'mingus-playlist-hooks 'evil-emacs-state)
-    )
-  :config
-  (progn
-    (require 'mingus-stays-home))
-  )
 #+END_SRC
 * Org Mode
 #+BEGIN_SRC emacs-lisp
