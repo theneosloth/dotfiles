@@ -204,6 +204,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   :diminish undo-tree-mode
   :ensure evil-matchit
   :ensure evil-surround
+  :ensure evil-easymotion
   :init
   (progn
     (setq evil-mode-line-format '(before . mode-line-front-space)))
@@ -217,6 +218,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
     (evil-set-initial-state 'eshell-mode 'emacs)
     (global-evil-surround-mode 1)
     (global-evil-matchit-mode 1)
+    (evilem-default-keybindings "SPC")
     ))
 #+END_SRC
 
@@ -408,6 +410,7 @@ Automatic indentation.
   :init
   (progn
     (global-aggressive-indent-mode)
+    (add-to-list 'aggressive-indent-excluded-modes 'python-mode)
     )
   )
 #+END_SRC
@@ -526,7 +529,7 @@ Not using yasnippet rightnow but it could become useful in the future.
 #+BEGIN_SRC emacs-lisp
 (use-package web-mode
   :mode (("\\.html$" . web-mode)
-         ("\\.css$" . web-mode))
+         )
   :ensure company-web
   :init
   (progn
@@ -551,6 +554,7 @@ Not using yasnippet rightnow but it could become useful in the future.
   )
 
 (use-package js2-mode
+  :disabled t
   :mode (("\\.js$\\'" . js2-mode)))
 
 (use-package emmet-mode
@@ -562,6 +566,7 @@ Not using yasnippet rightnow but it could become useful in the future.
     ))
 
 (use-package impatient-mode
+  :disabled t
   :commands httpd-start)
 #+END_SRC
 ** Markdown
@@ -653,6 +658,7 @@ I am not using slime right now but it could become relevant when I learn lisp.
           '((".*freenode.net" "#emacs" "#lainchan")
             ("portlane.se.quakenet.org" "#unrealvidya")
             (".*undernet.org" "#bookz")
+            (".*abjects.net" "#mg-chat" "#moviegods")
             ))
     (defun irc-connect ()
       "Connect to IRC interactively."
@@ -660,6 +666,7 @@ I am not using slime right now but it could become relevant when I learn lisp.
       (setq servers '(
                       ("Freenode" . "irc.freenode.net")
                       ("Undernet" . "ix1.undernet.org")
+                      ("Abjects" . "irc.abjects.net")
                       ))
       (dolist (server servers)
         (when (y-or-n-p (car server))
