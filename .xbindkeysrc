@@ -72,7 +72,7 @@
 "mpc next"
   XF86AudioNext
 
-"mpc previous"
+"mpc prev"
   XF86AudioPrev
 
 "mpc stop"
