@@ -66,6 +66,20 @@
 "amixer set Capture toggle"
   XF86AudioMicMute
 
+"mpc toggle"
+  XF86AudioPlay
+
+"mpc next"
+  XF86AudioNext
+
+"mpc previous"
+  XF86AudioPrev
+
+"mpc stop"
+  XF86AudioStop
+
+
+
 #"xterm -geom 50x20+20+20"
 #   Shift+Mod2+alt + s
 #

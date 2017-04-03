@@ -295,7 +295,6 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   :init
   (progn
     ;;Custom key bindings. My laptop has no media next/previous so home and end are used instead
-    (global-set-key (kbd "<XF86AudioPlay>") 'mingus-pause)
     (global-set-key (kbd "C-c m") 'mingus-browse)
     ;;Disable evil in mingus
     ;; evil-set-initial-state doesn't work for some reason.
@@ -306,9 +305,6 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
     (add-hook 'mingus-browse-hook 'evil-emacs-state)
     (add-hook 'mingus-playlist-hooks 'evil-emacs-state)
     )
-  :config
-  (progn
-    (require 'mingus-stays-home))
   )
 #+END_SRC
 

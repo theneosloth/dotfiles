@@ -159,9 +159,3 @@ gaps inner 5
 smart_gaps on
 
 exec --no-startup-id feh --randomize --bg-fill ~/Sync/Wallpapers
-
-# Media player controls
-bindsym XF86AudioToggle exec mpc toggle
-bindsym XF86AudioNext exec mpc next
-bindsym XF86AudioPrev exec mpc previous
-bindsym XF86AudioStop exec mpc stop
