@@ -375,6 +375,15 @@ Not using projectile right now.
     (company-auctex-init)
     ))
 #+END_SRC
+** notmuch
+#+BEGIN_SRC emacs-lisp
+(unless is-windows
+  (autoload 'notmuch "notmuch" "notmuch mail" t)
+  (add-hook 'notmuch-hello-mode 'evil-emacs-state)
+  (add-hook 'notmuch-message-mode 'evil-emacs-state)
+  (add-hook 'notmuch-search-mode 'evil-emacs-state)
+  )
+#+END_SRC
 * Programming Modes
 ** Language Independent Settings
 *** Indentation
@@ -412,8 +421,19 @@ Automatic indentation.
 #+END_SRC
 *** Misc
 #+BEGIN_SRC emacs-lisp
-(add-hook 'prog-mode-hook 'electric-pair-mode)
-(setq electric-pair-inhibit-predicate 'electric-pair-conservative-inhibit)
+(use-package smartparens
+  :diminish smartparens-mode
+  :ensure evil-smartparens
+  :diminish evil-smartparens-mode
+  :init
+  (progn
+    (add-hook 'smartparens-enabled-hook 'evil-smartparens-mode)
+    (add-hook 'prog-mode-hook 'smartparens-mode))
+  :config
+  (progn
+    (require 'smartparens-config)
+    (show-smartparens-mode)
+    (smartparens-strict-mode t)))
 
 (use-package rainbow-delimiters
   :commands rainbow-delimiters-mode
@@ -432,6 +452,9 @@ Not using yasnippet rightnow but it could become useful in the future.
   :init
   (progn
     (add-hook 'prog-mode-hook 'yas-minor-mode)))
+
+
+
 #+END_SRC
 ** C-Mode
 #+BEGIN_SRC emacs-lisp
