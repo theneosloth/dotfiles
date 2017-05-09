@@ -202,9 +202,12 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 #+BEGIN_SRC emacs-lisp
 (use-package evil
   :diminish undo-tree-mode
+  :diminish evil-goggles-mode
   :ensure evil-matchit
   :ensure evil-surround
   :ensure evil-easymotion
+  :ensure evil-goggles
+
   :init
   (progn
     (setq evil-mode-line-format '(before . mode-line-front-space)))
@@ -219,6 +222,13 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
     (global-evil-surround-mode 1)
     (global-evil-matchit-mode 1)
     (evilem-default-keybindings "SPC")
+    (evil-goggles-mode)
+    (require 'diff-mode) ;; load diff-* faces
+    (setq evil-goggles-faces-alist `(
+                                     ( evil-delete . diff-removed )
+                                     ( evil-yank . diff-changed )
+                                     ( evil-paste-after . diff-added )
+                                     ( evil-paste-before . diff-added )))
     ))
 #+END_SRC
 
@@ -264,11 +274,15 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 #+BEGIN_SRC emacs-lisp
 (use-package pdf-tools
   :mode ("\\.pdf$" . pdf-view-mode)
+  :init
+  (add-hook 'pdf-tools-enabled-hook 'pdf-view-midnight-minor-mode)
   :config
   (unless is-windows
     ;; Only install pdf tools on unix
-    (pdf-tools-install))
-  )
+    (pdf-tools-install)
+    (define-key pdf-view-mode-map (kbd "j") 'pdf-view-next-line-or-next-page)
+    (define-key pdf-view-mode-map (kbd "k") 'pdf-view-previous-line-or-previous-page)
+    ))
 #+END_SRC
 ** mtg-deck-mode
 #+BEGIN_SRC emacs-lisp
@@ -314,6 +328,7 @@ Not using projectile right now.
 (use-package projectile
   :commands projectile-mode
   :disabled t
+  :ensure nil
   :init
   (progn
     (add-hook 'prog-mode-hook 'projectile-mode)
@@ -323,6 +338,7 @@ Not using projectile right now.
 (use-package counsel-projectile
   :commands counsel-projectile-on
   :disabled t
+  :ensure nil
   :init
   (progn
     (add-hook 'projectile-mode-hook 'counsel-projectile-on)))
@@ -421,34 +437,22 @@ Automatic indentation.
 #+END_SRC
 *** Misc
 #+BEGIN_SRC emacs-lisp
-(use-package smartparens
-  :diminish smartparens-mode
-  :ensure evil-smartparens
-  :diminish evil-smartparens-mode
-  :init
-  (progn
-    (add-hook 'smartparens-enabled-hook 'evil-smartparens-mode)
-    (add-hook 'prog-mode-hook 'smartparens-mode))
-  :config
-  (progn
-    (require 'smartparens-config)
-    (show-smartparens-mode)
-    (smartparens-strict-mode t)))
+(add-hook 'prog-mode-hook 'electric-pair-mode)
 
 (use-package rainbow-delimiters
   :commands rainbow-delimiters-mode
-  :init
+ :init
   (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
 
 #+END_SRC
 
-Not using yasnippet rightnow but it could become useful in the future.
+Not using yasnippet right now but it could become useful in the future.
 #+BEGIN_SRC emacs-lisp
 (use-package yasnippet
   :disabled t
+  :ensure nil
   :commands yas-minor-mode
   :diminish yas-minor-mode
-  :ensure java-snippets
   :init
   (progn
     (add-hook 'prog-mode-hook 'yas-minor-mode)))
@@ -493,6 +497,7 @@ Not using yasnippet rightnow but it could become useful in the future.
 (use-package cider
   :mode "\\.clj$"
   :disabled t
+  :ensure nil
   :init
   (progn
     (add-to-list 'evil-emacs-state-modes 'cider-repl-mode)
@@ -503,6 +508,7 @@ Not using yasnippet rightnow but it could become useful in the future.
 (use-package cargo
   :commands cargo-minor-mode
   :disabled t
+  :ensure nil
   :init
   (progn
     (add-hook 'rust-mode-hook 'cargo-minor-mode))
@@ -510,11 +516,13 @@ Not using yasnippet rightnow but it could become useful in the future.
 (use-package rust-mode
   :mode (("\\.rs$" . rust-mode))
   :disabled t
+  :ensure nil
   )
 
 (use-package racer
   :commands racer-mode
   :disabled t
+  :ensure nil
   :init
   (progn
     (setq racer-rust-src-path (file-truename "/usr/src/rust/src"))
@@ -526,6 +534,7 @@ Not using yasnippet rightnow but it could become useful in the future.
 (use-package flycheck-rust
   :commands flycheck-rust-setup
   :disabled t
+  :ensure nil
   :init
   (progn
     (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)))
@@ -560,6 +569,7 @@ Not using yasnippet rightnow but it could become useful in the future.
 
 (use-package js2-mode
   :disabled t
+  :ensure nil
   :mode (("\\.js$\\'" . js2-mode)))
 
 (use-package emmet-mode
@@ -572,6 +582,7 @@ Not using yasnippet rightnow but it could become useful in the future.
 
 (use-package impatient-mode
   :disabled t
+  :ensure nil
   :commands httpd-start)
 #+END_SRC
 ** Markdown
@@ -591,6 +602,7 @@ I am not using slime right now but it could become relevant when I learn lisp.
 #+BEGIN_SRC emacs-lisp
 (use-package slime
   :disabled t
+  :ensure nil
   :commands slime)
 #+END_SRC
 ** Shell
