@@ -127,9 +127,12 @@ Credit goes to [[https://www.reddit.com/r/emacs/comments/1zkj2d/advanced_usage_o
 #+END_SRC
 ** UTF-8 and Fonts
 #+BEGIN_SRC emacs-lisp
-(set-face-attribute 'default nil :family "DejaVu Sans Mono")
-
 ;;The following lines force UTF-8 whenever possible
+(if is-windows
+    (set-face-attribute 'default nil :family "Consolas" :height 100)
+  (set-face-attribute 'default nil :family "DejaVu Sans Mono")
+  )
+
 (prefer-coding-system 'utf-8)
 (set-default-coding-systems 'utf-8)
 (set-terminal-coding-system 'utf-8)
@@ -295,7 +298,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   :mode (("\\.epub" . ereader-mode))
   :init
   (progn
-    (add-to-list 'evil-emacs-state-modes 'ereader-mode)
+    (add-to-list 'evil-insert-state-modes 'ereader-mode)
     )
   :config
   (progn
@@ -358,8 +361,8 @@ Not using projectile right now.
   :init
   (progn
     ;; Disable evil in all the elfeed panes
-    (add-to-list 'evil-emacs-state-modes 'elfeed-show-mode)
-    (add-to-list 'evil-emacs-state-modes 'elfeed-search-mode)
+    (add-to-list 'evil-insert-state-modes 'elfeed-show-mode)
+    (add-to-list 'evil-insert-state-modes 'elfeed-search-mode)
     (setq
      elfeed-feeds
      '(
@@ -496,11 +499,9 @@ Not using yasnippet right now but it could become useful in the future.
 #+BEGIN_SRC emacs-lisp
 (use-package cider
   :mode "\\.clj$"
-  :disabled t
-  :ensure nil
   :init
   (progn
-    (add-to-list 'evil-emacs-state-modes 'cider-repl-mode)
+    (add-to-list 'evil-insert-state-modes 'cider-repl-mode)
     ))
 #+END_SRC
 ** Rust
@@ -539,7 +540,13 @@ Not using yasnippet right now but it could become useful in the future.
   (progn
     (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)))
 #+END_SRC
-** Web
+** Javascript
+#+BEGIN_SRC emacs-lisp
+(use-package js2-mode
+  :mode (("\\.js$\\'" . js2-mode)))
+
+#+END_SRC
+** Web/HTML
 #+BEGIN_SRC emacs-lisp
 (use-package web-mode
   :mode (("\\.html$" . web-mode)
@@ -567,10 +574,15 @@ Not using yasnippet right now but it could become useful in the future.
     )
   )
 
-(use-package js2-mode
-  :disabled t
-  :ensure nil
-  :mode (("\\.js$\\'" . js2-mode)))
+(use-package skewer-mode
+  :defer t
+  :init
+  (progn
+    (add-hook 'js2-mode-hook 'skewer-mode)
+    (add-hook 'css-mode-hook 'skewer-css-mode)
+    (add-hook 'html-mode-hook 'skewer-html-mode)
+    )
+  )
 
 (use-package emmet-mode
   :commands emmet-mode
@@ -578,6 +590,7 @@ Not using yasnippet right now but it could become useful in the future.
   (progn
     (setq emmet-move-cursor-between-quotes t)
     (add-hook 'web-mode-hook 'emmet-mode)
+    (add-hook 'html-mode-hook 'emmet-mode)
     ))
 
 (use-package impatient-mode
