@@ -47,7 +47,10 @@ Make sure that use-package is installed and that ensure is always on so that use
 * Misc options
 ** Startup with tramp
 #+BEGIN_SRC emacs-lisp
-(require 'tramp)
+;;(require 'tramp)
+(setq tramp-default-method "ssh"
+      tramp-backup-directory-alist backup-directory-alist
+      tramp-ssh-controlmaster-options "ssh")
 #+END_SRC
 ** Custom Keybinds
 #+BEGIN_SRC emacs-lisp
@@ -209,7 +212,6 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   :ensure evil-matchit
   :ensure evil-surround
   :ensure evil-easymotion
-  :ensure evil-goggles
 
   :init
   (progn
@@ -225,13 +227,6 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
     (global-evil-surround-mode 1)
     (global-evil-matchit-mode 1)
     (evilem-default-keybindings "SPC")
-    (evil-goggles-mode)
-    (require 'diff-mode) ;; load diff-* faces
-    (setq evil-goggles-faces-alist `(
-                                     ( evil-delete . diff-removed )
-                                     ( evil-yank . diff-changed )
-                                     ( evil-paste-after . diff-added )
-                                     ( evil-paste-before . diff-added )))
     ))
 #+END_SRC
 
@@ -550,7 +545,6 @@ Using flycheck instead
 #+BEGIN_SRC emacs-lisp
 (use-package js2-mode
   :mode (("\\.js$'" . js2-mode)))
-
 #+END_SRC
 ** Web/HTML
 #+BEGIN_SRC emacs-lisp
@@ -684,6 +678,77 @@ Not using slime right now
        (sh . t)
        ))))
 
+#+END_SRC
+* Gnus
+#+BEGIN_SRC emacs-lisp
+(use-package gnus
+  :commands gnus
+  :bind (("C-c g" . gnus))
+  :ensure org-mime
+  :ensure w3m
+  :init
+
+  ;; @see http://www.emacswiki.org/emacs/GnusGmail#toc1
+  (setq gnus-select-method '(nntp "news.gmane.org")) ;; if you read news groups
+
+  (defun my-gnus-group-list-subscribed-groups ()
+    "List all subscribed groups with or without un-read messages"
+    (interactive)
+    (gnus-group-list-all-groups 5))
+
+  (add-hook 'gnus-group-mode-hook
+            ;; list all the subscribed groups even they contain zero un-read messages
+            (lambda () (local-set-key "o" 'my-gnus-group-list-subscribed-groups )))
+
+  ;; ask encryption password once
+  (setq epa-file-cache-passphrase-for-symmetric-encryption t)
+
+  (setq gnus-thread-sort-functions
+        '(gnus-thread-sort-by-most-recent-date
+          (not gnus-thread-sort-by-number)))
+  ;;(add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
+  (setq gnus-thread-hide-subtree t)
+  (setq user-mail-address "superstepag@gmail.com"
+        user-full-name "Stefan Kuznetsov")
+
+  (setq gnus-select-method
+        '(nnimap "main"
+                 (nnimap-address "imap.gmail.com")
+                 (nnimap-server-port "imaps")
+                 (nnimap-stream ssl)))
+
+  (setq gnus-secondary-select-methods
+        '((nnimap "official"
+                  (nnimap-address "imap.gmail.com")
+                  (nnimap-server-port "imaps")
+                  (nnimap-stream ssl)
+                  )
+          (nnimap "hotmail"
+                  (nnimap-address "outlook.office365.com")
+                  (nnimap-server-port 993)
+                  )
+          ))
+
+  ;;send mail config
+  (setq message-send-mail-function 'smtpmail-send-it
+        smtpmail-smtp-server "smtp.gmail.com"
+        smtpmail-smtp-service 587
+        gnus-ignored-newsgroups "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\"]\"[#'()]")
+
+  (defun my-message-mode-setup ()
+    "Turn on auto fill when composing emails."
+    (flyspell-mode t)
+    (setq fill-column 72)
+    (turn-on-auto-fill))
+
+  (add-hook 'message-mode-hook 'my-message-mode-setup)
+
+  :config
+  (require 'org-mime)
+  (setq org-mime-library 'mml)
+  (setq mm-text-html-renderer 'w3m)
+
+  )
 #+END_SRC
 * ERC
 #+BEGIN_SRC emacs-lisp
