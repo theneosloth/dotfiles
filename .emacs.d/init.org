@@ -230,26 +230,6 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
     ))
 #+END_SRC
 
-** Relative Line Numbers
-Relative line numbers. Currently disabled, because having them seems a bit redundant with vim easymotions.
-#+BEGIN_SRC emacs-lisp
-;; Relative line package
-(use-package nlinum-relative
-  :commands nlinum-relative-mode
-  :disabled t
-  :init
-  (progn
-    (setq nlinum-relative-redisplay-delay 0)
-    (setq nlinum-relative-current-symbol "")
-    (setq nlinum-relative-offset 0)
-    (add-hook 'prog-mode-hook 'nlinum-relative-mode)
-    )
-  :config
-  (progn
-    (nlinum-relative-setup-evil)
-    ))
-#+END_SRC
-
 ** Company
 #+BEGIN_SRC emacs-lisp
 (use-package company
@@ -321,28 +301,6 @@ Relative line numbers. Currently disabled, because having them seems a bit redun
     )
   )
 #+END_SRC
-
-** Projectile
-Not using projectile right now.
-#+BEGIN_SRC emacs-lisp
-(use-package projectile
-  :commands projectile-mode
-  :disabled t
-  :ensure nil
-  :init
-  (progn
-    (add-hook 'prog-mode-hook 'projectile-mode)
-    )
-  )
-
-(use-package counsel-projectile
-  :commands counsel-projectile-on
-  :disabled t
-  :ensure nil
-  :init
-  (progn
-    (add-hook 'projectile-mode-hook 'counsel-projectile-on)))
-#+END_SRC
 ** Magit
 #+BEGIN_SRC emacs-lisp
 (use-package magit
@@ -391,9 +349,51 @@ Not using projectile right now.
     (company-auctex-init)
     ))
 #+END_SRC
-** notmuch
+** Currently disabled
+*** Relative Line Numbers
+Relative line numbers. Currently disabled, because having them seems a bit redundant with vim easymotions.
 #+BEGIN_SRC emacs-lisp
-(unless is-windows
+;; Relative line package
+(use-package nlinum-relative
+  :commands nlinum-relative-mode
+  :disabled t
+  :init
+  (progn
+    (setq nlinum-relative-redisplay-delay 0)
+    (setq nlinum-relative-current-symbol "")
+    (setq nlinum-relative-offset 0)
+    (add-hook 'prog-mode-hook 'nlinum-relative-mode)
+    )
+  :config
+  (progn
+    (nlinum-relative-setup-evil)
+    ))
+#+END_SRC
+*** Projectile
+Not using projectile right now.
+#+BEGIN_SRC emacs-lisp
+(use-package projectile
+  :commands projectile-mode
+  :disabled t
+  :ensure nil
+  :init
+  (progn
+    (add-hook 'prog-mode-hook 'projectile-mode)
+    )
+  )
+
+(use-package counsel-projectile
+  :commands counsel-projectile-on
+  :disabled t
+  :ensure nil
+  :init
+  (progn
+    (add-hook 'projectile-mode-hook 'counsel-projectile-on)))
+#+END_SRC
+*** notmuch
+Currently using gnus for my email.
+#+BEGIN_SRC emacs-lisp
+(unless t
   (autoload 'notmuch "notmuch" "notmuch mail" t)
   (add-hook 'notmuch-hello-mode 'evil-emacs-state)
   (add-hook 'notmuch-message-mode 'evil-emacs-state)
@@ -403,6 +403,7 @@ Not using projectile right now.
 * Programming Modes
 ** Language Independent Settings
 *** Indentation
+**** Whitespace mode
 Always enable whitespace mode
 #+BEGIN_SRC emacs-lisp
 (use-package whitespace
@@ -412,6 +413,20 @@ Always enable whitespace mode
   (add-hook 'prog-mode-hook 'whitespace-mode))
 #+END_SRC
 
+**** Aggressive indent
+Automatic indentation.
+#+BEGIN_SRC emacs-lisp
+(use-package aggressive-indent
+  :diminish aggressive-indent-mode
+  :init
+  (progn
+    (global-aggressive-indent-mode)
+    (add-to-list 'aggressive-indent-excluded-modes 'python-mode)
+    )
+  )
+#+END_SRC
+**** Disabled
+***** Indent Guides
 Better indent guides. Currently disabled because they cause insane hangs in python mode.
 #+BEGIN_SRC emacs-lisp
 (use-package highlight-indent-guides
@@ -425,17 +440,6 @@ Better indent guides. Currently disabled because they cause insane hangs in pyth
   (progn
     (setq highlight-indent-guides-method 'character)))
 #+END_SRC
-Automatic indentation.
-#+BEGIN_SRC emacs-lisp
-(use-package aggressive-indent
-  :diminish aggressive-indent-mode
-  :init
-  (progn
-    (global-aggressive-indent-mode)
-    (add-to-list 'aggressive-indent-excluded-modes 'python-mode)
-    )
-  )
-#+END_SRC
 *** Misc
 #+BEGIN_SRC emacs-lisp
 (add-hook 'prog-mode-hook 'electric-pair-mode)
@@ -446,7 +450,8 @@ Automatic indentation.
   (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
 
 #+END_SRC
-
+**** Disabled
+***** yasnippet
 Not using yasnippet right now but it could become useful in the future.
 #+BEGIN_SRC emacs-lisp
 (use-package yasnippet
@@ -457,9 +462,6 @@ Not using yasnippet right now but it could become useful in the future.
   :init
   (progn
     (add-hook 'prog-mode-hook 'yas-minor-mode)))
-
-
-
 #+END_SRC
 ** C-Mode
 #+BEGIN_SRC emacs-lisp
@@ -483,7 +485,8 @@ Not using yasnippet right now but it could become useful in the future.
     )
   )
 #+END_SRC
-*** Autopep8
+*** Disabled
+**** Autopep8
 Using flycheck instead
 #+BEGIN_SRC emacs-lisp
 (use-package py-autopep8
@@ -503,43 +506,6 @@ Using flycheck instead
   (progn
     (add-to-list 'evil-insert-state-modes 'cider-repl-mode)
     ))
-#+END_SRC
-** Rust
-
-#+BEGIN_SRC emacs-lisp
-(use-package cargo
-  :commands cargo-minor-mode
-  :disabled t
-  :ensure nil
-  :init
-  (progn
-    (add-hook 'rust-mode-hook 'cargo-minor-mode))
-  )
-(use-package rust-mode
-  :mode (("\\.rs$" . rust-mode))
-  :disabled t
-  :ensure nil
-  )
-
-(use-package racer
-  :commands racer-mode
-  :disabled t
-  :ensure nil
-  :init
-  (progn
-    (setq racer-rust-src-path (file-truename "/usr/src/rust/src"))
-    (add-hook 'rust-mode-hook #'racer-mode)
-    (add-hook 'racer-mode-hook #'eldoc-mode)
-    ))
-
-
-(use-package flycheck-rust
-  :commands flycheck-rust-setup
-  :disabled t
-  :ensure nil
-  :init
-  (progn
-    (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)))
 #+END_SRC
 ** Javascript
 #+BEGIN_SRC emacs-lisp
@@ -564,13 +530,6 @@ Using flycheck instead
       (whitespace-turn-off)
       )
     (add-hook 'web-mode-hook  'my-web-mode-hook)
-    ;;(setq web-mode-markup-indent-offset 4)
-    ;; (setq web-mode-css-indent-offset 4)
-    ;; (setq web-mode-code-indent-offset 4)
-    ;; (setq web-mode-indent-style 4)
-    ;; (setq web-mode-script-padding 1)
-    ;;(setq web-mode-style-padding 1)
-    ;;(setq web-mode-block-padding 1)
     )
   )
 
@@ -611,14 +570,6 @@ Using flycheck instead
     (setq markdown-command "multimarkdown")
     (add-hook 'markdown-mode-hook 'visual-line-mode)))
 #+END_SRC
-** Slime
-Not using slime right now
-#+BEGIN_SRC emacs-lisp
-(use-package slime
-  :disabled t
-  :ensure nil
-  :commands slime)
-#+END_SRC
 ** Shell
 #+BEGIN_SRC emacs-lisp
 (use-package company-shell
@@ -631,6 +582,52 @@ Not using slime right now
     )
   )
 #+END_SRC
+** Currently not used
+*** Slime
+Not using slime right now
+#+BEGIN_SRC emacs-lisp
+(use-package slime
+  :disabled t
+  :ensure nil
+  :commands slime)
+#+END_SRC
+*** Rust
+
+#+BEGIN_SRC emacs-lisp
+(use-package cargo
+  :commands cargo-minor-mode
+  :disabled t
+  :ensure nil
+  :init
+  (progn
+    (add-hook 'rust-mode-hook 'cargo-minor-mode))
+  )
+(use-package rust-mode
+  :mode (("\\.rs$" . rust-mode))
+  :disabled t
+  :ensure nil
+  )
+
+(use-package racer
+  :commands racer-mode
+  :disabled t
+  :ensure nil
+  :init
+  (progn
+    (setq racer-rust-src-path (file-truename "/usr/src/rust/src"))
+    (add-hook 'rust-mode-hook #'racer-mode)
+    (add-hook 'racer-mode-hook #'eldoc-mode)
+    ))
+
+
+(use-package flycheck-rust
+  :commands flycheck-rust-setup
+  :disabled t
+  :ensure nil
+  :init
+  (progn
+    (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)))
+#+END_SRC
 * Org Mode
 #+BEGIN_SRC emacs-lisp
 (use-package org
@@ -638,6 +635,7 @@ Not using slime right now
   :diminish (org-indent-mode visual-line-mode flyspell-mode)
   :ensure org-bullets
   :ensure htmlize
+  :bind (("C-c o" . org-capture))
   :init
   (progn
     (setq org-src-preserve-indentation nil
@@ -647,7 +645,7 @@ Not using slime right now
           org-confirm-babel-evaluate nil
           org-startup-with-inline-images t
           ;;org-startup-with-latex-preview t
-          ;;org-latex-create-formula-image-program 'dvipng
+          org-latex-create-formula-image-program 'imagemagick
           org-list-allow-alphabetical t
 
           org-notes-location "~/Sync/Notes/"
@@ -656,7 +654,7 @@ Not using slime right now
           org-default-notes-file org-todo-location
 
           org-agenda-files (list org-todo-location))
-    (global-set-key (kbd "C-c o") 'org-capture)
+
     (add-hook 'org-mode-hook 'flyspell-mode)
     (add-hook 'org-mode-hook 'org-toggle-pretty-entities)
     (add-hook 'org-mode-hook 'org-bullets-mode)
@@ -676,6 +674,7 @@ Not using slime right now
        (C . t)
        (gnuplot . t)
        (sh . t)
+       (calc . t)
        ))))
 
 #+END_SRC
@@ -747,6 +746,15 @@ Not using slime right now
   (require 'org-mime)
   (setq org-mime-library 'mml)
   (setq mm-text-html-renderer 'w3m)
+
+  (defun exit-gnus-on-exit ()
+    (if (and (fboundp 'gnus-group-exit)
+             (gnus-alive-p))
+        (with-current-buffer (get-buffer "*Group*")
+          (let (gnus-interactive-exit)
+            (gnus-group-exit)))))
+
+  (add-hook 'kill-emacs-hook 'exit-gnus-on-exit)
 
   )
 #+END_SRC
