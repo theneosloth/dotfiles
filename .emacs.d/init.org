@@ -349,6 +349,23 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
     (company-auctex-init)
     ))
 #+END_SRC
+** Pass
+#+BEGIN_SRC emacs-lisp
+(use-package password-store)
+#+END_SRC
+** BBDB
+#+BEGIN_SRC emacs-lisp
+(use-package bbdb
+  :ensure counsel-bbdb
+  :init
+  (progn
+    (setq bbdb-check-postcode nil)
+    (bbdb-initialize 'message 'gnus 'sendmail)
+    (add-hook 'gnus-startup-hook 'bbdb-insinuate-gnus)
+    (setq bbdb/mail-auto-create-p t
+          bbdb/news-auto-create-p t)
+    (setq bbdb-file "~/Sync/Notes/bbdb")))
+#+END_SRC
 ** Currently disabled
 *** Relative Line Numbers
 Relative line numbers. Currently disabled, because having them seems a bit redundant with vim easymotions.
