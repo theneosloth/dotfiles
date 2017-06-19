@@ -226,6 +226,8 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
     (evil-set-initial-state 'erc-mode 'emacs)
     (evil-set-initial-state 'term-mode 'emacs)
     (evil-set-initial-state 'eshell-mode 'emacs)
+    (evil-set-initial-state 'message-mode 'emacs)
+    (evil-set-initial-state 'compilation-mode 'emacs)
     (global-evil-surround-mode 1)
     (global-evil-matchit-mode 1)
     (evilem-default-keybindings "SPC")
@@ -277,7 +279,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   :mode (("\\.epub" . ereader-mode))
   :init
   (progn
-    (add-to-list 'evil-insert-state-modes 'ereader-mode)
+    (add-to-list 'evil-emacs-state-modes 'ereader-mode)
     )
   :config
   (progn
@@ -318,8 +320,8 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   :init
   (progn
     ;; Disable evil in all the elfeed panes
-    (add-to-list 'evil-insert-state-modes 'elfeed-show-mode)
-    (add-to-list 'evil-insert-state-modes 'elfeed-search-mode)
+    (add-to-list 'evil-emacs-state-modes 'elfeed-show-mode)
+    (add-to-list 'evil-emacs-state-modes 'elfeed-search-mode)
     (setq
      elfeed-feeds
      '(
@@ -526,7 +528,7 @@ Using flycheck instead
   :commands (cider-jack-in)
   :init
   (progn
-    (add-to-list 'evil-insert-state-modes 'cider-repl-mode)
+    (add-to-list 'evil-emacs-state-modes 'cider-repl-mode)
     ))
 #+END_SRC
 ** Javascript
@@ -562,7 +564,7 @@ Using flycheck instead
     (add-hook 'js2-mode-hook 'skewer-mode)
     (add-hook 'css-mode-hook 'skewer-css-mode)
     (add-hook 'html-mode-hook 'skewer-html-mode)
-    (add-to-list 'evil-insert-state-modes 'skewer-repl-mode)
+    (add-to-list 'evil-emacs-state-modes 'skewer-repl-mode)
     )
   )
 
