@@ -63,6 +63,8 @@ Make sure that use-package is installed and that ensure is always on so that use
 (global-set-key (kbd "C-c c") 'quick-calc)
 
 (global-set-key (kbd "C-c a") 'org-agenda-list)
+
+(global-set-key (kbd "<f8>") 'compile)
 #+END_SRC
 ** Random Quality of Life Things
 #+BEGIN_SRC emacs-lisp
@@ -360,11 +362,14 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   :init
   (progn
     (setq bbdb-check-postcode nil)
-    (bbdb-initialize 'message 'gnus 'sendmail)
+
     (add-hook 'gnus-startup-hook 'bbdb-insinuate-gnus)
     (setq bbdb/mail-auto-create-p t
           bbdb/news-auto-create-p t)
-    (setq bbdb-file "~/Sync/Notes/bbdb")))
+    (setq bbdb-file "~/Sync/Notes/bbdb"))
+  :config
+  (progn
+    (bbdb-initialize 'message 'gnus 'sendmail)))
 #+END_SRC
 ** Currently disabled
 *** Relative Line Numbers
@@ -599,6 +604,17 @@ Using flycheck instead
     )
   )
 #+END_SRC
+** Lua
+#+BEGIN_SRC emacs-lisp
+(use-package lua-mode)
+(use-package love-minor-mode
+  :init
+  (progn
+    (add-hook 'love-minor-mode-hook
+              (lambda()
+                (set (make-local-variable 'compile-command)
+                     (concat "love " default-directory))))))
+#+END_SRC
 ** Currently not used
 *** Slime
 Not using slime right now
@@ -672,6 +688,13 @@ Not using slime right now
 
           org-agenda-files (list org-todo-location))
 
+
+    (setq org-capture-templates
+          '(("t" "Todo" entry (file+headline org-todo-location "Tasks")
+             "* TODO %?\n  %i\n  %a")
+            ("c" "Clipboard" entry (file+headline org-todo-location "Links")
+             "* %?\n %x")))
+
     (add-hook 'org-mode-hook 'flyspell-mode)
     (add-hook 'org-mode-hook 'org-toggle-pretty-entities)
     (add-hook 'org-mode-hook 'org-bullets-mode)
@@ -695,6 +718,9 @@ Not using slime right now
        ))))
 
 #+END_SRC
+
+#+RESULTS:
+
 * Gnus
 #+BEGIN_SRC emacs-lisp
 (use-package gnus
