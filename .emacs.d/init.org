@@ -57,12 +57,14 @@ Make sure that use-package is installed and that ensure is always on so that use
 ;;Replace the default switch buffer key with the smarter ibuffer window
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 
-;; Toggle whitespace mode
 (global-set-key (kbd "C-c w") 'whitespace-mode)
 
 (global-set-key (kbd "C-c c") 'quick-calc)
 
 (global-set-key (kbd "C-c a") 'org-agenda-list)
+(global-set-key (kbd "C-c o") 'org-capture)
+
+(global-set-key (kbd "C-c g") 'gnus)
 
 (global-set-key (kbd "<f8>") 'compile)
 #+END_SRC
@@ -93,13 +95,6 @@ Make sure that use-package is installed and that ensure is always on so that use
 ;; 99% opacity when the window is active, 90% when it is in the background.
 (set-frame-parameter (selected-frame) 'alpha '(99 . 90))
 (add-to-list 'default-frame-alist '(alpha . (99 . 90)))
-
-;; Generic browser function always opens chrome for some reason.
-;; This forces it to use palemoon
-;(unless is-windows
-;  (setq browse-url-browser-function 'browse-url-generic
-;        browse-url-generic-program "palemoon"))
-
 #+END_SRC
 *** Easily search for non ASCII Characters
 #+BEGIN_SRC emacs-lisp
@@ -134,8 +129,7 @@ Credit goes to [[https://www.reddit.com/r/emacs/comments/1zkj2d/advanced_usage_o
 #+BEGIN_SRC emacs-lisp
 (if is-windows
     (set-face-attribute 'default nil :family "Consolas" :height 100)
-  (set-face-attribute 'default nil :family "DejaVu Sans Mono")
-  )
+  (set-face-attribute 'default nil :family "DejaVu Sans Mono"))
 
 ;;The following lines force UTF-8 whenever possible
 (prefer-coding-system 'utf-8)
@@ -165,7 +159,7 @@ Credit goes to [[https://www.reddit.com/r/emacs/comments/1zkj2d/advanced_usage_o
 (setq kill-do-not-save-duplicates t)
 #+END_SRC
 ** Auto saves
-Move the auto-save and backup files into the temp fire directory so that emacs doesn't flood the working folders with junk.
+Move the auto-save and backup files into the temp file directory so that emacs doesn't flood the working folders with junk.
 #+BEGIN_SRC emacs-lisp
 (setq backup-directory-alist
       `((".*" . ,temporary-file-directory)))
@@ -202,9 +196,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
          )
   :config
   (progn
-    (ivy-mode 1)
-    )
-  )
+    (ivy-mode 1)))
 #+END_SRC
 ** Evil
 #+BEGIN_SRC emacs-lisp
@@ -243,13 +235,13 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   :init
   ;; Launch auto-complete with default settings
   (progn
-    (add-hook 'after-init-hook 'global-company-mode)
-    ))
+    (add-hook 'after-init-hook 'global-company-mode)))
 #+END_SRC
 ** Flycheck
 #+BEGIN_SRC emacs-lisp
 (use-package flycheck
   :diminish flycheck-mode
+  :commands global-flycheck-mode
   :init
   (progn
     (add-hook 'after-init-hook 'global-flycheck-mode)))
@@ -265,13 +257,11 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
     ;; Only install pdf tools on unix
     (pdf-tools-install)
     (define-key pdf-view-mode-map (kbd "j") 'pdf-view-next-line-or-next-page)
-    (define-key pdf-view-mode-map (kbd "k") 'pdf-view-previous-line-or-previous-page)
-    ))
+    (define-key pdf-view-mode-map (kbd "k") 'pdf-view-previous-line-or-previous-page)))
 #+END_SRC
 ** mtg-deck-mode
 #+BEGIN_SRC emacs-lisp
-(use-package mtg-deck-mode
-  :mode (("\\.dec" . mtg-deck-mode)))
+(use-package mtg-deck-mode)
 #+END_SRC
 ** E-reader
 #+BEGIN_SRC emacs-lisp
@@ -279,8 +269,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   :mode (("\\.epub" . ereader-mode))
   :init
   (progn
-    (add-to-list 'evil-emacs-state-modes 'ereader-mode)
-    )
+    (add-to-list 'evil-emacs-state-modes 'ereader-mode))
   :config
   (progn
     (visual-line-mode 1)))
@@ -292,7 +281,6 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   :commands mingus-add-podcast-and-play
   :init
   (progn
-    ;;Custom key bindings. My laptop has no media next/previous so home and end are used instead
     (global-set-key (kbd "C-c m") 'mingus-browse)
     ;;Disable evil in mingus
     ;; evil-set-initial-state doesn't work for some reason.
@@ -302,8 +290,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 
     (add-hook 'mingus-browse-hook 'evil-emacs-state)
     (add-hook 'mingus-playlist-hooks 'evil-emacs-state)
-    )
-  )
+    ))
 #+END_SRC
 ** Magit
 #+BEGIN_SRC emacs-lisp
@@ -322,8 +309,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
     ;; Disable evil in all the elfeed panes
     (add-to-list 'evil-emacs-state-modes 'elfeed-show-mode)
     (add-to-list 'evil-emacs-state-modes 'elfeed-search-mode)
-    (setq
-     elfeed-feeds
+    (setq elfeed-feeds
      '(
        ("https://www.xkcd.com/rss.xml" webcomic)
        ("http://www.smbc-comics.com/rss.php" webcomic)
@@ -336,9 +322,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
        ("http://billburr.libsyn.com/rss" podcast)
        ("http://planet.emacsen.org/atom.xml" blog emacs)
        )
-     ))
-  :config
-  (progn))
+     )))
 #+END_SRC
 ** Auctex
 #+BEGIN_SRC emacs-lisp
@@ -346,21 +330,24 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   :ensure company-auctex
   :mode (("\\.tex$" . latex-mode)
          ("\\.latex$" . latex-mode))
-  :config
+  :init
   (progn
     (add-hook 'latex-mode-hook 'turn-on-auto-fill)
-    (add-hook 'latex-mode-hook 'visual-line-mode)
-    (company-auctex-init)
-    ))
+    (add-hook 'latex-mode-hook 'visual-line-mode))
+  :config
+  (progn
+    (company-auctex-init)))
 #+END_SRC
 ** Pass
 #+BEGIN_SRC emacs-lisp
-(use-package password-store)
+(use-package password-store
+  :commands (password-store-copy))
 #+END_SRC
 ** BBDB
 #+BEGIN_SRC emacs-lisp
 (use-package bbdb
   :ensure counsel-bbdb
+  :commands (bbdb)
   :init
   (progn
     (setq bbdb-check-postcode nil)
@@ -371,7 +358,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
     (setq bbdb-file "~/Sync/Notes/bbdb"))
   :config
   (progn
-    (bbdb-initialize 'message 'gnus 'sendmail)))
+    (bbdb-initialize 'message 'gnus)))
 #+END_SRC
 ** Currently disabled
 *** Relative Line Numbers
@@ -608,8 +595,27 @@ Using flycheck instead
 #+END_SRC
 ** Lua
 #+BEGIN_SRC emacs-lisp
-(use-package lua-mode)
+(use-package lua-mode
+  :mode (("\\.lua" . lua-mode)))
+#+END_SRC
+*** Company-lua
+#+BEGIN_SRC emacs-lisp
+(use-package company-lua
+  :mode (("\\.lua" . lua-mode))
+  :init
+  (progn
+    (add-hook 'lua-mode-hook (lambda()
+                               (setq-local company-backends '(company-lua))))))
+#+END_SRC
+*** Flycheck-lua
+#+BEGIN_SRC emacs-lisp
+(use-package flymake-lua
+  :mode (("\\.lua" . lua-mode)))
+#+END_SRC
+*** Love
+#+BEGIN_SRC emacs-lisp
 (use-package love-minor-mode
+  :commands (love-minor-mode)
   :init
   (progn
     (add-hook 'love-minor-mode-hook
@@ -670,7 +676,6 @@ Not using slime right now
   :diminish (org-indent-mode visual-line-mode flyspell-mode)
   :ensure org-bullets
   :ensure htmlize
-  :bind (("C-c o" . org-capture))
   :init
   (progn
     (setq org-src-preserve-indentation nil
@@ -688,7 +693,8 @@ Not using slime right now
                              (concat org-notes-location "agenda.org"))
           org-default-notes-file org-todo-location
 
-          org-agenda-files (list org-todo-location))
+          org-agenda-files (list org-todo-location)
+          )
 
 
     (setq org-capture-templates
@@ -696,6 +702,32 @@ Not using slime right now
              "* TODO %?\n  %i\n  %a")
             ("c" "Clipboard" entry (file+headline org-todo-location "Links")
              "* %?\n %x")))
+
+    ;; Org-publish config
+    (setq org-html-validation-link nil)
+    (setq org-publish-project-alist
+          '(("org-blog"
+             :base-directory "~/Sync/Notes/blog"
+             :publishing-directory "~/Sync/Notes/publish"
+             :publishing-function org-html-publish-to-html
+             :auto-sitemap t
+             :sitemap-filename "index.org"
+             :sitemap-title "Neosloth's Blog"
+             :sitemap-file-entry-format "\"%t\" by %a on %d."
+             :sitemap-date-format "%B %dth, %Y"
+             :sitemap-sort-files t
+             :auto-preamble t
+             :html-head "<link rel=\"stylesheet\"
+                       href=\"./css/style.css\" type=\"text/css\"/>"
+             )
+            ("org-static"
+             :base-directory "~/Sync/Notes/blog"
+             :base-extension "css\\|js\\|png\\|jpg\\|gif\\|pdf\\|mp3\\|ogg\\|swf\\|ico"
+             :publishing-directory "~/Sync/Notes/publish"
+             :recursive t
+             :publishing-function org-publish-attachment)
+            ("org" :components ("org-blog" "org-static"))))
+
 
     (add-hook 'org-mode-hook 'flyspell-mode)
     (add-hook 'org-mode-hook 'org-toggle-pretty-entities)
@@ -717,19 +749,29 @@ Not using slime right now
        (gnuplot . t)
        (sh . t)
        (calc . t)
-       ))))
+       ))
 
+    (defun git-push-all (commit-message)
+      (shell-command "git add -A")
+      (shell-command (concatenate
+                      'string "git commit -m \"" commit-message "\""))
+      (shell-command "git push origin master"))
+
+    (defun publish-and-push (&optional blog)
+      (interactive)
+      (or blog (setq blog "blog"))
+      (org-publish blog)
+      (let ((default-directory (plist-get
+                                (cdr (car org-publish-project-alist))
+                                :publishing-directory)))
+        (git-push-all (format-time-string "%FT%T%z")))
+      )))
 #+END_SRC
-
-#+RESULTS:
-
 * Gnus
 #+BEGIN_SRC emacs-lisp
 (use-package gnus
   :commands gnus
-  :bind (("C-c g" . gnus))
   :ensure org-mime
-  :ensure w3m
   :init
 
   ;; @see http://www.emacswiki.org/emacs/GnusGmail#toc1
@@ -790,7 +832,6 @@ Not using slime right now
   :config
   (require 'org-mime)
   (setq org-mime-library 'mml)
-  (setq mm-text-html-renderer 'w3m)
 
   (defun exit-gnus-on-exit ()
     (if (and (fboundp 'gnus-group-exit)
@@ -799,9 +840,7 @@ Not using slime right now
           (let (gnus-interactive-exit)
             (gnus-group-exit)))))
 
-  (add-hook 'kill-emacs-hook 'exit-gnus-on-exit)
-
-  )
+  (add-hook 'kill-emacs-hook 'exit-gnus-on-exit))
 #+END_SRC
 * ERC
 #+BEGIN_SRC emacs-lisp
