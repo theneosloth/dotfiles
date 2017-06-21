@@ -24,11 +24,12 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
 #+END_SRC
 ** MELPA
 #+BEGIN_SRC emacs-lisp
+(setq tlc-checktrust t)
 (when (>= emacs-major-version 24)
   (require 'package)
   (add-to-list
     'package-archives
-    '("melpa" . "http://melpa.org/packages/")
+    '("melpa" . "https://melpa.org/packages/")
     t)
   (package-initialize))
 
@@ -174,6 +175,9 @@ Move the auto-save and backup files into the temp file directory so that emacs d
       inhibit-startup-echo-area-message t
       inhibit-startup-message t)
 
+(setq initial-scratch-message nil)
+(setq initial-buffer-choice "~/")
+
 (defun display-startup-echo-area-message()
   (message (emacs-init-time)))
 #+END_SRC
@@ -205,7 +209,6 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   :diminish evil-goggles-mode
   :ensure evil-matchit
   :ensure evil-surround
-  :ensure evil-easymotion
 
   :init
   (progn
@@ -222,10 +225,19 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
     (evil-set-initial-state 'compilation-mode 'emacs)
     (global-evil-surround-mode 1)
     (global-evil-matchit-mode 1)
-    (evilem-default-keybindings "SPC")
     ))
 #+END_SRC
 
+*** Evil Snipe
+#+BEGIN_SRC emacs-lisp
+(use-package evil-snipe
+  :after evil
+  :diminish evil-snipe-mode
+  :config
+  (progn
+    (evil-snipe-mode 1)
+    (setq evil-snipe-scope 'visible)))
+#+END_SRC
 ** Company
 #+BEGIN_SRC emacs-lisp
 (use-package company
@@ -683,6 +695,7 @@ Not using slime right now
           org-src-fontify-natively t
           org-src-tab-acts-natively t
           org-confirm-babel-evaluate nil
+          org-return-follows-link t
           org-startup-with-inline-images t
           ;;org-startup-with-latex-preview t
           org-latex-create-formula-image-program 'imagemagick
@@ -707,9 +720,12 @@ Not using slime right now
     (setq org-html-validation-link nil)
     (setq org-publish-project-alist
           '(("org-blog"
+             ;;The directory containing our blog posts
              :base-directory "~/Sync/Notes/blog"
+             ;; The directory where the final result will be copied to
              :publishing-directory "~/Sync/Notes/publish"
              :publishing-function org-html-publish-to-html
+             ;; Generate a list of all posts
              :auto-sitemap t
              :sitemap-filename "index.org"
              :sitemap-title "Neosloth's Blog"
