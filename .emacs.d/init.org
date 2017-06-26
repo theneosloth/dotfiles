@@ -176,7 +176,6 @@ Move the auto-save and backup files into the temp file directory so that emacs d
       inhibit-startup-message t)
 
 (setq initial-scratch-message nil)
-(setq initial-buffer-choice "~/")
 
 (defun display-startup-echo-area-message()
   (message (emacs-init-time)))
@@ -232,7 +231,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 #+BEGIN_SRC emacs-lisp
 (use-package evil-snipe
   :after evil
-  :diminish evil-snipe-mode
+  :diminish evil-snipe-local-mode
   :config
   (progn
     (evil-snipe-mode 1)
