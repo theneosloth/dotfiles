@@ -185,6 +185,14 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 #+BEGIN_SRC emacs-lisp
 (setq dired-dwim-target t)
 #+END_SRC
+** Simple git push
+#+BEGIN_SRC emacs-lisp
+(defun git-push-all (commit-message)
+      (shell-command "git add -A")
+      (shell-command (concatenate
+                      'string "git commit -m \"" commit-message "\""))
+      (shell-command "git push origin master"))
+#+END_SRC
 * Major Custom Packages
 ** Ivy
 #+BEGIN_SRC emacs-lisp
@@ -227,15 +235,19 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
     ))
 #+END_SRC
 
-*** Evil Snipe
+*** Evil-Lispy
 #+BEGIN_SRC emacs-lisp
-(use-package evil-snipe
-  :after evil
-  :diminish evil-snipe-local-mode
-  :config
+(use-package lispy
+  :commands lispy-mode
+  :diminish lispy-mode
+  :diminish lispyville-mode
+  :ensure lispyville
+  :init
   (progn
-    (evil-snipe-mode 1)
-    (setq evil-snipe-scope 'visible)))
+    (add-hook 'lispy-mode-hook #'lispyville-mode)
+    (add-hook 'emacs-lisp-mode-hook #'lispy-mode)
+    (add-hook 'clojure-mode-hook #'lispy-mode)
+    ))
 #+END_SRC
 ** Company
 #+BEGIN_SRC emacs-lisp
@@ -357,19 +369,25 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 ** BBDB
 #+BEGIN_SRC emacs-lisp
 (use-package bbdb
-  :ensure counsel-bbdb
   :commands (bbdb)
   :init
   (progn
     (setq bbdb-check-postcode nil)
 
     (add-hook 'gnus-startup-hook 'bbdb-insinuate-gnus)
-    (setq bbdb/mail-auto-create-p t
-          bbdb/news-auto-create-p t)
     (setq bbdb-file "~/Sync/Notes/bbdb"))
   :config
   (progn
-    (bbdb-initialize 'message 'gnus)))
+    (bbdb-initialize 'message 'gnus)
+    ;;Automatically create bbdb entries
+    (bbdb-mua-auto-update-init 'gnus 'message)
+    (setq bbdb-update-records-p 'create)
+    (setq bbdb-ignore-message-alist '(
+                                      ("From" . "mailer-daemon\\|no-reply")
+                                      (("To" "CC") . "mailing-list-1\\|mailing-list-2")
+                                      (("To" "CC") . "superstepag@gmail.com")
+                                      ))
+    ))
 #+END_SRC
 ** Currently disabled
 *** Relative Line Numbers
@@ -766,20 +784,16 @@ Not using slime right now
        (calc . t)
        ))
 
-    (defun git-push-all (commit-message)
-      (shell-command "git add -A")
-      (shell-command (concatenate
-                      'string "git commit -m \"" commit-message "\""))
-      (shell-command "git push origin master"))
-
-    (defun publish-and-push (&optional blog)
+    (defun publish-and-push (&optional blog msg)
+      "Publish a blog named BLOG and push a new git commit with MSG."
       (interactive)
       (or blog (setq blog "blog"))
+      (or name (setq name (format-time-string "%FT%T%z")))
       (org-publish blog)
       (let ((default-directory (plist-get
                                 (cdr (car org-publish-project-alist))
                                 :publishing-directory)))
-        (git-push-all (format-time-string "%FT%T%z")))
+        (git-push-all msg))
       )))
 #+END_SRC
 * Gnus
@@ -807,11 +821,12 @@ Not using slime right now
   (setq gnus-thread-sort-functions
         '(gnus-thread-sort-by-most-recent-date
           (not gnus-thread-sort-by-number)))
-  ;;(add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
   (setq gnus-thread-hide-subtree t)
   (setq user-mail-address "superstepag@gmail.com"
         user-full-name "Stefan Kuznetsov")
 
+  (setq nnmail-expiry-target "nnimap+gmail:[Gmail]/Trash")
+  (setq nnmail-expiry-wait 'immediate)
   (setq gnus-select-method
         '(nnimap "main"
                  (nnimap-address "imap.gmail.com")
@@ -829,6 +844,16 @@ Not using slime right now
                   (nnimap-server-port 993)
                   )
           ))
+
+  (setq gnus-posting-styles
+        '(((header "to" "superstepag@gmail.com")
+           (address "superstepag@gmail.com"))
+          ((header "to" "stepan.s.kuznetsov@gmail.com")
+           (address "stepan.s.kuznetsov@gmail.com"))
+          ((header "cc" "superstepag@gmail.com")
+           (address "superstepag@gmail.com"))
+          ((header "cc" "stepan.s.kuznetsov@gmail.com")
+           (address "stepan.s.kuznetsov@gmail.com"))))
 
   ;;send mail config
   (setq message-send-mail-function 'smtpmail-send-it
