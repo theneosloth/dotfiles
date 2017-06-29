@@ -94,8 +94,12 @@ Make sure that use-package is installed and that ensure is always on so that use
 (setq ring-bell-function 'ignore)
 
 ;; 99% opacity when the window is active, 90% when it is in the background.
-(set-frame-parameter (selected-frame) 'alpha '(99 . 90))
-(add-to-list 'default-frame-alist '(alpha . (99 . 90)))
+;;(set-frame-parameter (selected-frame) 'alpha '(99 . 90))
+;;(add-to-list 'default-frame-alist '(alpha . (99 . 90)))
+
+;; Redraw the display before processing input.
+;; This produces smoother scrolling
+(setq redisplay-dont-pause t)
 #+END_SRC
 *** Easily search for non ASCII Characters
 #+BEGIN_SRC emacs-lisp
@@ -103,6 +107,7 @@ Make sure that use-package is installed and that ensure is always on so that use
 (setq replace-char-fold t)
 #+END_SRC
 *** Prettify symbols mode
+This mode expands keywords into symbols such as \lambda and \ge
 #+BEGIN_SRC emacs-lisp
 (global-prettify-symbols-mode)
 (setq prettify-symbols-unprettify-at-point 'right-edge)
@@ -188,10 +193,11 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 ** Simple git push
 #+BEGIN_SRC emacs-lisp
 (defun git-push-all (commit-message)
-      (shell-command "git add -A")
-      (shell-command (concatenate
-                      'string "git commit -m \"" commit-message "\""))
-      (shell-command "git push origin master"))
+  "Create and push a new commit with COMMIT-MESSAGE"
+  (shell-command "git add -A")
+  (shell-command (concatenate
+                  'string "git commit -m \"" commit-message "\""))
+  (shell-command "git push origin master"))
 #+END_SRC
 * Major Custom Packages
 ** Ivy
@@ -284,7 +290,9 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 #+END_SRC
 ** mtg-deck-mode
 #+BEGIN_SRC emacs-lisp
-(use-package mtg-deck-mode)
+(use-package mtg-deck-mode
+  :mode (("\\.dec" . mtg-deck-mode))
+  )
 #+END_SRC
 ** E-reader
 #+BEGIN_SRC emacs-lisp
@@ -306,10 +314,6 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   (progn
     (global-set-key (kbd "C-c m") 'mingus-browse)
     ;;Disable evil in mingus
-    ;; evil-set-initial-state doesn't work for some reason.
-    ;; (evil-set-initial-state 'mingus-help-mode 'emacs)
-    ;; (evil-set-initial-state 'mingus-browse-mode 'emacs)
-    ;; (evil-set-initial-state 'mingus-playlist-mode 'emacs)
 
     (add-hook 'mingus-browse-hook 'evil-emacs-state)
     (add-hook 'mingus-playlist-hooks 'evil-emacs-state)
@@ -324,28 +328,26 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 #+BEGIN_SRC emacs-lisp
 (use-package elfeed
   :commands elfeed
-  :bind (
-         ("C-c e" . elfeed)
-         )
+  :bind (("C-c e" . elfeed))
   :init
   (progn
     ;; Disable evil in all the elfeed panes
     (add-to-list 'evil-emacs-state-modes 'elfeed-show-mode)
     (add-to-list 'evil-emacs-state-modes 'elfeed-search-mode)
     (setq elfeed-feeds
-     '(
-       ("https://www.xkcd.com/rss.xml" webcomic)
-       ("http://www.smbc-comics.com/rss.php" webcomic)
-       ("http://nedroid.com/feed/" webcomic)
-       ("http://www.awkwardzombie.com/awkward.php" webcomic)
-       ("http://existentialcomics.com/rss.xml" webcomic)
-       ("http://mega64.com/category/podcast/feed/" podcast)
-       ("http://colorcommontary.com/feed/podcast" podcast)
-       ("http://www.giantbomb.com/podcast-xml/beastcast" podcast)
-       ("http://billburr.libsyn.com/rss" podcast)
-       ("http://planet.emacsen.org/atom.xml" blog emacs)
-       )
-     )))
+          '(
+            ("https://www.xkcd.com/rss.xml" webcomic)
+            ("http://www.smbc-comics.com/rss.php" webcomic)
+            ("http://nedroid.com/feed/" webcomic)
+            ("http://www.awkwardzombie.com/awkward.php" webcomic)
+            ("http://existentialcomics.com/rss.xml" webcomic)
+            ("http://mega64.com/category/podcast/feed/" podcast)
+            ("http://colorcommontary.com/feed/podcast" podcast)
+            ("http://www.giantbomb.com/podcast-xml/beastcast" podcast)
+            ("http://billburr.libsyn.com/rss" podcast)
+            ("http://planet.emacsen.org/atom.xml" blog emacs)
+            )
+          )))
 #+END_SRC
 ** Auctex
 #+BEGIN_SRC emacs-lisp
@@ -373,7 +375,6 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   :init
   (progn
     (setq bbdb-check-postcode nil)
-
     (add-hook 'gnus-startup-hook 'bbdb-insinuate-gnus)
     (setq bbdb-file "~/Sync/Notes/bbdb"))
   :config
@@ -382,6 +383,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
     ;;Automatically create bbdb entries
     (bbdb-mua-auto-update-init 'gnus 'message)
     (setq bbdb-update-records-p 'create)
+    ;; Do not automatically create entries for the following:
     (setq bbdb-ignore-message-alist '(
                                       ("From" . "mailer-daemon\\|no-reply")
                                       (("To" "CC") . "mailing-list-1\\|mailing-list-2")
@@ -486,7 +488,7 @@ Better indent guides. Currently disabled because they cause insane hangs in pyth
 
 (use-package rainbow-delimiters
   :commands rainbow-delimiters-mode
- :init
+  :init
   (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
 
 #+END_SRC
@@ -555,8 +557,7 @@ Using flycheck instead
 ** Web/HTML
 #+BEGIN_SRC emacs-lisp
 (use-package web-mode
-  :mode (("\\.html$" . web-mode)
-         )
+  :mode (("\\.html$" . web-mode))
   :ensure company-web
   :init
   (progn
@@ -715,7 +716,7 @@ Not using slime right now
           org-return-follows-link t
           org-startup-with-inline-images t
           ;;org-startup-with-latex-preview t
-          org-latex-create-formula-image-program 'imagemagick
+          ;;org-latex-create-formula-image-program 'imagemagick
           org-list-allow-alphabetical t
 
           org-notes-location "~/Sync/Notes/"
@@ -895,7 +896,7 @@ Not using slime right now
     (setq erc-nick "neosloth")
     (setq erc-kill-buffer-on-part t)
     (setq erc-autojoin-channels-alist
-          '((".*freenode.net" "#emacs" "#lainchan")
+          '((".*freenode.net" "#emacs")
             ("portlane.se.quakenet.org" "#unrealvidya")
             (".*undernet.org" "#bookz")
             (".*abjects.net" "#mg-chat" "#moviegods")
