@@ -17,7 +17,7 @@ font pango:monospace 8
 
 # This font is widely installed, provides lots of unicode glyphs, right-to-left
 # text rendering and scalability on retina/hidpi displays (thanks to pango).
-#font pango:DejaVu Sans Mono 8
+# font pango:DejaVu Sans Mono 7
 
 # Before i3 v4.8, we used to recommend this one as the default:
 # font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
@@ -158,5 +158,11 @@ for_window [class="^.*"] border pixel 0
 gaps inner 5
 smart_gaps on
 
+# Randomize the background on startup
 exec --no-startup-id feh --randomize --bg-fill ~/Sync/Wallpapers
-bindsym $mod+Ctrl+l exec i3lock -c 000000
+
+# Copy password to clipboard
+bindsym $mod+Ctrl+i exec passmenu
+
+# Bind i3lock-blur to ctrl+mod+l. The -f argument only works with i3lock-blue
+bindsym $mod+Ctrl+l exec i3lock -f
