@@ -13,6 +13,7 @@ general {
 
 #order += "ipv6"
 order += "mpd"
+order += "volume master"
 #order += "disk /"
 #order += "run_watch DHCP"
 #order += "run_watch VPN"
@@ -21,17 +22,16 @@ order += "wireless _first_"
 order += "battery 0"
 order += "load"
 order += "tztime local"
-order += "volume master"
 volume master {
-        format = "♪: %volume"
-        format_muted = "♪: muted (%volume)"
+        format = " %volume"
+        format_muted = " (%volume)"
         device = "default"
         mixer = "Master"
         mixer_idx = 0
 }
 wireless _first_ {
-        format_up = "W: (%quality at %essid) %ip"
-        format_down = "W: down"
+        format_up = ": (%quality at %essid) %ip"
+        format_down = ": down"
 }
 
 ethernet _first_ {
@@ -42,7 +42,13 @@ ethernet _first_ {
 
 battery 0 {
         last_full_capacity = true
-        format = "%status %percentage %remaining"
+        format = "%status %percentage %remaining %emptytime"
+        format_down = " No battery"
+        status_chr = " CHR"
+        status_bat = " BAT"
+        status_unk = "? UNK"
+        status_full = " FULL"
+
 }
 
 run_watch DHCP {
@@ -54,19 +60,20 @@ run_watch VPN {
 }
 
 tztime local {
-        format = "%Y-%m-%d %H:%M:%S"
+        format = " %Y-%m-%d %H:%M:%S"
 }
 
 load {
-        format = "%1min"
+        format = " %1min"
+
 }
 
 disk "/" {
         format = "%avail"
 }
 mpd {
-format_up = "%title - %album - %artist"
-format_down = " - "
-host = "127.0.0.1"
-port = 6600
+        format_up = " %title - %album - %artist"
+        format_down = "  "
+        host = "127.0.0.1"
+        port = 6600
 }
