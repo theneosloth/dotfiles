@@ -9,6 +9,25 @@
 #
 # Please see http://i3wm.org/docs/userguide.html for a complete reference!
 
+# Set colors from Xresources
+# Change 'color7' and 'color2' to whatever colors you want i3 to use
+# from the generated scheme.
+# NOTE: The '#f0f0f0' in the lines below is the color i3 will use if
+# it fails to get colors from Xresources for some reason.
+
+set_from_resource $fg i3wm.color7 #f0f0f0
+set_from_resource $bg i3wm.color2 #f0f0f0
+
+# class                 border  backgr. text indicator child_border
+client.focused          $bg     $bg     $fg  $bg       $bg
+client.focused_inactive $bg     $bg     $fg  $bg       $bg
+client.unfocused        $bg     $bg     $fg  $bg       $bg
+client.urgent           $bg     $bg     $fg  $bg       $bg
+client.placeholder      $bg     $bg     $fg  $bg       $bg
+
+client.background       $bg
+
+# Set super key
 set $mod Mod4
 
 # Font for window titles. Will also be used by the bar unless a different font
@@ -159,8 +178,8 @@ for_window [class="^.*"] border pixel 0
 gaps inner 5
 smart_gaps on
 
-# Randomize the background on startup
-exec --no-startup-id feh --randomize --bg-fill ~/Sync/Wallpapers
+# Randomize the background and match the terminal colors to it.
+exec --no-startup-id wal -i ~/Sync/Wallpapers/
 
 # Use rofi-pass for password management
 bindsym $mod+Ctrl+i exec rofi-pass
