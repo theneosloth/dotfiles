@@ -95,8 +95,10 @@ Make sure that use-package is installed and that ensure is always on so that use
 (setq ring-bell-function 'ignore)
 
 ;; 99% opacity when the window is active, 90% when it is in the background.
-(set-frame-parameter (selected-frame) 'alpha '(99 . 90))
-(add-to-list 'default-frame-alist '(alpha . (99 . 90)))
+;;(set-frame-parameter (selected-frame) 'alpha '(99 . 90))
+;;(add-to-list 'default-frame-alist '(alpha . (99 . 90)))
+(when (fboundp 'windmove-default-keybindings)
+  (windmove-default-keybindings))
 #+END_SRC
 *** Easily search for non ASCII Characters
 #+BEGIN_SRC emacs-lisp
@@ -370,11 +372,10 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 ** BBDB
 #+BEGIN_SRC emacs-lisp
 (use-package bbdb
-  :commands (bbdb)
+  :commands (bbdb-insinuate-gnus)
   :init
   (progn
     (setq bbdb-check-postcode nil)
-
     (add-hook 'gnus-startup-hook 'bbdb-insinuate-gnus)
     (setq bbdb-file "~/Sync/Essential/bbdb"))
   :config
@@ -392,11 +393,9 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
     ))
 #+END_SRC
 ** Projectile
-** Currently disabled
 #+BEGIN_SRC emacs-lisp
 (use-package projectile
   :commands projectile-mode
-  :disabled t
   :ensure counsel-projectile
   :init
   (progn
@@ -404,6 +403,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
     (add-hook 'projectile-mode-hook 'counsel-projectile-on)
     ))
 #+END_SRC
+** Currently disabled
 *** Relative Line Numbers
 Relative line numbers. Currently disabled, because having them seems a bit redundant with vim easymotions.
 #+BEGIN_SRC emacs-lisp
@@ -456,8 +456,7 @@ Automatic indentation.
   (progn
     (global-aggressive-indent-mode)
     (add-to-list 'aggressive-indent-excluded-modes 'python-mode)
-    )
-  )
+    ))
 #+END_SRC
 **** Disabled
 ***** Indent Guides
@@ -480,7 +479,7 @@ Better indent guides. Currently disabled because they cause insane hangs in pyth
 
 (use-package rainbow-delimiters
   :commands rainbow-delimiters-mode
- :init
+  :init
   (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
 
 #+END_SRC
@@ -532,15 +531,6 @@ Using flycheck instead
     (add-hook 'python-mode-hook 'py-autopep8-enable-on-save))
   )
 #+END_SRC
-** Clojure
-#+BEGIN_SRC emacs-lisp
-(use-package cider
-  :commands (cider-jack-in)
-  :init
-  (progn
-    (add-to-list 'evil-emacs-state-modes 'cider-repl-mode)
-    ))
-#+END_SRC
 ** Javascript
 #+BEGIN_SRC emacs-lisp
 (use-package js2-mode
@@ -563,9 +553,7 @@ Using flycheck instead
 
       (whitespace-turn-off)
       )
-    (add-hook 'web-mode-hook  'my-web-mode-hook)
-    )
-  )
+    (add-hook 'web-mode-hook  'my-web-mode-hook)))
 
 (use-package skewer-mode
   :defer t
@@ -575,8 +563,7 @@ Using flycheck instead
     (add-hook 'css-mode-hook 'skewer-css-mode)
     (add-hook 'html-mode-hook 'skewer-html-mode)
     (add-to-list 'evil-emacs-state-modes 'skewer-repl-mode)
-    )
-  )
+    ))
 
 (use-package emmet-mode
   :commands emmet-mode
@@ -586,11 +573,6 @@ Using flycheck instead
     (add-hook 'web-mode-hook 'emmet-mode)
     (add-hook 'html-mode-hook 'emmet-mode)
     ))
-
-(use-package impatient-mode
-  :disabled t
-  :ensure nil
-  :commands httpd-start)
 #+END_SRC
 ** Markdown
 #+BEGIN_SRC emacs-lisp
@@ -646,7 +628,15 @@ Using flycheck instead
                 (set (make-local-variable 'compile-command)
                      (concat "love " default-directory))))))
 #+END_SRC
-** Currently not used
+** Scheme
+#+BEGIN_SRC emacs-lisp
+(use-package geiser
+  :defer t
+  :init
+  (progn
+    (setq geiser-active-implementations '(chicken))))
+#+END_SRC
+** Currently disabled
 *** Slime
 Not using slime right now
 #+BEGIN_SRC emacs-lisp
@@ -692,13 +682,22 @@ Not using slime right now
   (progn
     (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)))
 #+END_SRC
+*** Clojure
+#+BEGIN_SRC emacs-lisp
+(use-package cider
+  :commands (cider-jack-in)
+  :disabled t
+  :init
+  (progn
+    (add-to-list 'evil-emacs-state-modes 'cider-repl-mode)
+    ))
+#+END_SRC
 * Org Mode
 #+BEGIN_SRC emacs-lisp
 (use-package org
   :defer t
   :diminish (org-indent-mode visual-line-mode flyspell-mode evil-org-mode)
   :ensure org-bullets
-  :ensure evil-org
   :ensure htmlize
   :init
   (progn
@@ -709,8 +708,8 @@ Not using slime right now
           org-confirm-babel-evaluate nil
           org-return-follows-link t
           org-startup-with-inline-images t
-          ;;org-startup-with-latex-preview t
-          org-latex-create-formula-image-program 'imagemagick
+          ;; org-startup-with-latex-preview t
+          ;; org-latex-create-formula-image-program 'imagemagick
           org-list-allow-alphabetical t
 
           org-notes-location "~/Sync/Notes/"
@@ -721,6 +720,18 @@ Not using slime right now
           org-agenda-files (list org-todo-location)
           )
 
+    ;; org-src config
+    (setq
+     org-edit-src-content-indentation 0
+     org-src-fontify-natively t
+     org-src-tab-acts-natively t
+     org-src-window-setup 'current-window)
+
+    ;; Make windmove work in org-mode:
+    (add-hook 'org-shiftup-final-hook 'windmove-up)
+    (add-hook 'org-shiftleft-final-hook 'windmove-left)
+    (add-hook 'org-shiftdown-final-hook 'windmove-down)
+    (add-hook 'org-shiftright-final-hook 'windmove-right)
 
     (setq org-capture-templates
           '(("t" "Todo" entry (file+headline org-todo-location "Tasks")
@@ -760,7 +771,6 @@ Not using slime right now
     (add-hook 'org-mode-hook 'flyspell-mode)
     (add-hook 'org-mode-hook 'org-toggle-pretty-entities)
     (add-hook 'org-mode-hook 'org-bullets-mode)
-    (add-hook 'org-mode-hook 'evil-org-mode)
     (add-hook 'evil-org-mode-hook (lambda ()
                                     (evil-org-set-key-theme)))
     (add-hook 'org-mode-hook 'org-indent-mode)
@@ -780,6 +790,7 @@ Not using slime right now
        (gnuplot . t)
        (sh . t)
        (calc . t)
+       (scheme . t)
        ))
 
     (defun publish-and-push (&optional blog msg)
@@ -928,6 +939,5 @@ Not using slime right now
 #+BEGIN_SRC emacs-lisp
 (use-package zerodark-theme
   :config
-  (load-theme 'zerodark t)
-  (zerodark-setup-modeline-format))
+  (load-theme 'zerodark t))
 #+END_SRC
