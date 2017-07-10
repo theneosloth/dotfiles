@@ -266,7 +266,6 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 ** Flycheck
 #+BEGIN_SRC emacs-lisp
 (use-package flycheck
-  :diminish flycheck-mode
   :commands global-flycheck-mode
   :init
   (progn
@@ -287,7 +286,8 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 #+END_SRC
 ** mtg-deck-mode
 #+BEGIN_SRC emacs-lisp
-(use-package mtg-deck-mode)
+(use-package mtg-deck-mode
+  :defer t)
 #+END_SRC
 ** E-reader
 #+BEGIN_SRC emacs-lisp
@@ -309,11 +309,6 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   (progn
     (global-set-key (kbd "C-c m") 'mingus-browse)
     ;;Disable evil in mingus
-    ;; evil-set-initial-state doesn't work for some reason.
-    ;; (evil-set-initial-state 'mingus-help-mode 'emacs)
-    ;; (evil-set-initial-state 'mingus-browse-mode 'emacs)
-    ;; (evil-set-initial-state 'mingus-playlist-mode 'emacs)
-
     (add-hook 'mingus-browse-hook 'evil-emacs-state)
     (add-hook 'mingus-playlist-hooks 'evil-emacs-state)
     ))
@@ -327,9 +322,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 #+BEGIN_SRC emacs-lisp
 (use-package elfeed
   :commands elfeed
-  :bind (
-         ("C-c e" . elfeed)
-         )
+  :bind (("C-c e" . elfeed))
   :init
   (progn
     ;; Disable evil in all the elfeed panes
@@ -347,8 +340,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
        ("http://www.giantbomb.com/podcast-xml/beastcast" podcast)
        ("http://billburr.libsyn.com/rss" podcast)
        ("http://planet.emacsen.org/atom.xml" blog emacs)
-       )
-     )))
+       ))))
 #+END_SRC
 ** Auctex
 #+BEGIN_SRC emacs-lisp
@@ -389,8 +381,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
                                       ("From" . "craigslist")
                                       (("To" "CC") . "mailing-list-1\\|mailing-list-2")
                                       (("To" "CC") . "superstepag@gmail.com")
-                                      ))
-    ))
+                                      ))))
 #+END_SRC
 ** Projectile
 #+BEGIN_SRC emacs-lisp
@@ -416,8 +407,7 @@ Relative line numbers. Currently disabled, because having them seems a bit redun
     (setq nlinum-relative-redisplay-delay 0)
     (setq nlinum-relative-current-symbol "")
     (setq nlinum-relative-offset 0)
-    (add-hook 'prog-mode-hook 'nlinum-relative-mode)
-    )
+    (add-hook 'prog-mode-hook 'nlinum-relative-mode))
   :config
   (progn
     (nlinum-relative-setup-evil)
@@ -431,8 +421,7 @@ Currently using gnus for my email.
   (autoload 'notmuch "notmuch" "notmuch mail" t)
   (add-hook 'notmuch-hello-mode 'evil-emacs-state)
   (add-hook 'notmuch-message-mode 'evil-emacs-state)
-  (add-hook 'notmuch-search-mode 'evil-emacs-state)
-  )
+  (add-hook 'notmuch-search-mode 'evil-emacs-state))
 #+END_SRC
 * Programming Modes
 ** Language Independent Settings
@@ -904,8 +893,7 @@ Not using slime right now
     (setq erc-nick "neosloth")
     (setq erc-kill-buffer-on-part t)
     (setq erc-autojoin-channels-alist
-          '((".*freenode.net" "#emacs" "#lainchan")
-            ("portlane.se.quakenet.org" "#unrealvidya")
+          '((".*freenode.net" "#emacs")
             (".*undernet.org" "#bookz")
             (".*abjects.net" "#mg-chat" "#moviegods")
             ))
@@ -933,11 +921,20 @@ Not using slime right now
     (erc-notifications-mode 1)
     (erc-scrolltobottom-enable)
     ))
-
 #+END_SRC
 * Theme
 #+BEGIN_SRC emacs-lisp
 (use-package zerodark-theme
   :config
-  (load-theme 'zerodark t))
+  (load-theme 'zerodark t)
+  (custom-set-faces
+   ;; Brighter rainbow delimiters
+   '(rainbow-delimiters-depth-1-face ((t (:foreground "dark orange"))))
+   '(rainbow-delimiters-depth-2-face ((t (:foreground "deep pink"))))
+   '(rainbow-delimiters-depth-3-face ((t (:foreground "chartreuse"))))
+   '(rainbow-delimiters-depth-4-face ((t (:foreground "deep sky blue"))))
+   '(rainbow-delimiters-depth-5-face ((t (:foreground "yellow"))))
+   '(rainbow-delimiters-depth-6-face ((t (:foreground "orchid"))))
+   '(rainbow-delimiters-depth-7-face ((t (:foreground "spring green"))))
+   '(rainbow-delimiters-depth-8-face ((t (:foreground "sienna1"))))))
 #+END_SRC
