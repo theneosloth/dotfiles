@@ -53,7 +53,7 @@ battery 0 {
         format = "%status %percentage %remaining"
         format_down = " No battery"
         status_chr = " CHR"
-        status_bat = " BAT"
+        status_bat = " BAT"
         status_unk = "? UNK"
         status_full = " FULL"
 
