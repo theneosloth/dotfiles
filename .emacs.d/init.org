@@ -127,9 +127,6 @@ Credit goes to [[https://www.reddit.com/r/emacs/comments/1zkj2d/advanced_usage_o
     (insert (concat "ls"))
     (eshell-send-input)))
 
-(defun eshell/x ()
-  (kill-buffer-and-window))
-
 (global-set-key (kbd "C-c s") 'eshell-here)
 #+END_SRC
 ** UTF-8 and Fonts
@@ -186,19 +183,11 @@ Move the auto-save and backup files into the temp file directory so that emacs d
 (defun display-startup-echo-area-message()
   (message (emacs-init-time)))
 #+END_SRC
-** Dired
-*** Dired quick copy/paste
+** Dired quick copy/paste
 When dired-dwim-target is enabled, dired tries to guess a default target directory. So if there are multiple dired panes open it will use that as the default.
 #+BEGIN_SRC emacs-lisp
 (setq dired-dwim-target t)
 #+END_SRC
-*** Custom read only mode shortcut
-#+BEGIN_SRC emacs-lisp
-(eval-after-load "dired" '(progn
-                            (define-key dired-mode-map (kbd "I")
-                              'dired-toggle-read-only)))
-#+END_SRC
-
 ** Simple git push
 #+BEGIN_SRC emacs-lisp
 (defun git-push-all (commit-message)
@@ -228,12 +217,9 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   :diminish evil-goggles-mode
   :ensure evil-matchit
   :ensure evil-surround
-
-  :init
-  (progn
-    (setq evil-mode-line-format '(before . mode-line-front-space)))
   :config
   (progn
+    (setq evil-mode-line-format '(before . mode-line-front-space))
     (evil-mode 1)
     ;;Disable evil in these modes
     (evil-set-initial-state 'dired-mode 'emacs)
@@ -254,7 +240,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   :diminish lispy-mode
   :diminish lispyville-mode
   :ensure lispyville
-  :init
+  :config
   (progn
     (add-hook 'lispy-mode-hook #'lispyville-mode)
     (add-hook 'emacs-lisp-mode-hook #'lispy-mode)
@@ -284,9 +270,8 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 #+BEGIN_SRC emacs-lisp
 (use-package pdf-tools
   :mode ("\\.pdf$" . pdf-view-mode)
-  :init
-  (add-hook 'pdf-tools-enabled-hook 'pdf-view-midnight-minor-mode)
   :config
+  (add-hook 'pdf-tools-enabled-hook 'pdf-view-midnight-minor-mode)
   (unless (eq system-type 'windows-nt)
     ;; Only install pdf tools on unix
     (pdf-tools-install)
@@ -302,11 +287,9 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 #+BEGIN_SRC emacs-lisp
 (use-package ereader
   :mode (("\\.epub" . ereader-mode))
-  :init
-  (progn
-    (add-to-list 'evil-emacs-state-modes 'ereader-mode))
   :config
   (progn
+    (add-to-list 'evil-emacs-state-modes 'ereader-mode)
     (visual-line-mode 1)))
 #+END_SRC
 ** Mingus
@@ -332,7 +315,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 (use-package elfeed
   :commands elfeed
   :bind (("C-c e" . elfeed))
-  :init
+  :config
   (progn
     ;; Disable evil in all the elfeed panes
     (add-to-list 'evil-emacs-state-modes 'elfeed-show-mode)
@@ -355,7 +338,6 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
             ;; Imported from OPML
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCq6aw03lNILzV96UvEAASfQ" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCTWIIYshV8ARj3ZEfuKZTcg" youtube)
-            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCxkMDXQ5qzYOgXPRnOBrp1w" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCWcWOXdf-CG6K1gTFgjNNxA" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UClN6fvnB1WBaFA83C1Y_EwQ" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCa96SWr_naf4N4mseKZPbqQ" youtube)
@@ -369,6 +351,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCxUR9wLuzgsvA6mpgKtiqGw" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCyKs7Ta4nQpeoUaP1pl-5PA" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCFSXUpyZ_c23gnQguGjtPBQ" youtube)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCMB4u6nVluU9MkMTPUN3mRw" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCs_6gVNVQOgq6MGDdt3h8HQ" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCM0V8r4kuIWIl6Sy-NHj2lg" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCG0ndyYFIg5WXPMEMT1nk-Q" youtube)
@@ -385,13 +368,17 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCkpl-VMsq1m9AcWb2QMFHww" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCvG-4K2A6l8yxagVf1I3GpQ" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCyhnYIvIKK_--PiJXCMKxQQ" youtube)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCrH0zjmdaWXgzUagp_1epMg" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCZAZTSd0xnor7hJFmINIBIw" youtube)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCUR1pFG_3XoZn3JNKjulqZg" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCqJ0E420KX9_3lFNJjDoKDA" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UC6n8TAE1A04DewMb-k50MCg" youtube)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCsLlC2-ykzMCmSxlAsIRfZw" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCuPgdqQKpq4T4zeqmTelnFg" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCEOXxzW2vU0P-0THehuIIeg" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCYZtp0YIxYOipX15v_h_jnA" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCQD3awTLw9i8Xzh85FKsuJA" youtube)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCP7QY6L5pvmm0-stL-pNFrw" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCRbOPaGDB_xOQkVM8Rnn62Q" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCK3kaNXbB57CLcyhtccV_yw" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCr3cBLTYmIK9kY0F_OdFWFQ" youtube)
@@ -400,15 +387,18 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCekQr9znsk2vWxBo3YiLq2w" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCT31um1Ic8KweVWEMBC1K7A" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A" youtube)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UC9cLJOlWOCE9YmZlLF_OkRA" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCRmw2Pw9hrkZbY1TVAwq-_A" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCEKJKJ3FO-9SFv5x5BzyxhQ" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UC2cWolcQJwlnv-uNSVAMRAA" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UC4USoIAL9qcsx5nCZV_QRnA" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCE1jXbVAGJQEORz9nZqb5bQ" youtube)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCKhZplFZ1QaLqA_fCTVlU_g" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UC7pp40MU_6rLK5pvJYG3d0Q" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCJkMlOu7faDgqh4PfzbpLdg" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCDWIvJwLJsE4LG1Atne2blQ" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCjdQaSJCYS4o2eG93MvIwqg" youtube)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCjFqcJQXGZ6T6sxyFB-5i6A" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCe3OX7viy81tqeGGKA2OsEw" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCGaPZ6gP6VpDQQHuPyalnkw" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCJ6KZTTnkE-s2XFJJmoTAkw" youtube)
@@ -423,6 +413,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCq6VFHwMzcMXbuKyG7SQYIg" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCT22Ehr7vuRpIAaJ7dEkApg" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCkitABalXafr-NqceQdDXtg" youtube)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCF7hRXT2fWVdJxECenBQDXA" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCHL9bfHTxCMi-7vfxQ-AYtg" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCb_sF2m3-2azOqeNEdMwQPw" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCSc16oMxxlcJSb9SXkjwMjA" youtube)
@@ -431,22 +422,24 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCsvn_Po0SmunchJYOWpOxMg" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCPswLO6Jrrmg8hXY03eXHAw" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCLx053rWZxCiYWsBETgdKrQ" youtube)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCjzWSePFAGMM8jGfXDOV5Tw" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCrTNhL_yO3tPTdQ5XgmmWjA" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UC18ju52OET36bdewLRHzPdQ" youtube)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCxt9Pvye-9x_AIcb1UtmF1Q" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCkop4F44-FV6N92-PNAYzxA" youtube)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCIqOntfIErRuC1u6UyFfy8g" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCy1Ms_5qBTawC-k7PVjHXKQ" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UC84X0epDRFdTrybxEX8ZWkA" youtube)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UC_B2NiaRkm0RKvlG6_LzNuA" youtube)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCRhIOngepmb7ukktvGP5u0A" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCgc4xqIMDoiP4KOTFS21TJA" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCGFhIp3VXy90--3PfAqtSaA" youtube)
-            )))
-  :config
-  (progn
+            ))
 
     (defun elfeed-mark-all-as-read ()
       (interactive)
       (mark-whole-buffer)
       (elfeed-search-untag-all-unread))
-
     (define-key elfeed-search-mode-map (kbd "c") 'elfeed-mark-all-as-read)))
 #+END_SRC
 ** Auctex
@@ -455,12 +448,10 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   :ensure company-auctex
   :mode (("\\.tex$" . latex-mode)
          ("\\.latex$" . latex-mode))
-  :init
-  (progn
-    (add-hook 'latex-mode-hook 'turn-on-auto-fill)
-    (add-hook 'latex-mode-hook 'visual-line-mode))
   :config
   (progn
+    (add-hook 'latex-mode-hook 'turn-on-auto-fill)
+    (add-hook 'latex-mode-hook 'visual-line-mode)
     (company-auctex-init)))
 #+END_SRC
 ** Pass
@@ -472,13 +463,11 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 #+BEGIN_SRC emacs-lisp
 (use-package bbdb
   :commands (bbdb-insinuate-gnus)
-  :init
+  :config
   (progn
     (setq bbdb-check-postcode nil)
     (add-hook 'gnus-startup-hook 'bbdb-insinuate-gnus)
-    (setq bbdb-file "~/Sync/Essential/bbdb"))
-  :config
-  (progn
+    (setq bbdb-file "~/Sync/Essential/bbdb")
     (bbdb-initialize 'message 'gnus)
     ;;Automatically create bbdb entries
     (bbdb-mua-auto-update-init 'gnus 'message)
@@ -495,7 +484,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 (use-package projectile
   :commands projectile-mode
   :ensure counsel-projectile
-  :init
+  :config
   (progn
     (add-hook 'prog-mode-hook 'projectile-mode)
     (add-hook 'projectile-mode-hook 'counsel-projectile-on)))
@@ -538,7 +527,7 @@ Always enable whitespace mode
 (use-package whitespace
   :commands whitespace-mode
   :diminish whitespace-mode
-  :init
+  :config
   (add-hook 'prog-mode-hook 'whitespace-mode))
 #+END_SRC
 
@@ -547,7 +536,7 @@ Automatic indentation.
 #+BEGIN_SRC emacs-lisp
 (use-package aggressive-indent
   :diminish aggressive-indent-mode
-  :init
+  :config
   (progn
     (global-aggressive-indent-mode)
     (add-to-list 'aggressive-indent-excluded-modes 'python-mode)))
@@ -560,12 +549,10 @@ Better indent guides. Currently disabled because they cause insane hangs in pyth
   :disabled t
   :commands highlight-indent-guides-mode
   :diminish highlight-indent-guides-mode
-  :init
-  (progn
-    (add-hook 'prog-mode-hook 'highlight-indent-guides-mode))
   :config
   (progn
-    (setq highlight-indent-guides-method 'character)))
+    (setq highlight-indent-guides-method 'character)
+    (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)))
 #+END_SRC
 *** Misc
 #+BEGIN_SRC emacs-lisp
@@ -573,7 +560,7 @@ Better indent guides. Currently disabled because they cause insane hangs in pyth
 
 (use-package rainbow-delimiters
   :commands rainbow-delimiters-mode
-  :init
+  :config
   (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
 
 #+END_SRC
@@ -604,7 +591,7 @@ Not using yasnippet right now but it could become useful in the future.
 #+BEGIN_SRC emacs-lisp
 (use-package company-jedi
   :mode (("\\.py$" . python-mode))
-  :init
+  :config
   (progn
     (add-hook 'python-mode-hook
               (lambda ()
@@ -630,23 +617,18 @@ Using flycheck instead
   :ensure nil
   :ensure company-tern
   :mode (("\\.js$" . js2-mode))
-  :init
+  :config
   (progn
     (defun my-js-hook ()
-      (add-to-list 'company-backends 'company-tern)
-      (tern-mode))
-    (eval-after-load "tern" '(progn
-                               (setq tern-command
-                                     (append tern-command
-                                             '("--no-port-file"))))))
-  (add-hook 'js2-mode-hook 'my-js-hook))
+      (add-to-list 'company-backends 'company-tern))
+    (add-hook 'js2-mode-hook 'my-js-hook)))
 #+END_SRC
 ** Web/HTML
 #+BEGIN_SRC emacs-lisp
 (use-package web-mode
   :mode (("\\.html$" . web-mode))
   :ensure company-web
-  :init
+  :config
   (progn
     (defun my-web-mode-hook ()
       "Hooks for Web mode."
@@ -660,7 +642,7 @@ Using flycheck instead
 
 (use-package skewer-mode
   :defer t
-  :init
+  :config
   (progn
     (add-hook 'css-mode-hook 'skewer-css-mode)
     (add-hook 'html-mode-hook 'skewer-html-mode)
@@ -669,7 +651,7 @@ Using flycheck instead
 
 (use-package emmet-mode
   :commands emmet-mode
-  :init
+  :config
   (progn
     (setq emmet-move-cursor-between-quotes t)
     (add-hook 'web-mode-hook 'emmet-mode)
@@ -682,7 +664,7 @@ Using flycheck instead
   :mode (("README\\.md\\'" . gfm-mode)
          ("\\.md\\'" . markdown-mode)
          ("\\.markdown\\'" . markdown-mode))
-  :init
+  :config
   (progn
     (setq markdown-command "multimarkdown")
     (add-hook 'markdown-mode-hook 'visual-line-mode)))
@@ -691,7 +673,7 @@ Using flycheck instead
 #+BEGIN_SRC emacs-lisp
 (use-package company-shell
   :mode (("\\.sh$" . shell-script-mode))
-  :init
+  :config
   (progn
     (add-hook 'shell-script-mode-hook
               (lambda ()
@@ -708,7 +690,7 @@ Using flycheck instead
 #+BEGIN_SRC emacs-lisp
 (use-package company-lua
   :mode (("\\.lua" . lua-mode))
-  :init
+  :config
   (progn
     (add-hook 'lua-mode-hook (lambda()
                                (setq-local company-backends '(company-lua))))))
@@ -722,7 +704,7 @@ Using flycheck instead
 #+BEGIN_SRC emacs-lisp
 (use-package love-minor-mode
   :commands (love-minor-mode)
-  :init
+  :config
   (progn
     (add-hook 'love-minor-mode-hook
               (lambda()
@@ -733,7 +715,7 @@ Using flycheck instead
 #+BEGIN_SRC emacs-lisp
 (use-package geiser
   :defer t
-  :init
+  :config
   (progn
     (setq geiser-active-implementations '(chicken))))
 #+END_SRC
@@ -796,7 +778,7 @@ Not using slime right now
   :diminish (org-indent-mode visual-line-mode flyspell-mode evil-org-mode)
   :ensure org-bullets
   :ensure htmlize
-  :init
+  :config
   (progn
     (setq org-src-preserve-indentation nil
           org-edit-src-content-indentation 0
@@ -873,34 +855,32 @@ Not using slime right now
     (add-hook 'org-mode-hook 'org-indent-mode)
     (add-hook 'org-mode-hook 'visual-line-mode)
     )
-  :config
-  (progn
-    (require 'org-bullets)
-    (require 'htmlize)
-    (require 'ox-md)
+  (require 'org-bullets)
+  (require 'htmlize)
+  (require 'ox-md)
 
-    (org-babel-do-load-languages
-     'org-babel-load-languages
-     '((python . t)
-       (java . t)
-       (C . t)
-       (gnuplot . t)
-       (sh . t)
-       (calc . t)
-       (scheme . t)
-       (js . t)
-       ))
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((python . t)
+     (java . t)
+     (C . t)
+     (gnuplot . t)
+     (sh . t)
+     (calc . t)
+     (scheme . t)
+     (js . t)
+     ))
 
-    (defun publish-and-push (&optional blog msg)
-      "Publish a blog named BLOG and push a new git commit with MSG."
-      (interactive)
-      (or blog (setq blog "blog"))
-      (or name (setq name (format-time-string "%FT%T%z")))
-      (org-publish blog)
-      (let ((default-directory (plist-get
-                                (cdr (car org-publish-project-alist))
-                                :publishing-directory)))
-        (git-push-all msg)))))
+  (defun publish-and-push (&optional blog msg)
+    "Publish a blog named BLOG and push a new git commit with MSG."
+    (interactive)
+    (or blog (setq blog "blog"))
+    (or name (setq name (format-time-string "%FT%T%z")))
+    (org-publish blog)
+    (let ((default-directory (plist-get
+                              (cdr (car org-publish-project-alist))
+                              :publishing-directory)))
+      (git-push-all msg))))
 #+END_SRC
 
 * Gnus
@@ -908,7 +888,7 @@ Not using slime right now
 (use-package gnus
   :commands gnus
   :ensure org-mime
-  :init
+  :config
 
   ;; @see http://www.emacswiki.org/emacs/GnusGmail#toc1
   (setq gnus-select-method '(nntp "news.gmane.org")) ;; if you read news groups
@@ -976,7 +956,6 @@ Not using slime right now
 
   (add-hook 'message-mode-hook 'my-message-mode-setup)
 
-  :config
   (require 'org-mime)
   (setq org-mime-library 'mml)
 
@@ -992,6 +971,7 @@ Not using slime right now
 * ERC
 #+BEGIN_SRC emacs-lisp
 (use-package erc
+  :disabled t
   :commands irc-connect
   :ensure erc-hl-nicks
   :init
@@ -1031,6 +1011,22 @@ Not using slime right now
     (erc-scrolltobottom-enable)
     ))
 #+END_SRC
+* IRC
+#+BEGIN_SRC emacs-lisp
+(use-package rcirc
+  :commands irc
+  :config
+  (progn
+    (if (file-exists-p "~/.emacs.d/secrets.el.gpg")
+        (load-library "~/.emacs.d/secrets.el.gpg"))
+    (add-hook 'rcirc-mode-hook (lambda ()
+                                 (flyspell-mode 1)))
+    (setq rcirc-default-nick "neosloth")
+    (setq rcirc-server-alist
+          '(("irc.freenode.net" :channels ("#emacs"))))
+    ))
+#+END_SRC
+
 * Theme
 #+BEGIN_SRC emacs-lisp
 (use-package zerodark-theme
