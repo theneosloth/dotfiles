@@ -127,6 +127,9 @@ Credit goes to [[https://www.reddit.com/r/emacs/comments/1zkj2d/advanced_usage_o
     (insert (concat "ls"))
     (eshell-send-input)))
 
+(defun eshell/x ()
+  (kill-buffer-and-window))
+
 (global-set-key (kbd "C-c s") 'eshell-here)
 #+END_SRC
 ** UTF-8 and Fonts
@@ -183,11 +186,19 @@ Move the auto-save and backup files into the temp file directory so that emacs d
 (defun display-startup-echo-area-message()
   (message (emacs-init-time)))
 #+END_SRC
-** Dired quick copy/paste
+** Dired
+*** Dired quick copy/paste
 When dired-dwim-target is enabled, dired tries to guess a default target directory. So if there are multiple dired panes open it will use that as the default.
 #+BEGIN_SRC emacs-lisp
 (setq dired-dwim-target t)
 #+END_SRC
+*** Custom read only mode shortcut
+#+BEGIN_SRC emacs-lisp
+(eval-after-load "dired" '(progn
+                            (define-key dired-mode-map (kbd "I")
+                              'dired-toggle-read-only)))
+#+END_SRC
+
 ** Simple git push
 #+BEGIN_SRC emacs-lisp
 (defun git-push-all (commit-message)
@@ -344,6 +355,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
             ;; Imported from OPML
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCq6aw03lNILzV96UvEAASfQ" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCTWIIYshV8ARj3ZEfuKZTcg" youtube)
+            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCxkMDXQ5qzYOgXPRnOBrp1w" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCWcWOXdf-CG6K1gTFgjNNxA" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UClN6fvnB1WBaFA83C1Y_EwQ" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCa96SWr_naf4N4mseKZPbqQ" youtube)
@@ -357,7 +369,6 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCxUR9wLuzgsvA6mpgKtiqGw" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCyKs7Ta4nQpeoUaP1pl-5PA" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCFSXUpyZ_c23gnQguGjtPBQ" youtube)
-            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCMB4u6nVluU9MkMTPUN3mRw" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCs_6gVNVQOgq6MGDdt3h8HQ" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCM0V8r4kuIWIl6Sy-NHj2lg" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCG0ndyYFIg5WXPMEMT1nk-Q" youtube)
@@ -374,17 +385,13 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCkpl-VMsq1m9AcWb2QMFHww" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCvG-4K2A6l8yxagVf1I3GpQ" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCyhnYIvIKK_--PiJXCMKxQQ" youtube)
-            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCrH0zjmdaWXgzUagp_1epMg" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCZAZTSd0xnor7hJFmINIBIw" youtube)
-            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCUR1pFG_3XoZn3JNKjulqZg" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCqJ0E420KX9_3lFNJjDoKDA" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UC6n8TAE1A04DewMb-k50MCg" youtube)
-            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCsLlC2-ykzMCmSxlAsIRfZw" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCuPgdqQKpq4T4zeqmTelnFg" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCEOXxzW2vU0P-0THehuIIeg" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCYZtp0YIxYOipX15v_h_jnA" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCQD3awTLw9i8Xzh85FKsuJA" youtube)
-            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCP7QY6L5pvmm0-stL-pNFrw" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCRbOPaGDB_xOQkVM8Rnn62Q" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCK3kaNXbB57CLcyhtccV_yw" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCr3cBLTYmIK9kY0F_OdFWFQ" youtube)
@@ -393,18 +400,15 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCekQr9znsk2vWxBo3YiLq2w" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCT31um1Ic8KweVWEMBC1K7A" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCBa659QWEk1AI4Tg--mrJ2A" youtube)
-            ("https://www.youtube.com/feeds/videos.xml?channel_id=UC9cLJOlWOCE9YmZlLF_OkRA" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCRmw2Pw9hrkZbY1TVAwq-_A" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCEKJKJ3FO-9SFv5x5BzyxhQ" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UC2cWolcQJwlnv-uNSVAMRAA" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UC4USoIAL9qcsx5nCZV_QRnA" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCE1jXbVAGJQEORz9nZqb5bQ" youtube)
-            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCKhZplFZ1QaLqA_fCTVlU_g" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UC7pp40MU_6rLK5pvJYG3d0Q" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCJkMlOu7faDgqh4PfzbpLdg" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCDWIvJwLJsE4LG1Atne2blQ" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCjdQaSJCYS4o2eG93MvIwqg" youtube)
-            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCjFqcJQXGZ6T6sxyFB-5i6A" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCe3OX7viy81tqeGGKA2OsEw" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCGaPZ6gP6VpDQQHuPyalnkw" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCJ6KZTTnkE-s2XFJJmoTAkw" youtube)
@@ -419,7 +423,6 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCq6VFHwMzcMXbuKyG7SQYIg" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCT22Ehr7vuRpIAaJ7dEkApg" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCkitABalXafr-NqceQdDXtg" youtube)
-            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCF7hRXT2fWVdJxECenBQDXA" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCHL9bfHTxCMi-7vfxQ-AYtg" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCb_sF2m3-2azOqeNEdMwQPw" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCSc16oMxxlcJSb9SXkjwMjA" youtube)
@@ -428,16 +431,11 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCsvn_Po0SmunchJYOWpOxMg" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCPswLO6Jrrmg8hXY03eXHAw" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCLx053rWZxCiYWsBETgdKrQ" youtube)
-            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCjzWSePFAGMM8jGfXDOV5Tw" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCrTNhL_yO3tPTdQ5XgmmWjA" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UC18ju52OET36bdewLRHzPdQ" youtube)
-            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCxt9Pvye-9x_AIcb1UtmF1Q" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCkop4F44-FV6N92-PNAYzxA" youtube)
-            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCIqOntfIErRuC1u6UyFfy8g" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCy1Ms_5qBTawC-k7PVjHXKQ" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UC84X0epDRFdTrybxEX8ZWkA" youtube)
-            ("https://www.youtube.com/feeds/videos.xml?channel_id=UC_B2NiaRkm0RKvlG6_LzNuA" youtube)
-            ("https://www.youtube.com/feeds/videos.xml?channel_id=UCRhIOngepmb7ukktvGP5u0A" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCgc4xqIMDoiP4KOTFS21TJA" youtube)
             ("https://www.youtube.com/feeds/videos.xml?channel_id=UCGFhIp3VXy90--3PfAqtSaA" youtube)
             )))
@@ -635,8 +633,13 @@ Using flycheck instead
   :init
   (progn
     (defun my-js-hook ()
-      (add-to-list 'company-backends 'company-tern))
-    (add-hook 'js2-mode-hook 'my-js-hook)))
+      (add-to-list 'company-backends 'company-tern)
+      (tern-mode))
+    (eval-after-load "tern" '(progn
+                               (setq tern-command
+                                     (append tern-command
+                                             '("--no-port-file"))))))
+  (add-hook 'js2-mode-hook 'my-js-hook))
 #+END_SRC
 ** Web/HTML
 #+BEGIN_SRC emacs-lisp
