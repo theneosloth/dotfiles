@@ -787,7 +787,9 @@ Not using slime right now
           org-confirm-babel-evaluate nil
           org-return-follows-link t
           org-startup-with-inline-images t
-          ;; org-startup-with-latex-preview t
+          ;; Automatically preview latex fragments, and store the image files in the temp directory
+          org-startup-with-latex-preview t
+          org-latex-preview-ltxpng-directory temporary-file-directory
           ;; org-latex-create-formula-image-program 'imagemagick
           org-list-allow-alphabetical t
 
