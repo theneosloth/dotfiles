@@ -205,7 +205,9 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   :ensure swiper
   :bind (("M-x" . counsel-M-x)
          ("C-x C-f" . counsel-find-file)
-         ("\C-s" . swiper))
+         ("\C-s" . swiper)
+         ("C-c i" . counsel-imenu)
+         )
   :config
   (progn
     (ivy-mode 1)))
@@ -970,7 +972,28 @@ Not using slime right now
 
   (add-hook 'kill-emacs-hook 'exit-gnus-on-exit))
 #+END_SRC
-* ERC
+* IRC
+#+BEGIN_SRC emacs-lisp
+(use-package rcirc
+  :commands irc
+  :config
+  (progn
+    (add-hook 'rcirc-mode-hook (lambda ()
+                                 (flyspell-mode 1)
+                                 (visual-line-mode)
+                                 ;; Scroll to bottom
+                                 (set (make-local-variable 'scroll-conservatively) 8192)))
+    (setq rcirc-default-nick "neosloth")
+    (set-face-foreground 'rcirc-my-nick "red" nil)
+
+    (setq rcirc-server-alist
+          '(("irc.freenode.net" :port 6697 :encryption tls :channels ("#emacs"))
+            ("irc.lainchan.org" :port 6697 :encryption tls :channels ("#lainchan"))))
+
+    (setq rcirc-fill-flag nil)))
+#+END_SRC
+* TODO ERC
+I prefer rcirc, however, it does not have DCC capabilities. I need to clean my ERC config up so it's only used for DCC and other advanced functionality
 #+BEGIN_SRC emacs-lisp
 (use-package erc
   :disabled t
@@ -1010,20 +1033,6 @@ Not using slime right now
     (erc-spelling-mode 1)
     (erc-notifications-mode 1)
     (erc-scrolltobottom-enable)))
-#+END_SRC
-* IRC
-#+BEGIN_SRC emacs-lisp
-(use-package rcirc
-  :commands irc
-  :config
-  (progn
-    (if (file-exists-p "~/.emacs.d/secrets.el.gpg")
-        (load-library "~/.emacs.d/secrets.el.gpg"))
-    (add-hook 'rcirc-mode-hook (lambda ()
-                                 (flyspell-mode 1)))
-    (setq rcirc-default-nick "neosloth")
-    (setq rcirc-server-alist
-          '(("irc.freenode.net" :channels ("#emacs"))))))
 #+END_SRC
 
 * Theme
