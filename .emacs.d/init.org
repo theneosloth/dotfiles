@@ -560,7 +560,7 @@ Better indent guides. Currently disabled because they cause insane hangs in pyth
 
 (use-package rainbow-delimiters
   :commands rainbow-delimiters-mode
-  :config
+  :init
   (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
 
 #+END_SRC
@@ -714,7 +714,6 @@ Using flycheck instead
 ** Scheme
 #+BEGIN_SRC emacs-lisp
 (use-package geiser
-  :defer t
   :config
   (progn
     (setq geiser-active-implementations '(chicken))))
@@ -789,7 +788,8 @@ Not using slime right now
           org-startup-with-inline-images t
           ;; Automatically preview latex fragments, and store the image files in the temp directory
           org-startup-with-latex-preview t
-          org-latex-preview-ltxpng-directory temporary-file-directory
+          org-latex-preview-ltxpng-directory (expand-file-name
+                                              (concat temporary-file-directory "ltxpng/"))
           ;; org-latex-create-formula-image-program 'imagemagick
           org-list-allow-alphabetical t
 
@@ -998,8 +998,7 @@ Not using slime right now
                       ))
       (dolist (server servers)
         (when (y-or-n-p (car server))
-          (erc :server (cdr server) :port 6667)))
-      ))
+          (erc :server (cdr server) :port 6667)))))
 
   :config
   (progn
@@ -1010,8 +1009,7 @@ Not using slime right now
     (toggle-truncate-lines)
     (erc-spelling-mode 1)
     (erc-notifications-mode 1)
-    (erc-scrolltobottom-enable)
-    ))
+    (erc-scrolltobottom-enable)))
 #+END_SRC
 * IRC
 #+BEGIN_SRC emacs-lisp
@@ -1025,8 +1023,7 @@ Not using slime right now
                                  (flyspell-mode 1)))
     (setq rcirc-default-nick "neosloth")
     (setq rcirc-server-alist
-          '(("irc.freenode.net" :channels ("#emacs"))))
-    ))
+          '(("irc.freenode.net" :channels ("#emacs"))))))
 #+END_SRC
 
 * Theme
