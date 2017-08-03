@@ -31,12 +31,12 @@ client.background       $bg
 set $mod Mod4
 
 #Set workspaces
-set $ws1  ""
-set $ws2  ""
-set $ws3  ""
-set $ws4  ""
-set $ws5  ""
-set $ws6  ""
+set $ws1  "1:"
+set $ws2  "2:"
+set $ws3  "3:"
+set $ws4  "4:"
+set $ws5  "5:"
+set $ws6  "6:"
 set $ws7  "7"
 set $ws8  "8"
 set $ws9  "9"
@@ -216,8 +216,11 @@ exec --no-startup-id wal -i ~/Sync/Wallpapers/
 # Use rofi-pass for password management
 bindsym $mod+Ctrl+i exec rofi-pass
 
-# Bind i3lock-blur to ctrl+mod+l. The -f argument only works with i3lock-blue
+# Bind i3lock-blur to ctrl+mod+l. The -f argument only works with i3lock-blur
 bindsym $mod+Ctrl+l exec i3lock -f
+
+# Org capture
+bindsym $mod+Ctrl+o exec emacs --eval "(org-capture)"
 
 # Window switcher
 bindsym $mod+Tab exec --no-startup-id rofi -show window -theme royal-sky

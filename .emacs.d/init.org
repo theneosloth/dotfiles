@@ -231,8 +231,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
     (evil-set-initial-state 'message-mode 'emacs)
     (evil-set-initial-state 'compilation-mode 'emacs)
     (global-evil-surround-mode 1)
-    (global-evil-matchit-mode 1)
-    ))
+    (global-evil-matchit-mode 1)))
 #+END_SRC
 
 *** Evil-Lispy
@@ -242,7 +241,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   :diminish lispy-mode
   :diminish lispyville-mode
   :ensure lispyville
-  :config
+  :init
   (progn
     (add-hook 'lispy-mode-hook #'lispyville-mode)
     (add-hook 'emacs-lisp-mode-hook #'lispy-mode)
@@ -343,6 +342,9 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
     (add-hook 'latex-mode-hook 'visual-line-mode)
     (company-auctex-init)))
 #+END_SRC
+
+#+RESULTS:
+
 ** Pass
 #+BEGIN_SRC emacs-lisp
 (use-package password-store
@@ -352,6 +354,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 #+BEGIN_SRC emacs-lisp
 (use-package bbdb
   :commands (bbdb-insinuate-gnus)
+  :ensure nil
   :config
   (progn
     (setq bbdb-check-postcode nil)
@@ -676,7 +679,7 @@ Not using slime right now
           org-return-follows-link t
           org-startup-with-inline-images t
           ;; Automatically preview latex fragments, and store the image files in the temp directory
-          org-startup-with-latex-preview t
+          ;; org-startup-with-latex-preview t
           org-latex-preview-ltxpng-directory (expand-file-name
                                               (concat temporary-file-directory "ltxpng/"))
           ;; org-latex-create-formula-image-program 'imagemagick
@@ -779,6 +782,7 @@ Not using slime right now
 (use-package gnus
   :commands gnus
   :ensure org-mime
+  :ensure smtpmail-multi
   :config
 
   ;; @see http://www.emacswiki.org/emacs/GnusGmail#toc1
@@ -799,12 +803,14 @@ Not using slime right now
   (setq gnus-thread-sort-functions
         '(gnus-thread-sort-by-most-recent-date
           (not gnus-thread-sort-by-number)))
+
   (setq gnus-thread-hide-subtree t)
   (setq user-mail-address "superstepag@gmail.com"
         user-full-name "Stefan Kuznetsov")
 
   (setq nnmail-expiry-target "nnimap+gmail:[Gmail]/Trash")
   (setq nnmail-expiry-wait 'immediate)
+
   (setq gnus-select-method
         '(nnimap "main"
                  (nnimap-address "imap.gmail.com")
