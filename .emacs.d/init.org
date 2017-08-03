@@ -988,7 +988,7 @@ Not using slime right now
 
     (setq rcirc-server-alist
           '(("irc.freenode.net" :port 6697 :encryption tls :channels ("#emacs"))
-            ("irc.lainchan.org" :port 6697 :encryption tls :channels ("#lainchan"))))
+            ("irc.lainchan.org" :port 6697 :encryption tls :channels ("#lainchan" "#xonotic"))))
 
     (setq rcirc-fill-flag nil)))
 #+END_SRC
