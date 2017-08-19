@@ -206,8 +206,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   :bind (("M-x" . counsel-M-x)
          ("C-x C-f" . counsel-find-file)
          ("\C-s" . swiper)
-         ("C-c i" . counsel-imenu)
-         )
+         ("C-c i" . counsel-imenu))
   :config
   (progn
     (ivy-mode 1)))
@@ -524,30 +523,19 @@ Using flycheck instead
   (progn
     (defun my-web-mode-hook ()
       "Hooks for Web mode."
-      (setq web-mode-markup-indent-offset 2)
+      (setq web-mode-markup-indent-offset 2))
 
-      (set (make-local-variable 'company-backends)
-           '(company-web-html company-files))
-
-      (whitespace-turn-off))
     (add-hook 'web-mode-hook  'my-web-mode-hook)))
-
-(use-package skewer-mode
-  :defer t
-  :config
-  (progn
-    (add-hook 'css-mode-hook 'skewer-css-mode)
-    (add-hook 'html-mode-hook 'skewer-html-mode)
-    (add-to-list 'evil-emacs-state-modes 'skewer-repl-mode)
-    ))
 
 (use-package emmet-mode
   :commands emmet-mode
+  :init
+  (progn
+    (add-hook 'web-mode-hook 'emmet-mode)
+    (add-hook 'html-mode-hook 'emmet-mode))
   :config
   (progn
-    (setq emmet-move-cursor-between-quotes t)
-    (add-hook 'web-mode-hook 'emmet-mode)
-    (add-hook 'html-mode-hook 'emmet-mode)))
+    (setq emmet-move-cursor-between-quotes t)))
 #+END_SRC
 ** Markdown
 #+BEGIN_SRC emacs-lisp
@@ -781,8 +769,6 @@ Not using slime right now
 #+BEGIN_SRC emacs-lisp
 (use-package gnus
   :commands gnus
-  :ensure org-mime
-  :ensure smtpmail-multi
   :config
 
   ;; @see http://www.emacswiki.org/emacs/GnusGmail#toc1
@@ -805,10 +791,9 @@ Not using slime right now
           (not gnus-thread-sort-by-number)))
 
   (setq gnus-thread-hide-subtree t)
-  (setq user-mail-address "superstepag@gmail.com"
+  (setq user-mail-address "neosloth@disroot.org"
         user-full-name "Stefan Kuznetsov")
 
-  (setq nnmail-expiry-target "nnimap+gmail:[Gmail]/Trash")
   (setq nnmail-expiry-wait 'immediate)
 
   (setq gnus-select-method
@@ -821,12 +806,15 @@ Not using slime right now
         '((nnimap "official"
                   (nnimap-address "imap.gmail.com")
                   (nnimap-server-port "imaps")
-                  (nnimap-stream ssl)
-                  )
+                  (nnimap-stream ssl))
           (nnimap "hotmail"
                   (nnimap-address "outlook.office365.com")
-                  (nnimap-server-port 993)
-                  )
+                  (nnimap-server-port "imaps")
+                  (nnimap-server-port 993))
+          (nnimap "disroot"
+                  (nnimap-address "disroot.org")
+                  (nnimap-server-port "imaps")
+                  (nnimap-server-port 993))
           ))
 
   (setq gnus-posting-styles
@@ -841,7 +829,7 @@ Not using slime right now
 
   ;;send mail config
   (setq message-send-mail-function 'smtpmail-send-it
-        smtpmail-smtp-server "smtp.gmail.com"
+        smtpmail-smtp-server "disroot.org"
         smtpmail-smtp-service 587
         gnus-ignored-newsgroups "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\"]\"[#'()]")
 
@@ -852,9 +840,6 @@ Not using slime right now
     (turn-on-auto-fill))
 
   (add-hook 'message-mode-hook 'my-message-mode-setup)
-
-  (require 'org-mime)
-  (setq org-mime-library 'mml)
 
   (defun exit-gnus-on-exit ()
     (if (and (fboundp 'gnus-group-exit)
@@ -893,12 +878,13 @@ Not using slime right now
                                  (visual-line-mode)
                                  ;; Scroll to bottom
                                  (set (make-local-variable 'scroll-conservatively) 8192)))
+
     (setq rcirc-default-nick "neosloth")
     (set-face-foreground 'rcirc-my-nick "red" nil)
 
     (setq rcirc-server-alist
           '(("irc.freenode.net" :port 6697 :encryption tls :channels ("#emacs"))
-            ("irc.lainchan.org" :port 6697 :encryption tls :channels ("#lainchan" "#xonotic"))))
+            ("irc.lainchan.org" :port 6697 :encryption tls :channels ("#lainchan"))))
 
     (setq rcirc-fill-flag nil)))
 #+END_SRC
@@ -906,7 +892,6 @@ Not using slime right now
 I prefer rcirc, however, it does not have DCC capabilities. I need to clean my ERC config up so it's only used for DCC and other advanced functionality
 #+BEGIN_SRC emacs-lisp
 (use-package erc
-  :disabled t
   :commands irc-connect
   :ensure erc-hl-nicks
   :init
@@ -916,8 +901,7 @@ I prefer rcirc, however, it does not have DCC capabilities. I need to clean my E
     (setq servers '(
                     ("Freenode" . "irc.freenode.net")
                     ("Undernet" . "ix1.undernet.org")
-                    ("Abjects" . "irc.abjects.net")
-                    ))
+                    ("Abjects" . "irc.abjects.net")))
     (dolist (server servers)
       (when (y-or-n-p (car server))
         (erc :server (cdr server) :port 6667))))
@@ -931,8 +915,7 @@ I prefer rcirc, however, it does not have DCC capabilities. I need to clean my E
     (setq erc-autojoin-channels-alist
           '((".*freenode.net" "#emacs")
             (".*undernet.org" "#bookz")
-            (".*abjects.net" "#mg-chat" "#moviegods")
-            ))
+            (".*abjects.net" "#mg-chat" "#moviegods")))
 
     (add-hook 'window-configuration-change-hook
               '(lambda()

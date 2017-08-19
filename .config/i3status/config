@@ -9,6 +9,9 @@
 general {
         colors = true
         interval = 5
+        color_good = "#2aa198"
+        color_bad = "#dc322f"
+        color_degraded = "#cb4b16"
 }
 
 #order += "ipv6"
@@ -32,7 +35,7 @@ cpu_usage {
 
 volume master {
         format = " %volume"
-        format_muted = " (%volume)"
+        format_muted = " %volume"
         device = "default"
         mixer = "Master"
         mixer_idx = 0
