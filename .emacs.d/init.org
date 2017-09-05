@@ -78,9 +78,11 @@ Make sure that use-package is installed and that ensure is always on so that use
 ;;Show current buffer name
 (setq frame-title-format "emacs - %b")
 ;;Hide the toolbar scroll bar and menubar
-(tool-bar-mode -1)
+(if (display-graphic-p)
+    (progn
+      (tool-bar-mode -1)
+      (scroll-bar-mode -1)))
 (menu-bar-mode -1)
-(toggle-scroll-bar -1)
 
 ;; Always treat tabs as spaces
 (setq-default indent-tabs-mode nil)
@@ -183,11 +185,17 @@ Move the auto-save and backup files into the temp file directory so that emacs d
 (defun display-startup-echo-area-message()
   (message (emacs-init-time)))
 #+END_SRC
-** Dired quick copy/paste
+** Dired
+*** Dired quick copy/paste
 When dired-dwim-target is enabled, dired tries to guess a default target directory. So if there are multiple dired panes open it will use that as the default.
 #+BEGIN_SRC emacs-lisp
 (setq dired-dwim-target t)
 #+END_SRC
+*** Dired
+#+BEGIN_SRC emacs-lisp
+(setq dired-listing-switches "-alh")
+#+END_SRC
+
 ** Simple git push
 #+BEGIN_SRC emacs-lisp
 (defun git-push-all (commit-message)
@@ -195,6 +203,11 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
       (shell-command (concatenate
                       'string "git commit -m \"" commit-message "\""))
       (shell-command "git push origin master"))
+#+END_SRC
+** Use rx for re builder
+[[http://francismurillo.github.io/2017-03-30-Exploring-Emacs-rx-Macro/][rx reference]]
+#+BEGIN_SRC emacs-lisp
+(setq reb-re-syntax 'rx)
 #+END_SRC
 * Major Custom Packages
 ** Ivy
@@ -517,8 +530,8 @@ Using flycheck instead
 ** Web/HTML
 #+BEGIN_SRC emacs-lisp
 (use-package web-mode
-  :mode (("\\.html$" . web-mode))
   :ensure company-web
+  :disabled t
   :config
   (progn
     (defun my-web-mode-hook ()
@@ -660,9 +673,6 @@ Not using slime right now
   :config
   (progn
     (setq org-src-preserve-indentation nil
-          org-edit-src-content-indentation 0
-          org-src-fontify-natively t
-          org-src-tab-acts-natively t
           org-confirm-babel-evaluate nil
           org-return-follows-link t
           org-startup-with-inline-images t
