@@ -82,6 +82,7 @@ Make sure that use-package is installed and that ensure is always on so that use
     (progn
       (tool-bar-mode -1)
       (scroll-bar-mode -1)))
+
 (menu-bar-mode -1)
 
 ;; Always treat tabs as spaces
@@ -218,8 +219,8 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   :ensure swiper
   :bind (("M-x" . counsel-M-x)
          ("C-x C-f" . counsel-find-file)
-         ("\C-s" . swiper)
-         ("C-c i" . counsel-imenu))
+         ("C-c I" . counsel-imenu)
+         ("\C-s" . swiper))
   :config
   (progn
     (ivy-mode 1)))
@@ -298,12 +299,11 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 #+END_SRC
 ** E-reader
 #+BEGIN_SRC emacs-lisp
-(use-package ereader
-  :mode (("\\.epub" . ereader-mode))
+(use-package nov
+  :mode (("\\.epub" . nov-mode))
   :config
   (progn
-    (add-to-list 'evil-emacs-state-modes 'ereader-mode)
-    (visual-line-mode 1)))
+    (add-to-list 'evil-emacs-state-modes 'nov-mode)))
 #+END_SRC
 ** Mingus
 #+BEGIN_SRC emacs-lisp
@@ -482,6 +482,32 @@ Not using yasnippet right now but it could become useful in the future.
     (add-hook 'prog-mode-hook 'yas-minor-mode)))
 #+END_SRC
 ** C-Mode
+*** Irony
+#+BEGIN_SRC emacs-lisp
+(use-package irony-mode
+  :ensure company-irony
+  :ensure flycheck-irony
+  :init
+  (progn
+    (add-hook 'c++-mode-hook 'irony-mode)
+    (add-hook 'c-mode-hook 'irony-mode)
+    (add-hook 'objc-mode-hook 'irony-mode)
+    (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+
+    (eval-after-load 'company
+      '(add-to-list 'company-backends 'company-irony))
+
+    (eval-after-load 'flycheck
+      '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
+
+    ;; Windows performance tweaks
+    (when (boundp 'w32-pipe-read-delay)
+      (setq w32-pipe-read-delay 0))
+    ;; Set the buffer size to 64K on Windows (from the original 4K)
+    (when (boundp 'w32-pipe-buffer-size)
+      (setq irony-server-w32-pipe-buffer-size (* 64 1024)))))
+#+END_SRC
+*** Indentation
 #+BEGIN_SRC emacs-lisp
 ;;Indent c++ code with 4 spaces
 (defun indent-c-mode-hook ()
@@ -611,15 +637,17 @@ Using flycheck instead
   (progn
     (setq geiser-active-implementations '(chicken))))
 #+END_SRC
-** Currently disabled
-*** Slime
+** Slime
 Not using slime right now
 #+BEGIN_SRC emacs-lisp
 (use-package slime
-  :disabled t
-  :ensure nil
-  :commands slime)
+  :commands slime
+  :ensure slime-company
+  :config
+  (setq inferior-lisp-program "sbcl")
+  (slime-setup '(slime-fancy slime-company)))
 #+END_SRC
+** Currently disabled
 *** Rust
  https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-emacs/
 #+BEGIN_SRC emacs-lisp
@@ -667,7 +695,7 @@ Not using slime right now
 #+BEGIN_SRC emacs-lisp
 (use-package org
   :defer t
-  :diminish (org-indent-mode visual-line-mode flyspell-mode evil-org-mode)
+  :diminish (org-indent-mode visual-line-mode flyspell-mode)
   :ensure org-bullets
   :ensure htmlize
   :config
@@ -742,8 +770,6 @@ Not using slime right now
     (add-hook 'org-mode-hook 'flyspell-mode)
     (add-hook 'org-mode-hook 'org-toggle-pretty-entities)
     (add-hook 'org-mode-hook 'org-bullets-mode)
-    (add-hook 'evil-org-mode-hook (lambda ()
-                                    (evil-org-set-key-theme)))
     (add-hook 'org-mode-hook 'org-indent-mode)
     (add-hook 'org-mode-hook 'visual-line-mode)
     )
@@ -864,28 +890,18 @@ Not using slime right now
 #+BEGIN_SRC emacs-lisp
 (use-package rcirc
   :commands irc
-  :init
-
-  (defadvice rcirc (before rcirc-read-from-authinfo activate)
-    "Allow rcirc to read authinfo from ~/.authinfo.gpg via the auth-source API.
-     This doesn't support the chanserv auth method"
-    (unless arg
-      (dolist (p (auth-source-search :port '("nickserv" "bitlbee" "quakenet")
-                                     :require '(:port :user :secret)))
-        (let ((secret (plist-get p :secret))
-              (method (intern (plist-get p :port))))
-          (add-to-list 'rcirc-authinfo
-                       (list (plist-get p :host)
-                             method
-                             (plist-get p :user)
-                             (if (functionp secret)
-                                 (funcall secret)
-                               secret)))))))
+  :bind ("C-c i" . irc)
   :config
   (progn
+    (when
+     (file-exists-p "~/.ircauth.el.gpg")
+     (load "~/.ircauth.el.gpg"))
+
     (add-hook 'rcirc-mode-hook (lambda ()
                                  (flyspell-mode 1)
                                  (visual-line-mode)
+                                 ;; Show new messages in mode line
+                                 (rcirc-track-minor-mode 1)
                                  ;; Scroll to bottom
                                  (set (make-local-variable 'scroll-conservatively) 8192)))
 
@@ -893,28 +909,17 @@ Not using slime right now
     (set-face-foreground 'rcirc-my-nick "red" nil)
 
     (setq rcirc-server-alist
-          '(("irc.freenode.net" :port 6697 :encryption tls :channels ("#emacs"))
+          '(("irc.freenode.net" :port 6697 :encryption tls :channels ("#emacs" "#ipfs" "##linux" "#disroot"))
             ("irc.lainchan.org" :port 6697 :encryption tls :channels ("#lainchan"))))
 
-    (setq rcirc-fill-flag nil)))
+    (setq rcirc-fill-flag nil)
+
+    ))
 #+END_SRC
-* TODO ERC
-I prefer rcirc, however, it does not have DCC capabilities. I need to clean my ERC config up so it's only used for DCC and other advanced functionality
+* ERC
+
 #+BEGIN_SRC emacs-lisp
 (use-package erc
-  :commands irc-connect
-  :ensure erc-hl-nicks
-  :init
-  (defun irc-connect ()
-    "Connect to IRC interactively."
-    (interactive)
-    (setq servers '(
-                    ("Freenode" . "irc.freenode.net")
-                    ("Undernet" . "ix1.undernet.org")
-                    ("Abjects" . "irc.abjects.net")))
-    (dolist (server servers)
-      (when (y-or-n-p (car server))
-        (erc :server (cdr server) :port 6667))))
   :config
   (progn
     (setq erc-prompt-for-password nil)
@@ -922,16 +927,12 @@ I prefer rcirc, however, it does not have DCC capabilities. I need to clean my E
     (setq erc-auto-query 'buffer)
     (setq erc-nick "neosloth")
     (setq erc-kill-buffer-on-part t)
-    (setq erc-autojoin-channels-alist
-          '((".*freenode.net" "#emacs")
-            (".*undernet.org" "#bookz")
-            (".*abjects.net" "#mg-chat" "#moviegods")))
 
     (add-hook 'window-configuration-change-hook
               '(lambda()
                  (setq erc-fill-column (- (window-width) 2))))
+
     (add-hook 'erc-mode-hook '(lambda()
-                                (erc-hl-nicks-mode 1)
                                 (toggle-truncate-lines)
                                 (erc-spelling-mode 1)
                                 (erc-notifications-mode 1)
