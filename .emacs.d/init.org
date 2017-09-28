@@ -258,8 +258,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   (progn
     (add-hook 'lispy-mode-hook #'lispyville-mode)
     (add-hook 'emacs-lisp-mode-hook #'lispy-mode)
-    (add-hook 'clojure-mode-hook #'lispy-mode)
-    ))
+    (add-hook 'clojure-mode-hook #'lispy-mode)))
 #+END_SRC
 ** Company
 #+BEGIN_SRC emacs-lisp
@@ -334,7 +333,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
     (add-to-list 'evil-emacs-state-modes 'elfeed-show-mode)
     (add-to-list 'evil-emacs-state-modes 'elfeed-search-mode)
     (elfeed-set-max-connections 64)
-    (elfeed-load-opml "~/Sync/Misc/feeds.opml")
+    (elfeed-load-opml "~/Sync/Misc/subscriptions.opml")
 
     (defun elfeed-mark-all-as-read ()
       (interactive)
@@ -489,6 +488,8 @@ Not using yasnippet right now but it could become useful in the future.
   :ensure flycheck-irony
   :init
   (progn
+    (setq irony-additional-clang-options '("-std=c++11"))
+
     (add-hook 'c++-mode-hook 'irony-mode)
     (add-hook 'c-mode-hook 'irony-mode)
     (add-hook 'objc-mode-hook 'irony-mode)
@@ -638,7 +639,6 @@ Using flycheck instead
     (setq geiser-active-implementations '(chicken))))
 #+END_SRC
 ** Slime
-Not using slime right now
 #+BEGIN_SRC emacs-lisp
 (use-package slime
   :commands slime
@@ -709,8 +709,10 @@ Not using slime right now
           org-latex-preview-ltxpng-directory (expand-file-name
                                               (concat temporary-file-directory "ltxpng/"))
           ;; org-latex-create-formula-image-program 'imagemagick
+          ;; allows alphabetical lists
           org-list-allow-alphabetical t
-
+          ;; requires superscripts to use groups ({})
+          org-use-sub-superscripts nil
           org-notes-location "~/Sync/Notes/"
           org-todo-location (expand-file-name
                              (concat org-notes-location "agenda.org"))
@@ -771,8 +773,7 @@ Not using slime right now
     (add-hook 'org-mode-hook 'org-toggle-pretty-entities)
     (add-hook 'org-mode-hook 'org-bullets-mode)
     (add-hook 'org-mode-hook 'org-indent-mode)
-    (add-hook 'org-mode-hook 'visual-line-mode)
-    )
+    (add-hook 'org-mode-hook 'visual-line-mode))
   (require 'org-bullets)
   (require 'htmlize)
   (require 'ox-md)
@@ -893,9 +894,10 @@ Not using slime right now
   :bind ("C-c i" . irc)
   :config
   (progn
+    ;;ircauth contains nickserv passwords
     (when
-     (file-exists-p "~/.ircauth.el.gpg")
-     (load "~/.ircauth.el.gpg"))
+        (file-exists-p "~/.ircauth.el.gpg")
+      (load "~/.ircauth.el.gpg"))
 
     (add-hook 'rcirc-mode-hook (lambda ()
                                  (flyspell-mode 1)
@@ -909,10 +911,33 @@ Not using slime right now
     (set-face-foreground 'rcirc-my-nick "red" nil)
 
     (setq rcirc-server-alist
-          '(("irc.freenode.net" :port 6697 :encryption tls :channels ("#emacs" "#ipfs" "##linux" "#disroot"))
-            ("irc.lainchan.org" :port 6697 :encryption tls :channels ("#lainchan"))))
+          '(("irc.freenode.net" :port 6697 :encryption tls :channels ("#emacs" "#archlinux" "#ipfs" "##linux" "#disroot" "#fsf"))
+            ("irc.lainchan.org" :port 6697 :encryption tls :channels ("#lainchan" "#general"))))
 
     (setq rcirc-fill-flag nil)
+
+    (defun-rcirc-command reconnect (arg)
+      "Reconnect the server process."
+      (interactive "i")
+      (unless process
+        (error "There's no process for this target"))
+      (let* ((server (car (process-contact process)))
+             (port (process-contact process :service))
+             (nick (rcirc-nick process))
+             channels query-buffers)
+        (dolist (buf (buffer-list))
+          (with-current-buffer buf
+            (when (eq process (rcirc-buffer-process))
+              (remove-hook 'change-major-mode-hook
+                           'rcirc-change-major-mode-hook)
+              (if (rcirc-channel-p rcirc-target)
+                  (setq channels (cons rcirc-target channels))
+                (setq query-buffers (cons buf query-buffers))))))
+        (delete-process process)
+        (rcirc-connect server port nick
+                       rcirc-default-user-name
+                       rcirc-default-full-name
+                       channels)))
 
     ))
 #+END_SRC
