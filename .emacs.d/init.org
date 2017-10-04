@@ -110,8 +110,9 @@ Make sure that use-package is installed and that ensure is always on so that use
 #+END_SRC
 *** Prettify symbols mode
 #+BEGIN_SRC emacs-lisp
-(global-prettify-symbols-mode)
-(setq prettify-symbols-unprettify-at-point 'right-edge)
+(unless (eq system-type 'windows-nt)
+  (global-prettify-symbols-mode)
+  (setq prettify-symbols-unprettify-at-point 'right-edge))
 #+END_SRC
 ** Open eshell in current window
 Credit goes to [[https://www.reddit.com/r/emacs/comments/1zkj2d/advanced_usage_of_eshell/cfugwkt][/u/howardabrams]] and [[https://www.reddit.com/r/emacs/comments/1zkj2d/advanced_usage_of_eshell/cfuuo5y][/u/AndersBakken]]
@@ -493,8 +494,9 @@ Not using yasnippet right now but it could become useful in the future.
     (add-hook 'c++-mode-hook 'irony-mode)
     (add-hook 'c-mode-hook 'irony-mode)
     (add-hook 'objc-mode-hook 'irony-mode)
-    (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
 
+    (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+    (add-hook 'irony-mode-hook #'irony-eldoc)
     (eval-after-load 'company
       '(add-to-list 'company-backends 'company-irony))
 
@@ -787,7 +789,9 @@ Using flycheck instead
      (sh . t)
      (calc . t)
      (scheme . t)
+     (lisp . t)
      (js . t)
+     (ditaa . t)
      ))
 
   (defun publish-and-push (&optional blog msg)
@@ -911,7 +915,7 @@ Using flycheck instead
     (set-face-foreground 'rcirc-my-nick "red" nil)
 
     (setq rcirc-server-alist
-          '(("irc.freenode.net" :port 6697 :encryption tls :channels ("#emacs" "#archlinux" "#ipfs" "##linux" "#disroot" "#fsf"))
+          '(("irc.freenode.net" :port 6697 :encryption tls :channels ("#emacs" "#archlinux" "#ipfs" "#disroot" "#fsf"))
             ("irc.lainchan.org" :port 6697 :encryption tls :channels ("#lainchan" "#general"))))
 
     (setq rcirc-fill-flag nil)
