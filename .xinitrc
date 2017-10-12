@@ -4,4 +4,6 @@
 [ ! -s ~/.config/mpd/pid ] && mpd
 
 xbindkeys
+# Swap ctrl and esc
+xmodmap ~/.capsswap
 exec i3

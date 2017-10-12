@@ -445,6 +445,15 @@ Automatic indentation.
     (global-aggressive-indent-mode)
     (add-to-list 'aggressive-indent-excluded-modes 'python-mode)))
 #+END_SRC
+**** Auto fill
+#+BEGIN_SRC emacs-lisp
+(defun comment-auto-fill ()
+  (setq-local comment-auto-fill-only-comments t)
+  (auto-fill-mode 1))
+
+
+(add-hook 'prog-mode-hook 'comment-auto-fill)
+#+END_SRC
 **** Disabled
 ***** Indent Guides
 Better indent guides. Currently disabled because they cause insane hangs in python mode.
