@@ -118,12 +118,12 @@ Make sure that use-package is installed and that ensure is always on so that use
 Credit goes to [[https://www.reddit.com/r/emacs/comments/1zkj2d/advanced_usage_of_eshell/cfugwkt][/u/howardabrams]] and [[https://www.reddit.com/r/emacs/comments/1zkj2d/advanced_usage_of_eshell/cfuuo5y][/u/AndersBakken]]
 #+BEGIN_SRC emacs-lisp
 (defun eshell-here ()
-  "Opens up a new shell in the directory associated with the current buffer's file."
-  (interactive)
-  (let* ((parent (if (buffer-file-name)
-                     (file-name-directory (buffer-file-name))
-                   default-directory))
-         (name (car (last (split-string parent "/" t)))))
+"Opens up a new shell in the directory associated with the current buffer's file."
+(interactive)
+(let* ((parent (if (buffer-file-name)
+                    (file-name-directory (buffer-file-name))
+                default-directory))
+        (name (car (last (split-string parent "/" t)))))
     (split-window-vertically)
     (other-window 1)
     (eshell)
@@ -137,7 +137,7 @@ Credit goes to [[https://www.reddit.com/r/emacs/comments/1zkj2d/advanced_usage_o
 #+BEGIN_SRC emacs-lisp
 (if (eq system-type 'windows-nt)
     (set-face-attribute 'default nil :family "Consolas" :height 100)
-  (set-face-attribute 'default nil :family "DejaVu Sans Mono"))
+(set-face-attribute 'default nil :family "DejaVu Sans Mono"))
 
 ;;The following lines force UTF-8 whenever possible
 (prefer-coding-system 'utf-8)
@@ -146,17 +146,17 @@ Credit goes to [[https://www.reddit.com/r/emacs/comments/1zkj2d/advanced_usage_o
 (set-keyboard-coding-system 'utf-8)
 (set-language-environment 'utf-8)
 #+END_SRC
-*** Dos2Unix
+** Dos2Unix
 #+BEGIN_SRC emacs-lisp
 (defun dos2unix ()
-  "Not exactly but it's easier to remember"
-  (interactive)
-  (set-buffer-file-coding-system 'unix 't) )
+"Not exactly but it's easier to remember"
+(interactive)
+(set-buffer-file-coding-system 'unix 't) )
 
 (defun unix2dos ()
-  "Not exactly but it's easier to remember"
-  (interactive)
-  (set-buffer-file-coding-system 'dos 't))
+"Not exactly but it's easier to remember"
+(interactive)
+(set-buffer-file-coding-system 'dos 't))
 #+END_SRC
 ** Clipboard
 #+BEGIN_SRC emacs-lisp
@@ -193,7 +193,8 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 #+BEGIN_SRC emacs-lisp
 (setq dired-dwim-target t)
 #+END_SRC
-*** Dired
+*** Misc
+Show all files with human readable sizes
 #+BEGIN_SRC emacs-lisp
 (setq dired-listing-switches "-alh")
 #+END_SRC
@@ -211,7 +212,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 #+BEGIN_SRC emacs-lisp
 (setq reb-re-syntax 'rx)
 #+END_SRC
-* Major Custom Packages
+* Major Packages
 ** Ivy
 #+BEGIN_SRC emacs-lisp
 (use-package ivy
@@ -235,15 +236,23 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
   :ensure evil-surround
   :config
   (progn
+
+    (defun evil-collection-load-and-init ()
+      "Load and initialize evil collection"
+      (when (file-exists-p "~/.emacs.d/evil-collection/")
+        (add-to-list 'load-path (expand-file-name "~/.emacs.d/evil-collection" user-emacs-directory))
+        (when (require 'evil-collection nil t)
+          (evil-collection-init))))
+
+    (add-hook 'after-init-hook 'evil-collection-load-and-init)
+
     (setq evil-mode-line-format '(before . mode-line-front-space))
     (evil-mode 1)
     ;;Disable evil in these modes
-    (evil-set-initial-state 'dired-mode 'emacs)
     (evil-set-initial-state 'erc-mode 'emacs)
-    (evil-set-initial-state 'term-mode 'emacs)
-    (evil-set-initial-state 'eshell-mode 'emacs)
     (evil-set-initial-state 'message-mode 'emacs)
     (evil-set-initial-state 'compilation-mode 'emacs)
+    (evil-set-initial-state 'eww-mode 'emacs)
     (global-evil-surround-mode 1)
     (global-evil-matchit-mode 1)))
 #+END_SRC
@@ -260,6 +269,14 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
     (add-hook 'lispy-mode-hook #'lispyville-mode)
     (add-hook 'emacs-lisp-mode-hook #'lispy-mode)
     (add-hook 'clojure-mode-hook #'lispy-mode)))
+#+END_SRC
+*** Org-evil
+#+BEGIN_SRC emacs-lisp
+(use-package org-evil
+  :commands org-evil
+  :config
+  (progn
+    (add-hook 'org-mode-hook #'org-evil)))
 #+END_SRC
 ** Company
 #+BEGIN_SRC emacs-lisp
@@ -282,15 +299,16 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
 #+END_SRC
 ** Pdf-tools
 #+BEGIN_SRC emacs-lisp
-(use-package pdf-tools
-  :mode ("\\.pdf$" . pdf-view-mode)
-  :config
-  (add-hook 'pdf-tools-enabled-hook 'pdf-view-midnight-minor-mode)
-  (unless (eq system-type 'windows-nt)
-    ;; Only install pdf tools on unix
+(unless (eq system-type 'windows-nt)
+  (use-package pdf-tools
+    :mode ("\\.pdf$" . pdf-view-mode)
+    :config
+    (add-hook 'pdf-tools-enabled-hook 'pdf-view-midnight-minor-mode)
     (pdf-tools-install)
     (define-key pdf-view-mode-map (kbd "j") 'pdf-view-next-line-or-next-page)
-    (define-key pdf-view-mode-map (kbd "k") 'pdf-view-previous-line-or-previous-page)))
+    (define-key pdf-view-mode-map (kbd "k") 'pdf-view-previous-line-or-previous-page)
+    ;; open pdfs scaled to fit page
+    (setq-default pdf-view-display-size 'fit-page)))
 #+END_SRC
 ** mtg-deck-mode
 #+BEGIN_SRC emacs-lisp
@@ -315,8 +333,7 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
     (global-set-key (kbd "C-c m") 'mingus-browse)
     ;;Disable evil in mingus
     (add-hook 'mingus-browse-hook 'evil-emacs-state)
-    (add-hook 'mingus-playlist-hooks 'evil-emacs-state)
-    ))
+    (add-hook 'mingus-playlist-hooks 'evil-emacs-state)))
 #+END_SRC
 ** Magit
 #+BEGIN_SRC emacs-lisp
@@ -393,9 +410,15 @@ When dired-dwim-target is enabled, dired tries to guess a default target directo
     (add-hook 'prog-mode-hook 'projectile-mode)
     (add-hook 'projectile-mode-hook 'counsel-projectile-on)))
 #+END_SRC
+** Spray
+#+BEGIN_SRC emacs-lisp
+(use-package spray
+  :bind ("<f6>" . spray-mode)
+  :commands spray-mode)
+#+END_SRC
 ** Currently disabled
 *** Relative Line Numbers
-Relative line numbers. Currently disabled, because having them seems a bit redundant with vim easymotions.
+Relative line numbers. Currently disabled, becauseO having them seems a bit redundant with vim easymotions.
 #+BEGIN_SRC emacs-lisp
 ;; Relative line package
 (use-package nlinum-relative
@@ -409,10 +432,8 @@ Relative line numbers. Currently disabled, because having them seems a bit redun
     (add-hook 'prog-mode-hook 'nlinum-relative-mode))
   :config
   (progn
-    (nlinum-relative-setup-evil)
-    ))
+    (nlinum-relative-setup-evil)))
 #+END_SRC
-Not using projectile right now.
 *** notmuch
 Currently using gnus for my email.
 #+BEGIN_SRC emacs-lisp
@@ -450,8 +471,6 @@ Automatic indentation.
 (defun comment-auto-fill ()
   (setq-local comment-auto-fill-only-comments t)
   (auto-fill-mode 1))
-
-
 (add-hook 'prog-mode-hook 'comment-auto-fill)
 #+END_SRC
 **** Disabled
@@ -505,7 +524,6 @@ Not using yasnippet right now but it could become useful in the future.
     (add-hook 'objc-mode-hook 'irony-mode)
 
     (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
-    (add-hook 'irony-mode-hook #'irony-eldoc)
     (eval-after-load 'company
       '(add-to-list 'company-backends 'company-irony))
 
@@ -608,9 +626,7 @@ Using flycheck instead
   (progn
     (add-hook 'shell-script-mode-hook
               (lambda ()
-                (set (make-local-variable 'company-backends) '(company-shell))))
-    )
-  )
+                (set (make-local-variable 'company-backends) '(company-shell))))))
 #+END_SRC
 ** Lua
 #+BEGIN_SRC emacs-lisp
@@ -645,6 +661,7 @@ Using flycheck instead
 ** Scheme
 #+BEGIN_SRC emacs-lisp
 (use-package geiser
+  :disabled t
   :config
   (progn
     (setq geiser-active-implementations '(chicken))))
@@ -660,7 +677,7 @@ Using flycheck instead
 #+END_SRC
 ** Currently disabled
 *** Rust
- https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-emacs/
+https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-emacs/
 #+BEGIN_SRC emacs-lisp
 (use-package cargo
   :commands cargo-minor-mode
@@ -729,8 +746,7 @@ Using flycheck instead
                              (concat org-notes-location "agenda.org"))
           org-default-notes-file org-todo-location
 
-          org-agenda-files (list org-todo-location)
-          )
+          org-agenda-files (list org-todo-location))
 
     ;; org-src config
     (setq
@@ -853,19 +869,19 @@ Using flycheck instead
                  (nnimap-stream ssl)))
 
   (setq gnus-secondary-select-methods
-        '((nnimap "official"
+        '(
+          (nnimap "disroot"
+                  (nnimap-address "disroot.org")
+                  (nnimap-server-port "imaps")
+                  (nnimap-server-port 993))
+          (nnimap "official"
                   (nnimap-address "imap.gmail.com")
                   (nnimap-server-port "imaps")
                   (nnimap-stream ssl))
           (nnimap "hotmail"
                   (nnimap-address "outlook.office365.com")
                   (nnimap-server-port "imaps")
-                  (nnimap-server-port 993))
-          (nnimap "disroot"
-                  (nnimap-address "disroot.org")
-                  (nnimap-server-port "imaps")
-                  (nnimap-server-port 993))
-          ))
+                  (nnimap-server-port 993))))
 
   (setq gnus-posting-styles
         '(((header "to" "superstepag@gmail.com")
@@ -925,7 +941,7 @@ Using flycheck instead
 
     (setq rcirc-server-alist
           '(("irc.freenode.net" :port 6697 :encryption tls :channels ("#emacs" "#archlinux" "#ipfs" "#disroot" "#fsf"))
-            ("irc.lainchan.org" :port 6697 :encryption tls :channels ("#lainchan" "#general"))))
+            ("irc.lainchan.org" :port 6697 :encryption tls :channels ("#lainchan" "#programming"))))
 
     (setq rcirc-fill-flag nil)
 
