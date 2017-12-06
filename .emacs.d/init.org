@@ -230,10 +230,12 @@ Show all files with human readable sizes
 ** Evil
 #+BEGIN_SRC emacs-lisp
 (use-package evil
-  :diminish undo-tree-mode
-  :diminish evil-goggles-mode
   :ensure evil-matchit
   :ensure evil-surround
+  :ensure evil-commentary
+  :ensure evil-exchange
+  :diminish evil-commentary
+  :diminish undo-tree
   :config
   (progn
 
@@ -253,8 +255,11 @@ Show all files with human readable sizes
     (evil-set-initial-state 'message-mode 'emacs)
     (evil-set-initial-state 'compilation-mode 'emacs)
     (evil-set-initial-state 'eww-mode 'emacs)
+
     (global-evil-surround-mode 1)
-    (global-evil-matchit-mode 1)))
+    (global-evil-matchit-mode 1)
+    (evil-commentary-mode)
+    (evil-exchange-install)))
 #+END_SRC
 
 *** Evil-Lispy
@@ -267,6 +272,7 @@ Show all files with human readable sizes
   :init
   (progn
     (add-hook 'lispy-mode-hook #'lispyville-mode)
+    (add-hook 'slime-mode-hook #'lispy-mode)
     (add-hook 'emacs-lisp-mode-hook #'lispy-mode)
     (add-hook 'clojure-mode-hook #'lispy-mode)))
 #+END_SRC
@@ -276,7 +282,7 @@ Show all files with human readable sizes
   :commands org-evil
   :config
   (progn
-    (add-hook 'org-mode-hook #'org-evil)))
+    (add-hook 'org-mode-hook 'org-evil)))
 #+END_SRC
 ** Company
 #+BEGIN_SRC emacs-lisp
@@ -464,7 +470,8 @@ Automatic indentation.
   :config
   (progn
     (global-aggressive-indent-mode)
-    (add-to-list 'aggressive-indent-excluded-modes 'python-mode)))
+    (add-to-list 'aggressive-indent-excluded-modes 'python-mode)
+    (add-to-list 'aggressive-indent-excluded-modes 'slime-repl-mode)))
 #+END_SRC
 **** Auto fill
 #+BEGIN_SRC emacs-lisp
@@ -489,6 +496,8 @@ Better indent guides. Currently disabled because they cause insane hangs in pyth
 *** Misc
 #+BEGIN_SRC emacs-lisp
 (add-hook 'prog-mode-hook 'electric-pair-mode)
+(setq electric-pair-inhibit-predicate 'electric-pair-conservative-inhibit)
+
 
 (use-package rainbow-delimiters
   :commands rainbow-delimiters-mode
@@ -547,16 +556,25 @@ Not using yasnippet right now but it could become useful in the future.
 (add-hook 'c-mode-common-hook 'indent-c-mode-hook)
 #+END_SRC
 ** Python
+*** Elpy
+#+BEGIN_SRC emacs-lisp
+(use-package elpy
+  :mode (("\\.py$" . python-mode))
+  :config
+  (progn
+    (elpy-enable)))
+#+END_SRC
 *** Company-Jedi
 #+BEGIN_SRC emacs-lisp
 (use-package company-jedi
   :mode (("\\.py$" . python-mode))
+  :disabled t
   :config
   (progn
     (add-hook 'python-mode-hook
               (lambda ()
-                (set (make-local-variable 'company-backends) '(company-tern))))
-))
+                (set (make-local-variable 'company-backends) '(company-jedi))))
+    ))
 #+END_SRC
 *** Disabled
 **** Autopep8
@@ -726,6 +744,7 @@ https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-em
   :diminish (org-indent-mode visual-line-mode flyspell-mode)
   :ensure org-bullets
   :ensure htmlize
+  :ensure org-ref
   :config
   (progn
     (setq org-src-preserve-indentation nil
@@ -765,19 +784,22 @@ https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-em
           '(("t" "Todo" entry (file+headline org-todo-location "Tasks")
              "* TODO %?\n  %i\n  %a")
             ("c" "Clipboard" entry (file+headline org-todo-location "Links")
-             "* %?\n %x")))
+             "* %?\n %x")
+            ("s" "Scheduled" entry (file+headline org-todo-location "Events")
+             "* %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n")))
 
     ;; Org-publish config
     (setq org-html-validation-link nil)
     (setq org-publish-project-alist
           '(("org-blog"
              ;;The directory containing our blog posts
-             :base-directory "~/Sync/Notes/blog"
+             :base-directory "~/Sync/Notes/blog/blog/"
              ;; The directory where the final result will be copied to
-             :publishing-directory "~/Sync/Notes/publish"
+             :publishing-directory "~/Sync/Notes/blog/publish/"
              :publishing-function org-html-publish-to-html
              ;; Generate a list of all posts
              :auto-sitemap t
+             :author "neosloth"
              :sitemap-filename "index.org"
              :sitemap-title "Neosloth's Blog"
              :sitemap-file-entry-format "\"%t\" by %a on %d."
@@ -785,12 +807,11 @@ https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-em
              :sitemap-sort-files t
              :auto-preamble t
              :html-head "<link rel=\"stylesheet\"
-                       href=\"./css/style.css\" type=\"text/css\"/>"
-             )
+                       href=\"./css/style.css\" type=\"text/css\"/>")
             ("org-static"
-             :base-directory "~/Sync/Notes/blog"
+             :base-directory "~/Sync/Notes/blog/blog/"
              :base-extension "css\\|js\\|png\\|jpg\\|gif\\|pdf\\|mp3\\|ogg\\|swf\\|ico"
-             :publishing-directory "~/Sync/Notes/publish"
+             :publishing-directory "~/Sync/Notes/blog/publish/"
              :recursive t
              :publishing-function org-publish-attachment)
             ("org" :components ("org-blog" "org-static"))))
@@ -801,6 +822,7 @@ https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-em
     (add-hook 'org-mode-hook 'org-bullets-mode)
     (add-hook 'org-mode-hook 'org-indent-mode)
     (add-hook 'org-mode-hook 'visual-line-mode))
+
   (require 'org-bullets)
   (require 'htmlize)
   (require 'ox-md)
@@ -829,6 +851,7 @@ https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-em
                               (cdr (car org-publish-project-alist))
                               :publishing-directory)))
       (git-push-all msg))))
+
 #+END_SRC
 
 * Gnus
