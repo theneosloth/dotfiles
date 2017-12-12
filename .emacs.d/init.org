@@ -212,6 +212,10 @@ Show all files with human readable sizes
 #+BEGIN_SRC emacs-lisp
 (setq reb-re-syntax 'rx)
 #+END_SRC
+** Tail log files
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'auto-mode-alist '("\\.log\\'" . auto-revert-mode))
+#+END_SRC
 * Major Packages
 ** Ivy
 #+BEGIN_SRC emacs-lisp
@@ -559,10 +563,11 @@ Not using yasnippet right now but it could become useful in the future.
 *** Elpy
 #+BEGIN_SRC emacs-lisp
 (use-package elpy
-  :mode (("\\.py$" . python-mode))
+  :init
+  (with-eval-after-load 'python (elpy-enable))
   :config
   (progn
-    (elpy-enable)))
+    (add-hook 'elpy-mode-hook (lambda () (highlight-indentation-mode -1)))))
 #+END_SRC
 *** Company-Jedi
 #+BEGIN_SRC emacs-lisp
@@ -588,6 +593,17 @@ Using flycheck instead
   (progn
     (add-hook 'python-mode-hook 'py-autopep8-enable-on-save))
   )
+#+END_SRC
+**** Anaconda
+#+BEGIN_SRC emacs-lisp
+(use-package anaconda-mode
+  :ensure company-anaconda
+  :disabled
+  :config
+  (add-hook 'python-mode-hook 'anaconda-mode)
+  (add-hook 'python-mode-hook 'anaconda-eldoc-mode)
+  (eval-after-load "company"
+    '(add-to-list 'company-backends 'company-anaconda)))
 #+END_SRC
 ** Javascript
 #+BEGIN_SRC emacs-lisp
@@ -692,6 +708,13 @@ Using flycheck instead
   :config
   (setq inferior-lisp-program "sbcl")
   (slime-setup '(slime-fancy slime-company)))
+#+END_SRC
+** SQL
+#+BEGIN_SRC emacs-lisp
+(use-package sql-indent
+  :config
+  (eval-after-load "sql"
+    '(load-library "sql-indent")))
 #+END_SRC
 ** Currently disabled
 *** Rust
