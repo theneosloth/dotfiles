@@ -237,18 +237,10 @@ Show all files with human readable sizes
   :ensure evil-matchit
   :ensure evil-surround
   :ensure evil-commentary
-  :ensure evil-exchange
   :diminish evil-commentary
   :diminish undo-tree
   :config
   (progn
-
-    (defun evil-collection-load-and-init ()
-      "Load and initialize evil collection"
-      (when (file-exists-p "~/.emacs.d/evil-collection/")
-        (add-to-list 'load-path (expand-file-name "~/.emacs.d/evil-collection" user-emacs-directory))
-        (when (require 'evil-collection nil t)
-          (evil-collection-init))))
 
     (add-hook 'after-init-hook 'evil-collection-load-and-init)
 
@@ -262,8 +254,11 @@ Show all files with human readable sizes
 
     (global-evil-surround-mode 1)
     (global-evil-matchit-mode 1)
-    (evil-commentary-mode)
-    (evil-exchange-install)))
+    (evil-commentary-mode)))
+
+(use-package evil-collection
+  :after evil
+  :init (evil-collection-init))
 #+END_SRC
 
 *** Evil-Lispy
@@ -496,6 +491,12 @@ Better indent guides. Currently disabled because they cause insane hangs in pyth
   (progn
     (setq highlight-indent-guides-method 'character)
     (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)))
+#+END_SRC
+*** Parens
+#+BEGIN_SRC emacs-lisp
+(setq show-paren-delay 0)
+(show-paren-mode t)
+(setq show-paren-style 'expression)
 #+END_SRC
 *** Misc
 #+BEGIN_SRC emacs-lisp
