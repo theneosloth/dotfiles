@@ -423,7 +423,7 @@ Show all files with human readable sizes
 #+END_SRC
 ** Currently disabled
 *** Relative Line Numbers
-Relative line numbers. Currently disabled, becauseO having them seems a bit redundant with vim easymotions.
+Relative line numbers. Currently disabled, because having them seems a bit redundant with vim easymotions.
 #+BEGIN_SRC emacs-lisp
 ;; Relative line package
 (use-package nlinum-relative
@@ -564,6 +564,7 @@ Not using yasnippet right now but it could become useful in the future.
 *** Elpy
 #+BEGIN_SRC emacs-lisp
 (use-package elpy
+  :defer t
   :init
   (with-eval-after-load 'python (elpy-enable))
   :config
@@ -1021,6 +1022,7 @@ https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-em
 
 #+BEGIN_SRC emacs-lisp
 (use-package erc
+  :disabled t
   :config
   (progn
     (setq erc-prompt-for-password nil)
