@@ -242,8 +242,6 @@ Show all files with human readable sizes
   :config
   (progn
 
-    (add-hook 'after-init-hook 'evil-collection-load-and-init)
-
     (setq evil-mode-line-format '(before . mode-line-front-space))
     (evil-mode 1)
     ;;Disable evil in these modes
