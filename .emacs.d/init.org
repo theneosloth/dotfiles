@@ -239,6 +239,7 @@ Show all files with human readable sizes
   :ensure evil-commentary
   :diminish evil-commentary
   :diminish undo-tree
+  :init (setq evil-want-integration nil)
   :config
   (progn
 
@@ -256,7 +257,7 @@ Show all files with human readable sizes
 
 (use-package evil-collection
   :after evil
-  :init (evil-collection-init))
+  :config (evil-collection-init))
 #+END_SRC
 
 *** Evil-Lispy
@@ -406,6 +407,7 @@ Show all files with human readable sizes
 ** Projectile
 #+BEGIN_SRC emacs-lisp
 (use-package projectile
+  :disabled t
   :commands projectile-mode
   :ensure counsel-projectile
   :config
@@ -496,6 +498,13 @@ Better indent guides. Currently disabled because they cause insane hangs in pyth
 (show-paren-mode t)
 (setq show-paren-style 'expression)
 #+END_SRC
+*** Git-gutter
+#+BEGIN_SRC emacs-lisp
+(use-package git-gutter
+  :defer t
+  :config
+  (add-hook 'prog-mode-hook 'git-gutter-mode))
+#+END_SRC
 *** Misc
 #+BEGIN_SRC emacs-lisp
 (add-hook 'prog-mode-hook 'electric-pair-mode)
@@ -504,6 +513,7 @@ Better indent guides. Currently disabled because they cause insane hangs in pyth
 
 (use-package rainbow-delimiters
   :commands rainbow-delimiters-mode
+  :disabled t
   :init
   (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
 
@@ -524,7 +534,7 @@ Not using yasnippet right now but it could become useful in the future.
 ** C-Mode
 *** Irony
 #+BEGIN_SRC emacs-lisp
-(use-package irony-mode
+(use-package irony
   :ensure company-irony
   :ensure flycheck-irony
   :init
@@ -861,6 +871,7 @@ https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-em
      (scheme . t)
      (lisp . t)
      (js . t)
+     (sqlite . t)
      (ditaa . t)
      ))
 
@@ -1045,14 +1056,16 @@ https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-em
 (use-package zerodark-theme
   :config
   (load-theme 'zerodark t)
-  (custom-set-faces
-   ;; Brighter rainbow delimiters
-   '(rainbow-delimiters-depth-1-face ((t (:foreground "dark orange"))))
-   '(rainbow-delimiters-depth-2-face ((t (:foreground "deep pink"))))
-   '(rainbow-delimiters-depth-3-face ((t (:foreground "chartreuse"))))
-   '(rainbow-delimiters-depth-4-face ((t (:foreground "deep sky blue"))))
-   '(rainbow-delimiters-depth-5-face ((t (:foreground "yellow"))))
-   '(rainbow-delimiters-depth-6-face ((t (:foreground "orchid"))))
-   '(rainbow-delimiters-depth-7-face ((t (:foreground "spring green"))))
-   '(rainbow-delimiters-depth-8-face ((t (:foreground "sienna1"))))))
+  (zerodark-setup-modeline-format)
+  (unless t
+    (custom-set-faces
+     ;; Brighter rainbow delimiters
+     '(rainbow-delimiters-depth-1-face ((t (:foreground "dark orange"))))
+     '(rainbow-delimiters-depth-2-face ((t (:foreground "deep pink"))))
+     '(rainbow-delimiters-depth-3-face ((t (:foreground "chartreuse"))))
+     '(rainbow-delimiters-depth-4-face ((t (:foreground "deep sky blue"))))
+     '(rainbow-delimiters-depth-5-face ((t (:foreground "yellow"))))
+     '(rainbow-delimiters-depth-6-face ((t (:foreground "orchid"))))
+     '(rainbow-delimiters-depth-7-face ((t (:foreground "spring green"))))
+     '(rainbow-delimiters-depth-8-face ((t (:foreground "sienna1")))))))
 #+END_SRC
