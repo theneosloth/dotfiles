@@ -33,6 +33,11 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
    'package-archives
    '("melpa" . "http://melpa.org/packages/")
    t)
+
+  (add-to-list
+   'package-archives
+   '("org" . "http://orgmode.org/elpa/")
+   t)
   (package-initialize))
 
 (unless package-archive-contents
@@ -285,13 +290,31 @@ Show all files with human readable sizes
 ** Company
 #+BEGIN_SRC emacs-lisp
 (use-package company
+  :defer 10
   :diminish company-mode
-  ;;Complete on tab
   :bind (("TAB" . company-indent-or-complete-common))
-  :init
-  ;; Launch auto-complete with default settings
-  (progn
-    (add-hook 'after-init-hook 'global-company-mode)))
+  :preface
+  ;; enable yasnippet everywhere
+  (defvar company-mode/enable-yas t
+    "Enable yasnippet for all backends.")
+  (defun company-mode/backend-with-yas (backend)
+    (if (or
+         (not company-mode/enable-yas)
+         (and (listp backend) (member 'company-yasnippet backend)))
+        backend
+      (append (if (consp backend) backend (list backend))
+              '(:with company-yasnippet))))
+
+  :init (global-company-mode t)
+  :config
+  ;; no delay no autocomplete
+  (setq
+   company-idle-delay 0
+   company-minimum-prefix-length 2
+   company-tooltip-limit 20)
+
+  (setq company-backends
+        (mapcar #'company-mode/backend-with-yas company-backends)))
 #+END_SRC
 ** Flycheck
 #+BEGIN_SRC emacs-lisp
@@ -300,6 +323,260 @@ Show all files with human readable sizes
   :init
   (progn
     (add-hook 'after-init-hook 'global-flycheck-mode)))
+#+END_SRC
+** yasnippet
+Not using yasnippet right now but it could become useful in the future.
+#+BEGIN_SRC emacs-lisp
+(use-package yasnippet
+  :commands yas-minor-mode
+  :diminish yas-minor-mode
+  :init
+  (progn
+    (add-hook 'prog-mode-hook 'yas-minor-mode)))
+
+(use-package yasnippet-snippets
+  :after yasnippet)
+
+
+#+END_SRC
+*** C-Mode
+**** Irony
+#+BEGIN_SRC emacs-lisp
+(use-package irony
+  :ensure company-irony
+  :ensure flycheck-irony
+  :init
+  (progn
+    (setq irony-additional-clang-options '("-std=c++11"))
+
+    (add-hook 'c++-mode-hook 'irony-mode)
+    (add-hook 'c-mode-hook 'irony-mode)
+    (add-hook 'objc-mode-hook 'irony-mode)
+
+    (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+    (eval-after-load 'company
+      '(add-to-list 'company-backends 'company-irony))
+
+    (eval-after-load 'flycheck
+      '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
+
+    ;; Windows performance tweaks
+    (when (boundp 'w32-pipe-read-delay)
+      (setq w32-pipe-read-delay 0))
+    ;; Set the buffer size to 64K on Windows (from the original 4K)
+    (when (boundp 'w32-pipe-buffer-size)
+      (setq irony-server-w32-pipe-buffer-size (* 64 1024)))))
+#+END_SRC
+**** Indentation
+#+BEGIN_SRC emacs-lisp
+;;Indent c++ code with 4 spaces
+(defun indent-c-mode-hook ()
+  (setq c-basic-offset 4
+        c-indent-level 4
+        c-default-style "linux"))
+(add-hook 'c-mode-common-hook 'indent-c-mode-hook)
+#+END_SRC
+*** Python
+**** Elpy
+#+BEGIN_SRC emacs-lisp
+(use-package elpy
+  :defer t
+  :init
+  (with-eval-after-load 'python (elpy-enable))
+  :config
+  (progn
+    (add-hook 'elpy-mode-hook (lambda () (highlight-indentation-mode -1)))))
+#+END_SRC
+**** Company-Jedi
+#+BEGIN_SRC emacs-lisp
+(use-package company-jedi
+  :mode (("\\.py$" . python-mode))
+  :disabled t
+  :config
+  (progn
+    (add-hook 'python-mode-hook
+              (lambda ()
+                (set (make-local-variable 'company-backends) '(company-jedi))))
+    ))
+#+END_SRC
+**** Disabled
+***** Autopep8
+Using flycheck instead
+#+BEGIN_SRC emacs-lisp
+(use-package py-autopep8
+  :disabled t
+  :commands py-autopep8-enable-on-save
+  :mode (("\\.py$" . python-mode))
+  :init
+  (progn
+    (add-hook 'python-mode-hook 'py-autopep8-enable-on-save))
+  )
+#+END_SRC
+***** Anaconda
+#+BEGIN_SRC emacs-lisp
+(use-package anaconda-mode
+  :ensure company-anaconda
+  :disabled
+  :config
+  (add-hook 'python-mode-hook 'anaconda-mode)
+  (add-hook 'python-mode-hook 'anaconda-eldoc-mode)
+  (eval-after-load "company"
+    '(add-to-list 'company-backends 'company-anaconda)))
+#+END_SRC
+*** Javascript
+#+BEGIN_SRC emacs-lisp
+(use-package js2-mode
+  :ensure nil
+  :ensure company-tern
+  :mode (("\\.js$" . js2-mode))
+  :config
+  (progn
+    (defun my-js-hook ()
+      (add-to-list 'company-backends 'company-tern))
+    (add-hook 'js2-mode-hook 'my-js-hook)))
+#+END_SRC
+*** Web/HTML
+#+BEGIN_SRC emacs-lisp
+(use-package web-mode
+  :ensure company-web
+  :disabled t
+  :config
+  (progn
+    (defun my-web-mode-hook ()
+      "Hooks for Web mode."
+      (setq web-mode-markup-indent-offset 2))
+
+    (add-hook 'web-mode-hook  'my-web-mode-hook)))
+
+(use-package emmet-mode
+  :commands emmet-mode
+  :init
+  (progn
+    (add-hook 'web-mode-hook 'emmet-mode)
+    (add-hook 'html-mode-hook 'emmet-mode))
+  :config
+  (progn
+    (setq emmet-move-cursor-between-quotes t)))
+#+END_SRC
+*** Markdown
+#+BEGIN_SRC emacs-lisp
+(use-package markdown-mode
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :config
+  (progn
+    (setq markdown-command "multimarkdown")
+    (add-hook 'markdown-mode-hook 'visual-line-mode)))
+#+END_SRC
+*** Shell
+#+BEGIN_SRC emacs-lisp
+(use-package company-shell
+  :mode (("\\.sh$" . shell-script-mode))
+  :config
+  (progn
+    (add-hook 'shell-script-mode-hook
+              (lambda ()
+                (set (make-local-variable 'company-backends) '(company-shell))))))
+#+END_SRC
+*** Lua
+#+BEGIN_SRC emacs-lisp
+(use-package lua-mode
+  :mode (("\\.lua" . lua-mode)))
+#+END_SRC
+**** Company-lua
+#+BEGIN_SRC emacs-lisp
+(use-package company-lua
+  :mode (("\\.lua" . lua-mode))
+  :config
+  (progn
+    (add-hook 'lua-mode-hook (lambda()
+                               (setq-local company-backends '(company-lua))))))
+#+END_SRC
+**** Flycheck-lua
+#+BEGIN_SRC emacs-lisp
+(use-package flymake-lua
+  :mode (("\\.lua" . lua-mode)))
+#+END_SRC
+**** Love
+#+BEGIN_SRC emacs-lisp
+(use-package love-minor-mode
+  :commands (love-minor-mode)
+  :config
+  (progn
+    (add-hook 'love-minor-mode-hook
+              (lambda()
+                (set (make-local-variable 'compile-command)
+                     (concat "love " default-directory))))))
+#+END_SRC
+*** Scheme
+#+BEGIN_SRC emacs-lisp
+(use-package geiser
+  :disabled t
+  :config
+  (progn
+    (setq geiser-active-implementations '(chicken))))
+#+END_SRC
+*** Slime
+#+BEGIN_SRC emacs-lisp
+(use-package slime
+  :commands slime
+  :ensure slime-company
+  :config
+  (setq inferior-lisp-program "sbcl")
+  (slime-setup '(slime-fancy slime-company)))
+#+END_SRC
+*** SQL
+#+BEGIN_SRC emacs-lisp
+(use-package sql-indent
+  :config
+  (eval-after-load "sql"
+    '(load-library "sql-indent")))
+#+END_SRC
+*** Currently disabled
+**** Rust
+https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-emacs/
+#+BEGIN_SRC emacs-lisp
+(use-package cargo
+  :commands cargo-minor-mode
+  :disabled t
+  :ensure nil
+  :init
+  (progn
+    (add-hook 'rust-mode-hook 'cargo-minor-mode)))
+(use-package rust-mode
+  :mode (("\\.rs$" . rust-mode))
+  :disabled t
+  :ensure nil)
+
+(use-package racer
+  :commands racer-mode
+  :disabled t
+  :ensure nil
+  :init
+  (progn
+    (setq racer-rust-src-path (file-truename "/usr/src/rust/src"))
+    (add-hook 'rust-mode-hook #'racer-mode)
+    (add-hook 'racer-mode-hook #'eldoc-mode)))
+
+
+(use-package flycheck-rust
+  :commands flycheck-rust-setup
+  :disabled t
+  :ensure nil
+  :init
+  (progn
+    (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)))
+#+END_SRC
+**** Clojure
+#+BEGIN_SRC emacs-lisp
+(use-package cider
+  :commands (cider-jack-in)
+  :disabled t
+  :init
+  (progn
+    (add-to-list 'evil-emacs-state-modes 'cider-repl-mode)))
 #+END_SRC
 ** Pdf-tools
 #+BEGIN_SRC emacs-lisp
@@ -519,257 +796,6 @@ Better indent guides. Currently disabled because they cause insane hangs in pyth
 
 #+END_SRC
 **** Disabled
-***** yasnippet
-Not using yasnippet right now but it could become useful in the future.
-#+BEGIN_SRC emacs-lisp
-(use-package yasnippet
-  :disabled t
-  :ensure nil
-  :commands yas-minor-mode
-  :diminish yas-minor-mode
-  :init
-  (progn
-    (add-hook 'prog-mode-hook 'yas-minor-mode)))
-#+END_SRC
-** C-Mode
-*** Irony
-#+BEGIN_SRC emacs-lisp
-(use-package irony
-  :ensure company-irony
-  :ensure flycheck-irony
-  :init
-  (progn
-    (setq irony-additional-clang-options '("-std=c++11"))
-
-    (add-hook 'c++-mode-hook 'irony-mode)
-    (add-hook 'c-mode-hook 'irony-mode)
-    (add-hook 'objc-mode-hook 'irony-mode)
-
-    (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
-    (eval-after-load 'company
-      '(add-to-list 'company-backends 'company-irony))
-
-    (eval-after-load 'flycheck
-      '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
-
-    ;; Windows performance tweaks
-    (when (boundp 'w32-pipe-read-delay)
-      (setq w32-pipe-read-delay 0))
-    ;; Set the buffer size to 64K on Windows (from the original 4K)
-    (when (boundp 'w32-pipe-buffer-size)
-      (setq irony-server-w32-pipe-buffer-size (* 64 1024)))))
-#+END_SRC
-*** Indentation
-#+BEGIN_SRC emacs-lisp
-;;Indent c++ code with 4 spaces
-(defun indent-c-mode-hook ()
-  (setq c-basic-offset 4
-        c-indent-level 4
-        c-default-style "linux"))
-(add-hook 'c-mode-common-hook 'indent-c-mode-hook)
-#+END_SRC
-** Python
-*** Elpy
-#+BEGIN_SRC emacs-lisp
-(use-package elpy
-  :defer t
-  :init
-  (with-eval-after-load 'python (elpy-enable))
-  :config
-  (progn
-    (add-hook 'elpy-mode-hook (lambda () (highlight-indentation-mode -1)))))
-#+END_SRC
-*** Company-Jedi
-#+BEGIN_SRC emacs-lisp
-(use-package company-jedi
-  :mode (("\\.py$" . python-mode))
-  :disabled t
-  :config
-  (progn
-    (add-hook 'python-mode-hook
-              (lambda ()
-                (set (make-local-variable 'company-backends) '(company-jedi))))
-    ))
-#+END_SRC
-*** Disabled
-**** Autopep8
-Using flycheck instead
-#+BEGIN_SRC emacs-lisp
-(use-package py-autopep8
-  :disabled t
-  :commands py-autopep8-enable-on-save
-  :mode (("\\.py$" . python-mode))
-  :init
-  (progn
-    (add-hook 'python-mode-hook 'py-autopep8-enable-on-save))
-  )
-#+END_SRC
-**** Anaconda
-#+BEGIN_SRC emacs-lisp
-(use-package anaconda-mode
-  :ensure company-anaconda
-  :disabled
-  :config
-  (add-hook 'python-mode-hook 'anaconda-mode)
-  (add-hook 'python-mode-hook 'anaconda-eldoc-mode)
-  (eval-after-load "company"
-    '(add-to-list 'company-backends 'company-anaconda)))
-#+END_SRC
-** Javascript
-#+BEGIN_SRC emacs-lisp
-(use-package js2-mode
-  :ensure nil
-  :ensure company-tern
-  :mode (("\\.js$" . js2-mode))
-  :config
-  (progn
-    (defun my-js-hook ()
-      (add-to-list 'company-backends 'company-tern))
-    (add-hook 'js2-mode-hook 'my-js-hook)))
-#+END_SRC
-** Web/HTML
-#+BEGIN_SRC emacs-lisp
-(use-package web-mode
-  :ensure company-web
-  :disabled t
-  :config
-  (progn
-    (defun my-web-mode-hook ()
-      "Hooks for Web mode."
-      (setq web-mode-markup-indent-offset 2))
-
-    (add-hook 'web-mode-hook  'my-web-mode-hook)))
-
-(use-package emmet-mode
-  :commands emmet-mode
-  :init
-  (progn
-    (add-hook 'web-mode-hook 'emmet-mode)
-    (add-hook 'html-mode-hook 'emmet-mode))
-  :config
-  (progn
-    (setq emmet-move-cursor-between-quotes t)))
-#+END_SRC
-** Markdown
-#+BEGIN_SRC emacs-lisp
-(use-package markdown-mode
-  :commands (markdown-mode gfm-mode)
-  :mode (("README\\.md\\'" . gfm-mode)
-         ("\\.md\\'" . markdown-mode)
-         ("\\.markdown\\'" . markdown-mode))
-  :config
-  (progn
-    (setq markdown-command "multimarkdown")
-    (add-hook 'markdown-mode-hook 'visual-line-mode)))
-#+END_SRC
-** Shell
-#+BEGIN_SRC emacs-lisp
-(use-package company-shell
-  :mode (("\\.sh$" . shell-script-mode))
-  :config
-  (progn
-    (add-hook 'shell-script-mode-hook
-              (lambda ()
-                (set (make-local-variable 'company-backends) '(company-shell))))))
-#+END_SRC
-** Lua
-#+BEGIN_SRC emacs-lisp
-(use-package lua-mode
-  :mode (("\\.lua" . lua-mode)))
-#+END_SRC
-*** Company-lua
-#+BEGIN_SRC emacs-lisp
-(use-package company-lua
-  :mode (("\\.lua" . lua-mode))
-  :config
-  (progn
-    (add-hook 'lua-mode-hook (lambda()
-                               (setq-local company-backends '(company-lua))))))
-#+END_SRC
-*** Flycheck-lua
-#+BEGIN_SRC emacs-lisp
-(use-package flymake-lua
-  :mode (("\\.lua" . lua-mode)))
-#+END_SRC
-*** Love
-#+BEGIN_SRC emacs-lisp
-(use-package love-minor-mode
-  :commands (love-minor-mode)
-  :config
-  (progn
-    (add-hook 'love-minor-mode-hook
-              (lambda()
-                (set (make-local-variable 'compile-command)
-                     (concat "love " default-directory))))))
-#+END_SRC
-** Scheme
-#+BEGIN_SRC emacs-lisp
-(use-package geiser
-  :disabled t
-  :config
-  (progn
-    (setq geiser-active-implementations '(chicken))))
-#+END_SRC
-** Slime
-#+BEGIN_SRC emacs-lisp
-(use-package slime
-  :commands slime
-  :ensure slime-company
-  :config
-  (setq inferior-lisp-program "sbcl")
-  (slime-setup '(slime-fancy slime-company)))
-#+END_SRC
-** SQL
-#+BEGIN_SRC emacs-lisp
-(use-package sql-indent
-  :config
-  (eval-after-load "sql"
-    '(load-library "sql-indent")))
-#+END_SRC
-** Currently disabled
-*** Rust
-https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-emacs/
-#+BEGIN_SRC emacs-lisp
-(use-package cargo
-  :commands cargo-minor-mode
-  :disabled t
-  :ensure nil
-  :init
-  (progn
-    (add-hook 'rust-mode-hook 'cargo-minor-mode)))
-(use-package rust-mode
-  :mode (("\\.rs$" . rust-mode))
-  :disabled t
-  :ensure nil)
-
-(use-package racer
-  :commands racer-mode
-  :disabled t
-  :ensure nil
-  :init
-  (progn
-    (setq racer-rust-src-path (file-truename "/usr/src/rust/src"))
-    (add-hook 'rust-mode-hook #'racer-mode)
-    (add-hook 'racer-mode-hook #'eldoc-mode)))
-
-
-(use-package flycheck-rust
-  :commands flycheck-rust-setup
-  :disabled t
-  :ensure nil
-  :init
-  (progn
-    (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)))
-#+END_SRC
-*** Clojure
-#+BEGIN_SRC emacs-lisp
-(use-package cider
-  :commands (cider-jack-in)
-  :disabled t
-  :init
-  (progn
-    (add-to-list 'evil-emacs-state-modes 'cider-repl-mode)))
-#+END_SRC
 * Org Mode
 #+BEGIN_SRC emacs-lisp
 (use-package org
@@ -777,7 +803,6 @@ https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-em
   :diminish (org-indent-mode visual-line-mode flyspell-mode)
   :ensure org-bullets
   :ensure htmlize
-  :ensure org-ref
   :config
   (progn
     (setq org-src-preserve-indentation nil
@@ -874,20 +899,20 @@ https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-em
      (sqlite . t)
      (ditaa . t)
      ))
-
-  (defun publish-and-push (&optional blog msg)
-    "Publish a blog named BLOG and push a new git commit with MSG."
-    (interactive)
-    (or blog (setq blog "blog"))
-    (or name (setq name (format-time-string "%FT%T%z")))
-    (org-publish blog)
-    (let ((default-directory (plist-get
-                              (cdr (car org-publish-project-alist))
-                              :publishing-directory)))
-      (git-push-all msg))))
-
+  )
 #+END_SRC
 
+** Ox-hugo
+#+BEGIN_SRC emacs-lisp
+(use-package ox-hugo
+  :after ox)
+#+END_SRC
+
+** Org-ref
+#+BEGIN_SRC emacs-lisp
+(use-package org-ref
+  :after org)
+#+END_SRC
 * Gnus
 #+BEGIN_SRC emacs-lisp
 (use-package gnus
