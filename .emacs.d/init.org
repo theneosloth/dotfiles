@@ -905,6 +905,7 @@ https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-em
 ** Org-ref
 #+BEGIN_SRC emacs-lisp
 (use-package org-ref
+  :disabled t
   :after org)
 #+END_SRC
 * Gnus
