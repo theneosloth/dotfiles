@@ -1,0 +1,46 @@
+[general]
+# List of accounts to be synced, separated by a comma.
+accounts = main,langara
+pythonfile = ~/.offlineimap.py
+maxsyncaccounts = 4
+
+[Account main]
+# Identifier for the local repository; e.g. the maildir to be synced via IMAP.
+localrepository = main-local
+# Identifier for the remote repository; i.e. the actual IMAP, usually non-local.
+remoterepository = main-remote
+
+[Repository main-local]
+# OfflineIMAP supports Maildir, GmailMaildir, and IMAP for local repositories.
+type = Maildir
+# Where should the mail be placed?
+localfolders = ~/Mail/main
+
+[Repository main-remote]
+type = IMAP
+ssl = yes
+sslcacertfile = /etc/ssl/certs/ca-certificates.crt
+remotehost = posteo.de
+remoteuser = neosloth@posteo.net
+remotepasseval = get_pass("posteo")
+
+[Account langara]
+# Identifier for the local repository; e.g. the maildir to be synced via IMAP.
+localrepository = langara-local
+# Identifier for the remote repository; i.e. the actual IMAP, usually non-local.
+remoterepository = langara-remote
+
+[Repository langara-local]
+# OfflineIMAP supports Maildir, GmailMaildir, and IMAP for local repositories.
+type = Maildir
+# Where should the mail be placed?
+localfolders = ~/Mail/langara
+
+[Repository langara-remote]
+# Remote repos can be IMAP or Gmail, the latter being a preconfigured IMAP.
+type = IMAP
+remotehost = outlook.office365.com
+remoteuser = skuznetsov@langara.ca
+sslcacertfile = /etc/ssl/certs/ca-certificates.crt
+remotepasseval = get_pass("langara")
+folderfilter = lambda folder: folder not in ['Calendar', 'Calendar/Birthdays', 'Calendar/Sub Folder 1', 'Calendar/Sub Folder 2', 'Calendar/United States holidays', 'Contacts', 'Contacts/Sub Folder 1', 'Contacts/Sub Folder 2', 'Contacts/Skype for Business Contacts', 'Deleted Items', 'Drafts', 'Journal', 'Junk Email', 'Notes', 'Outbox', 'Sync Issues', 'Sync Issues/Conflicts', 'Sync Issues/Local Failures', 'Sync Issues/Server Failures', 'Tasks', 'Tasks/Sub Folder 1', 'Tasks/Sub Folder 2']
