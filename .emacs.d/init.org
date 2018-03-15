@@ -6,7 +6,7 @@
 ;; Allocate more memory to the garbage collector during initialization.
 (setq gc-cons-threshold (* 500 1024 1024))
 ;; Reset it to the default after initialization
-(add-hook 'after-init-hook (lambda () (setq gc-cons-threshold (* 5 1024 1024))))
+(add-hook 'after-init-hook (lambda () (setq gc-cons-threshold 800000)))
 #+END_SRC
 ** Automatic tangling
 Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
@@ -72,7 +72,7 @@ Make sure that use-package is installed and that ensure is always on so that use
 (global-set-key (kbd "C-c a") 'org-agenda-list)
 (global-set-key (kbd "C-c o") 'org-capture)
 
-(global-set-key (kbd "C-c g") 'gnus)
+(global-set-key (kbd "C-c v") 'visual-line-mode)
 
 (global-set-key (kbd "<f8>") 'compile)
 #+END_SRC
@@ -174,8 +174,13 @@ Credit goes to [[https://www.reddit.com/r/emacs/comments/1zkj2d/advanced_usage_o
 ** Auto saves
 Move the auto-save and backup files into the temp file directory so that emacs doesn't flood the working folders with junk.
 #+BEGIN_SRC emacs-lisp
-(setq backup-directory-alist
-      `((".*" . ,temporary-file-directory)))
+(setq backup-directory-alist '(("." . "~/.emacs.d/backup"))
+      backup-by-copying t    ; Don't delink hardlinks
+      version-control t      ; Use version numbers on backups
+      delete-old-versions t  ; Automatically delete excess backups
+      kept-new-versions 20   ; how many of the newest versions to keep
+      kept-old-versions 5    ; and how many of the old
+      )
 
 (setq auto-save-file-name-transforms
       `((".*" , temporary-file-directory t)))
@@ -221,7 +226,20 @@ Show all files with human readable sizes
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'auto-mode-alist '("\\.log\\'" . auto-revert-mode))
 #+END_SRC
-* Major Packages
+** Fix lag
+[[https://emacs.stackexchange.com/questions/28736/emacs-pointcursor-movement-lag/28746][Source]]
+#+BEGIN_SRC
+(setq auto-window-vscroll nil)
+#+END_SRC
+** Disable custom settings
+Moves the custom file into a temp file, effectively making it session local
+
+[[https://jamiecollinson.com/blog/my-emacs-config/][Source]]
+
+#+BEGIN_SRC emacs-lisp
+(setq custom-file (make-temp-file "emacs-custom"))
+#+END_SRC
+* Custom Packages
 ** Ivy
 #+BEGIN_SRC emacs-lisp
 (use-package ivy
@@ -293,28 +311,13 @@ Show all files with human readable sizes
   :defer 10
   :diminish company-mode
   :bind (("TAB" . company-indent-or-complete-common))
-  :preface
-  ;; enable yasnippet everywhere
-  (defvar company-mode/enable-yas t
-    "Enable yasnippet for all backends.")
-  (defun company-mode/backend-with-yas (backend)
-    (if (or
-         (not company-mode/enable-yas)
-         (and (listp backend) (member 'company-yasnippet backend)))
-        backend
-      (append (if (consp backend) backend (list backend))
-              '(:with company-yasnippet))))
-
   :init (global-company-mode t)
   :config
   ;; no delay no autocomplete
   (setq
    company-idle-delay 0
    company-minimum-prefix-length 2
-   company-tooltip-limit 20)
-
-  (setq company-backends
-        (mapcar #'company-mode/backend-with-yas company-backends)))
+   company-tooltip-limit 20))
 #+END_SRC
 ** Flycheck
 #+BEGIN_SRC emacs-lisp
@@ -421,38 +424,6 @@ Not using yasnippet right now but it could become useful in the future.
 (use-package password-store
   :commands (password-store-copy))
 #+END_SRC
-** BBDB
-#+BEGIN_SRC emacs-lisp
-(use-package bbdb
-  :commands (bbdb-insinuate-gnus)
-  :ensure nil
-  :config
-  (progn
-    (setq bbdb-check-postcode nil)
-    (add-hook 'gnus-startup-hook 'bbdb-insinuate-gnus)
-    (setq bbdb-file "~/Sync/Essential/bbdb")
-    (bbdb-initialize 'message 'gnus)
-    ;;Automatically create bbdb entries
-    (bbdb-mua-auto-update-init 'gnus 'message)
-    (setq bbdb-update-records-p 'create)
-    (setq bbdb-ignore-message-alist '(
-                                      ("From" . "mailer-daemon\\|no-reply")
-                                      ("From" . "craigslist")
-                                      (("To" "CC") . "mailing-list-1\\|mailing-list-2")
-                                      (("To" "CC") . "superstepag@gmail.com")
-                                      ))))
-#+END_SRC
-** Projectile
-#+BEGIN_SRC emacs-lisp
-(use-package projectile
-  :disabled t
-  :commands projectile-mode
-  :ensure counsel-projectile
-  :config
-  (progn
-    (add-hook 'prog-mode-hook 'projectile-mode)
-    (add-hook 'projectile-mode-hook 'counsel-projectile-on)))
-#+END_SRC
 ** Spray
 #+BEGIN_SRC emacs-lisp
 (use-package spray
@@ -485,6 +456,17 @@ Currently using gnus for my email.
   (add-hook 'notmuch-hello-mode 'evil-emacs-state)
   (add-hook 'notmuch-message-mode 'evil-emacs-state)
   (add-hook 'notmuch-search-mode 'evil-emacs-state))
+#+END_SRC
+*** Projectile
+#+BEGIN_SRC emacs-lisp
+(use-package projectile
+  :disabled t
+  :commands projectile-mode
+  :ensure counsel-projectile
+  :config
+  (progn
+    (add-hook 'prog-mode-hook 'projectile-mode)
+    (add-hook 'projectile-mode-hook 'counsel-projectile-on)))
 #+END_SRC
 * Programming Modes
 ** Language Independent Settings
@@ -799,6 +781,8 @@ https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-em
   :ensure htmlize
   :config
   (progn
+    (set (make-local-variable 'company-backends) '(company-ispell company-dabbrev))
+
     (setq org-src-preserve-indentation nil
           org-confirm-babel-evaluate nil
           org-return-follows-link t
@@ -842,31 +826,7 @@ https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-em
 
     ;; Org-publish config
     (setq org-html-validation-link nil)
-    (setq org-publish-project-alist
-          '(("org-blog"
-             ;;The directory containing our blog posts
-             :base-directory "~/Sync/Notes/blog/blog/"
-             ;; The directory where the final result will be copied to
-             :publishing-directory "~/Sync/Notes/blog/publish/"
-             :publishing-function org-html-publish-to-html
-             ;; Generate a list of all posts
-             :auto-sitemap t
-             :author "neosloth"
-             :sitemap-filename "index.org"
-             :sitemap-title "Neosloth's Blog"
-             :sitemap-file-entry-format "\"%t\" by %a on %d."
-             :sitemap-date-format "%B %dth, %Y"
-             :sitemap-sort-files t
-             :auto-preamble t
-             :html-head "<link rel=\"stylesheet\"
-                       href=\"./css/style.css\" type=\"text/css\"/>")
-            ("org-static"
-             :base-directory "~/Sync/Notes/blog/blog/"
-             :base-extension "css\\|js\\|png\\|jpg\\|gif\\|pdf\\|mp3\\|ogg\\|swf\\|ico"
-             :publishing-directory "~/Sync/Notes/blog/publish/"
-             :recursive t
-             :publishing-function org-publish-attachment)
-            ("org" :components ("org-blog" "org-static"))))
+
 
 
     (add-hook 'org-mode-hook 'flyspell-mode)
@@ -892,8 +852,7 @@ https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-em
      (js . t)
      (sqlite . t)
      (ditaa . t)
-     ))
-  )
+     )))
 #+END_SRC
 
 ** Ox-hugo
@@ -908,10 +867,105 @@ https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-em
   :disabled t
   :after org)
 #+END_SRC
-* Gnus
+** Disabled
+*** Org publish
+#+BEGIN_SRC emacs-lisp :tangle no
+(setq org-publish-project-alist
+          '(("org-blog"
+             ;;The directory containing our blog posts
+             :base-directory "~/Sync/Notes/blog/blog/"
+             ;; The directory where the final result will be copied to
+             :publishing-directory "~/Sync/Notes/blog/publish/"
+             :publishing-function org-html-publish-to-html
+             ;; Generate a list of all posts
+             :auto-sitemap t
+             :author "neosloth"
+             :sitemap-filename "index.org"
+             :sitemap-title "Neosloth's Blog"
+             :sitemap-file-entry-format "\"%t\" by %a on %d."
+             :sitemap-date-format "%B %dth, %Y"
+             :sitemap-sort-files t
+             :auto-preamble t
+             :html-head "<link rel=\"stylesheet\"
+                       href=\"./css/style.css\" type=\"text/css\"/>")
+            ("org-static"
+             :base-directory "~/Sync/Notes/blog/blog/"
+             :base-extension "css\\|js\\|png\\|jpg\\|gif\\|pdf\\|mp3\\|ogg\\|swf\\|ico"
+             :publishing-directory "~/Sync/Notes/blog/publish/"
+             :recursive t
+             :publishing-function org-publish-attachment)
+            ("org" :components ("org-blog" "org-static"))))
+#+END_SRC
+* ERC
 #+BEGIN_SRC emacs-lisp
+(use-package erc
+  :commands irc-connect
+  :bind ("C-c i" . irc-connect)
+  :init
+  (defun irc-connect ()
+    "Connect to IRC interactively."
+    (interactive)
+    (setq servers '(("Freenode" . "irc.freenode.net")
+                    ("Lainchan" . "irc.lainchan.org")))
+    (dolist (server servers)
+      (when (y-or-n-p (car server))
+        (erc-tls :server (cdr server) :port 6697))))
+
+  :config
+  (when
+      (file-exists-p "~/.ercauth.el.gpg")
+    (load "~/.ercauth.el.gpg"))
+
+  (setq erc-prompt-for-password nil)
+  ;; Switch current buffer whenever you are mentioned
+  (setq erc-auto-query 'buffer)
+  (setq erc-nick "neosloth")
+  (setq erc-kill-buffer-on-part t)
+  (setq erc-autojoin-channels-alist
+        '((".*freenode.net" "#emacs")
+          (".*lainchan.org" "#lainchan")))
+
+  (erc-notifications-mode 1)
+  (erc-scrolltobottom-enable))
+#+END_SRC
+
+* Theme
+** Zerodark
+#+BEGIN_SRC emacs-lisp
+(use-package zerodark-theme
+  :config
+  (load-theme 'zerodark t)
+  ;;(zerodark-setup-modeline-format)
+  (unless t
+    (custom-set-faces
+     ;; Brighter rainbow delimiters
+     '(rainbow-delimiters-depth-1-face ((t (:foreground "dark orange"))))
+     '(rainbow-delimiters-depth-2-face ((t (:foreground "deep pink"))))
+     '(rainbow-delimiters-depth-3-face ((t (:foreground "chartreuse"))))
+     '(rainbow-delimiters-depth-4-face ((t (:foreground "deep sky blue"))))
+     '(rainbow-delimiters-depth-5-face ((t (:foreground "yellow"))))
+     '(rainbow-delimiters-depth-6-face ((t (:foreground "orchid"))))
+     '(rainbow-delimiters-depth-7-face ((t (:foreground "spring green"))))
+     '(rainbow-delimiters-depth-8-face ((t (:foreground "sienna1")))))))
+#+END_SRC
+
+** Feebleline
+#+BEGIN_SRC emacs-lisp
+(use-package feebleline
+  :config
+  (setq feebleline-mode-line-text
+        '(("%s"    ((if (buffer-file-name) (buffer-file-name)
+                         (buffer-name))) (face feebleline-bufname-face))
+          ("%s"       ((if (and (buffer-file-name) (buffer-modified-p)) "*" "" ))
+           (face feebleline-asterisk-face))))
+  (feebleline-mode))
+#+END_SRC
+* Disabled :ARCHIVE:
+** Gnus
+#+BEGIN_SRC emacs-lisp :tangle no
 (use-package gnus
   :commands gnus
+  :disabled t
   :config
 
   ;; @see http://www.emacswiki.org/emacs/GnusGmail#toc1
@@ -993,11 +1047,12 @@ https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-em
 
   (add-hook 'kill-emacs-hook 'exit-gnus-on-exit))
 #+END_SRC
-* IRC
-#+BEGIN_SRC emacs-lisp
+** rcirc
+#+BEGIN_SRC emacs-lisp :tangle no
 (use-package rcirc
   :commands irc
   :bind ("C-c i" . irc)
+  :disabled t
   :config
   (progn
     ;;ircauth contains nickserv passwords
@@ -1018,7 +1073,7 @@ https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-em
 
     (setq rcirc-server-alist
           '(("irc.freenode.net" :port 6697 :encryption tls :channels ("#emacs" "#archlinux" "#ipfs" "#disroot" "#fsf"))
-            ("irc.lainchan.org" :port 6697 :encryption tls :channels ("#lainchan" "#programming"))))
+            ("irc.lainchan.org" :port 6697 :encryption tls :channels ("#lainchan"))))
 
     (setq rcirc-fill-flag nil)
 
@@ -1046,46 +1101,4 @@ https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-em
                        channels)))
 
     ))
-#+END_SRC
-* ERC
-
-#+BEGIN_SRC emacs-lisp
-(use-package erc
-  :disabled t
-  :config
-  (progn
-    (setq erc-prompt-for-password nil)
-    ;; Switch current buffer whenever you are mentioned
-    (setq erc-auto-query 'buffer)
-    (setq erc-nick "neosloth")
-    (setq erc-kill-buffer-on-part t)
-
-    (add-hook 'window-configuration-change-hook
-              '(lambda()
-                 (setq erc-fill-column (- (window-width) 2))))
-
-    (add-hook 'erc-mode-hook '(lambda()
-                                (toggle-truncate-lines)
-                                (erc-spelling-mode 1)
-                                (erc-notifications-mode 1)
-                                (erc-scrolltobottom-enable)))))
-#+END_SRC
-
-* Theme
-#+BEGIN_SRC emacs-lisp
-(use-package zerodark-theme
-  :config
-  (load-theme 'zerodark t)
-  (zerodark-setup-modeline-format)
-  (unless t
-    (custom-set-faces
-     ;; Brighter rainbow delimiters
-     '(rainbow-delimiters-depth-1-face ((t (:foreground "dark orange"))))
-     '(rainbow-delimiters-depth-2-face ((t (:foreground "deep pink"))))
-     '(rainbow-delimiters-depth-3-face ((t (:foreground "chartreuse"))))
-     '(rainbow-delimiters-depth-4-face ((t (:foreground "deep sky blue"))))
-     '(rainbow-delimiters-depth-5-face ((t (:foreground "yellow"))))
-     '(rainbow-delimiters-depth-6-face ((t (:foreground "orchid"))))
-     '(rainbow-delimiters-depth-7-face ((t (:foreground "spring green"))))
-     '(rainbow-delimiters-depth-8-face ((t (:foreground "sienna1")))))))
 #+END_SRC
