@@ -896,37 +896,33 @@ https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-em
              :publishing-function org-publish-attachment)
             ("org" :components ("org-blog" "org-static"))))
 #+END_SRC
-* ERC
+* rcirc
 #+BEGIN_SRC emacs-lisp
-(use-package erc
-  :commands irc-connect
-  :bind ("C-c i" . irc-connect)
-  :init
-  (defun irc-connect ()
-    "Connect to IRC interactively."
-    (interactive)
-    (setq servers '(("Freenode" . "irc.freenode.net")
-                    ("Lainchan" . "irc.lainchan.org")))
-    (dolist (server servers)
-      (when (y-or-n-p (car server))
-        (erc-tls :server (cdr server) :port 6697))))
-
+(use-package rcirc
+  :commands irc
+  :bind ("C-c i" . irc)
+  :ensure rcirc-styles
   :config
-  (when
-      (file-exists-p "~/.ercauth.el.gpg")
-    (load "~/.ercauth.el.gpg"))
+  (progn
+    ;;ircauth contains nickserv passwords
+    (when
+        (file-readable-p "~/.emacs.d/.ircauth.el.gpg")
+      (load "~/.emacs.d/.ircauth.el.gpg"))
 
-  (setq erc-prompt-for-password nil)
-  ;; Switch current buffer whenever you are mentioned
-  (setq erc-auto-query 'buffer)
-  (setq erc-nick "neosloth")
-  (setq erc-kill-buffer-on-part t)
-  (setq erc-autojoin-channels-alist
-        '((".*freenode.net" "#emacs")
-          (".*lainchan.org" "#lainchan")))
+    (add-hook 'rcirc-mode-hook (lambda ()
+                                 (flyspell-mode 1)
+                                 (visual-line-mode)
+                                 ;; Scroll to bottom
+                                 (set (make-local-variable 'scroll-conservatively) 8192)))
 
-  (erc-notifications-mode 1)
-  (erc-scrolltobottom-enable))
+    (setq rcirc-default-nick "neosloth")
+    (set-face-foreground 'rcirc-my-nick "yellow" nil)
+
+    (setq rcirc-server-alist
+          '(("irc.freenode.net" :port 6697 :encryption tls :channels ("#emacs"))
+            ("irc.lainchan.org" :port 6697 :encryption tls :channels ("#lainchan" "#xonotic"))))
+
+    (setq rcirc-fill-flag nil)))
 #+END_SRC
 
 * Theme
@@ -1047,58 +1043,36 @@ https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-em
 
   (add-hook 'kill-emacs-hook 'exit-gnus-on-exit))
 #+END_SRC
-** rcirc
+** ERC
 #+BEGIN_SRC emacs-lisp :tangle no
-(use-package rcirc
-  :commands irc
-  :bind ("C-c i" . irc)
+(use-package erc
+  :commands irc-connect
   :disabled t
+  :bind ("C-c i" . irc-connect)
+  :init
+  (defun irc-connect ()
+    "Connect to IRC interactively."
+    (interactive)
+    (setq servers '(("Freenode" . "irc.freenode.net")
+                    ("Lainchan" . "irc.lainchan.org")))
+    (dolist (server servers)
+      (when (y-or-n-p (car server))
+        (erc-tls :server (cdr server) :port 6697))))
+
   :config
-  (progn
-    ;;ircauth contains nickserv passwords
-    (when
-        (file-exists-p "~/.ircauth.el.gpg")
-      (load "~/.ircauth.el.gpg"))
+  (when
+      (file-exists-p "~/.ercauth.el.gpg")
+    (load "~/.ercauth.el.gpg"))
 
-    (add-hook 'rcirc-mode-hook (lambda ()
-                                 (flyspell-mode 1)
-                                 (visual-line-mode)
-                                 ;; Show new messages in mode line
-                                 (rcirc-track-minor-mode 1)
-                                 ;; Scroll to bottom
-                                 (set (make-local-variable 'scroll-conservatively) 8192)))
+  (setq erc-prompt-for-password nil)
+  ;; Switch current buffer whenever you are mentioned
+  (setq erc-auto-query 'buffer)
+  (setq erc-nick "neosloth")
+  (setq erc-kill-buffer-on-part t)
+  (setq erc-autojoin-channels-alist
+        '((".*freenode.net" "#emacs")
+          (".*lainchan.org" "#lainchan")))
 
-    (setq rcirc-default-nick "neosloth")
-    (set-face-foreground 'rcirc-my-nick "red" nil)
-
-    (setq rcirc-server-alist
-          '(("irc.freenode.net" :port 6697 :encryption tls :channels ("#emacs" "#archlinux" "#ipfs" "#disroot" "#fsf"))
-            ("irc.lainchan.org" :port 6697 :encryption tls :channels ("#lainchan"))))
-
-    (setq rcirc-fill-flag nil)
-
-    (defun-rcirc-command reconnect (arg)
-      "Reconnect the server process."
-      (interactive "i")
-      (unless process
-        (error "There's no process for this target"))
-      (let* ((server (car (process-contact process)))
-             (port (process-contact process :service))
-             (nick (rcirc-nick process))
-             channels query-buffers)
-        (dolist (buf (buffer-list))
-          (with-current-buffer buf
-            (when (eq process (rcirc-buffer-process))
-              (remove-hook 'change-major-mode-hook
-                           'rcirc-change-major-mode-hook)
-              (if (rcirc-channel-p rcirc-target)
-                  (setq channels (cons rcirc-target channels))
-                (setq query-buffers (cons buf query-buffers))))))
-        (delete-process process)
-        (rcirc-connect server port nick
-                       rcirc-default-user-name
-                       rcirc-default-full-name
-                       channels)))
-
-    ))
+  (erc-notifications-mode 1)
+  (erc-scrolltobottom-enable))
 #+END_SRC
