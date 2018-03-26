@@ -896,33 +896,59 @@ https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-em
              :publishing-function org-publish-attachment)
             ("org" :components ("org-blog" "org-static"))))
 #+END_SRC
-* rcirc
+* ERC
 #+BEGIN_SRC emacs-lisp
-(use-package rcirc
-  :commands irc
-  :bind ("C-c i" . irc)
-  :ensure rcirc-styles
+(use-package erc
+  :commands irc-connect
+  :bind ("C-c i" . irc-connect)
+  :init
+  (defun irc-connect ()
+    "Connect to IRC interactively."
+    (interactive)
+    (setq servers '(("Freenode" . "irc.freenode.net")
+                    ("Lainchan" . "irc.lainchan.org")))
+    (dolist (server servers)
+      (when (y-or-n-p (car server))
+        (erc-tls :server (cdr server) :port 6697))))
+
   :config
   (progn
-    ;;ircauth contains nickserv passwords
     (when
-        (file-readable-p "~/.emacs.d/.ircauth.el.gpg")
-      (load "~/.emacs.d/.ircauth.el.gpg"))
+        (file-readable-p "~/.emacs.d/ercauth.el.gpg")
+      (require 'erc-services)
+      (erc-services-mode 1)
+      (setq erc-prompt-for-nickserv-password nil)
+      (load "~/.emacs.d/ercauth.el.gpg"))
 
-    (add-hook 'rcirc-mode-hook (lambda ()
-                                 (flyspell-mode 1)
-                                 (visual-line-mode)
-                                 ;; Scroll to bottom
-                                 (set (make-local-variable 'scroll-conservatively) 8192)))
+    ;; Wait till identifying before joining channels
+    (setq erc-autojoin-timing 'ident)
+    (setq erc-prompt-for-password nil)
+    ;; Switch current buffer whenever you are mentioned
+    (setq erc-auto-query 'buffer)
+    (setq erc-nick "neosloth")
+    (setq erc-kill-buffer-on-part t)
+    (setq erc-autojoin-channels-alist
+          '((".*freenode.net" "#emacs")
+            (".*lainchan.org" "#lainchan")))
 
-    (setq rcirc-default-nick "neosloth")
-    (set-face-foreground 'rcirc-my-nick "yellow" nil)
+    (setq erc-interpret-mirc-color t)
 
-    (setq rcirc-server-alist
-          '(("irc.freenode.net" :port 6697 :encryption tls :channels ("#emacs"))
-            ("irc.lainchan.org" :port 6697 :encryption tls :channels ("#lainchan" "#xonotic"))))
+    (setq erc-prompt ">")
+    (erc-notifications-mode 1)
+    (erc-scrolltobottom-enable)
 
-    (setq rcirc-fill-flag nil)))
+    ;; Dynamically resize buffer width
+    (make-variable-buffer-local 'erc-fill-column)
+    (add-hook 'window-configuration-change-hook
+              '(lambda ()
+                 (save-excursion
+                   (walk-windows
+                    (lambda (w)
+                      (let ((buffer (window-buffer w)))
+                        (set-buffer buffer)
+                        (when (eq major-mode 'erc-mode)
+                          (setq erc-fill-column (- (window-width w) 2))))))))))
+  )
 #+END_SRC
 
 * Theme
@@ -930,19 +956,7 @@ https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-em
 #+BEGIN_SRC emacs-lisp
 (use-package zerodark-theme
   :config
-  (load-theme 'zerodark t)
-  ;;(zerodark-setup-modeline-format)
-  (unless t
-    (custom-set-faces
-     ;; Brighter rainbow delimiters
-     '(rainbow-delimiters-depth-1-face ((t (:foreground "dark orange"))))
-     '(rainbow-delimiters-depth-2-face ((t (:foreground "deep pink"))))
-     '(rainbow-delimiters-depth-3-face ((t (:foreground "chartreuse"))))
-     '(rainbow-delimiters-depth-4-face ((t (:foreground "deep sky blue"))))
-     '(rainbow-delimiters-depth-5-face ((t (:foreground "yellow"))))
-     '(rainbow-delimiters-depth-6-face ((t (:foreground "orchid"))))
-     '(rainbow-delimiters-depth-7-face ((t (:foreground "spring green"))))
-     '(rainbow-delimiters-depth-8-face ((t (:foreground "sienna1")))))))
+  (load-theme 'zerodark t))
 #+END_SRC
 
 ** Feebleline
@@ -1043,36 +1057,32 @@ https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-em
 
   (add-hook 'kill-emacs-hook 'exit-gnus-on-exit))
 #+END_SRC
-** ERC
+** rcirc
 #+BEGIN_SRC emacs-lisp :tangle no
-(use-package erc
-  :commands irc-connect
+(use-package rcirc
+  :commands irc
+  :bind ("C-c i" . irc)
+  :ensure rcirc-styles
   :disabled t
-  :bind ("C-c i" . irc-connect)
-  :init
-  (defun irc-connect ()
-    "Connect to IRC interactively."
-    (interactive)
-    (setq servers '(("Freenode" . "irc.freenode.net")
-                    ("Lainchan" . "irc.lainchan.org")))
-    (dolist (server servers)
-      (when (y-or-n-p (car server))
-        (erc-tls :server (cdr server) :port 6697))))
-
   :config
-  (when
-      (file-exists-p "~/.ercauth.el.gpg")
-    (load "~/.ercauth.el.gpg"))
+  (progn
+    ;;ircauth contains nickserv passwords
+    (when
+        (file-readable-p "~/.emacs.d/.ircauth.el.gpg")
+      (load "~/.emacs.d/.ircauth.el.gpg"))
 
-  (setq erc-prompt-for-password nil)
-  ;; Switch current buffer whenever you are mentioned
-  (setq erc-auto-query 'buffer)
-  (setq erc-nick "neosloth")
-  (setq erc-kill-buffer-on-part t)
-  (setq erc-autojoin-channels-alist
-        '((".*freenode.net" "#emacs")
-          (".*lainchan.org" "#lainchan")))
+    (add-hook 'rcirc-mode-hook (lambda ()
+                                 (flyspell-mode 1)
+                                 (visual-line-mode)
+                                 ;; Scroll to bottom
+                                 (set (make-local-variable 'scroll-conservatively) 8192)))
 
-  (erc-notifications-mode 1)
-  (erc-scrolltobottom-enable))
+    (setq rcirc-default-nick "neosloth")
+    (set-face-foreground 'rcirc-my-nick "yellow" nil)
+
+    (setq rcirc-server-alist
+          '(("irc.freenode.net" :port 6697 :encryption tls :channels ("#emacs"))
+            ("irc.lainchan.org" :port 6697 :encryption tls :channels ("#lainchan" "#xonotic"))))
+
+    (setq rcirc-fill-flag nil)))
 #+END_SRC
