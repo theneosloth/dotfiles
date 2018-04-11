@@ -283,12 +283,20 @@ Moves the custom file into a temp file, effectively making it session local
   :config (evil-collection-init))
 #+END_SRC
 
-*** Evil-Lispy
+*** Evil-cleverparens
 #+BEGIN_SRC emacs-lisp
+(use-package evil-cleverparens
+  :commands evil-cleverparens-mode
+  :config
+  (add-hook 'lisp-mode-hook #'evil-cleverparens-mode))
+#+END_SRC
+*** Evil-Lispy
+#+BEGIN_SRC emacs-lisp :export nil
 (use-package lispy
   :commands lispy-mode
   :diminish lispy-mode
   :diminish lispyville-mode
+  :disabled t
   :ensure lispyville
   :init
   (progn
@@ -328,7 +336,6 @@ Moves the custom file into a temp file, effectively making it session local
     (add-hook 'after-init-hook 'global-flycheck-mode)))
 #+END_SRC
 ** yasnippet
-Not using yasnippet right now but it could become useful in the future.
 #+BEGIN_SRC emacs-lisp
 (use-package yasnippet
   :commands yas-minor-mode
@@ -339,8 +346,6 @@ Not using yasnippet right now but it could become useful in the future.
 
 (use-package yasnippet-snippets
   :after yasnippet)
-
-
 #+END_SRC
 ** Pdf-tools
 #+BEGIN_SRC emacs-lisp
@@ -384,25 +389,6 @@ Not using yasnippet right now but it could become useful in the future.
 #+BEGIN_SRC emacs-lisp
 (use-package magit
   :defer t)
-#+END_SRC
-** Elfeed
-#+BEGIN_SRC emacs-lisp
-(use-package elfeed
-  :commands elfeed
-  :bind (("C-c e" . elfeed))
-  :config
-  (progn
-    ;; Disable evil in all the elfeed panes
-    (add-to-list 'evil-emacs-state-modes 'elfeed-show-mode)
-    (add-to-list 'evil-emacs-state-modes 'elfeed-search-mode)
-    (elfeed-set-max-connections 64)
-    (elfeed-load-opml "~/Sync/Misc/subscriptions.opml")
-
-    (defun elfeed-mark-all-as-read ()
-      (interactive)
-      (mark-whole-buffer)
-      (elfeed-search-untag-all-unread))
-    (define-key elfeed-search-mode-map (kbd "c") 'elfeed-mark-all-as-read)))
 #+END_SRC
 ** Auctex
 #+BEGIN_SRC emacs-lisp
@@ -467,6 +453,26 @@ Currently using gnus for my email.
   (progn
     (add-hook 'prog-mode-hook 'projectile-mode)
     (add-hook 'projectile-mode-hook 'counsel-projectile-on)))
+#+END_SRC
+*** Elfeed
+#+BEGIN_SRC emacs-lisp
+(use-package elfeed
+  :commands elfeed
+  :bind (("C-c e" . elfeed))
+  :disabled t
+  :config
+  (progn
+    ;; Disable evil in all the elfeed panes
+    (add-to-list 'evil-emacs-state-modes 'elfeed-show-mode)
+    (add-to-list 'evil-emacs-state-modes 'elfeed-search-mode)
+    (elfeed-set-max-connections 64)
+    (elfeed-load-opml "~/Sync/Misc/subscriptions.opml")
+
+    (defun elfeed-mark-all-as-read ()
+      (interactive)
+      (mark-whole-buffer)
+      (elfeed-search-untag-all-unread))
+    (define-key elfeed-search-mode-map (kbd "c") 'elfeed-mark-all-as-read)))
 #+END_SRC
 * Programming Modes
 ** Language Independent Settings
