@@ -266,7 +266,6 @@ Moves the custom file into a temp file, effectively making it session local
   :config
   (progn
 
-    (setq evil-mode-line-format '(before . mode-line-front-space))
     (evil-mode 1)
     ;;Disable evil in these modes
     (evil-set-initial-state 'erc-mode 'emacs)
@@ -286,9 +285,17 @@ Moves the custom file into a temp file, effectively making it session local
 *** Evil-cleverparens
 #+BEGIN_SRC emacs-lisp
 (use-package evil-cleverparens
-  :commands evil-cleverparens-mode
   :config
-  (add-hook 'lisp-mode-hook #'evil-cleverparens-mode))
+  (add-hook 'lisp-mode-hook 'evil-cleverparens-mode)
+  )
+#+END_SRC
+*** Org-evil
+#+BEGIN_SRC emacs-lisp
+(use-package org-evil
+  :commands org-evil
+  :config
+  (progn
+    (add-hook 'org-mode-hook 'org-evil)))
 #+END_SRC
 *** Evil-Lispy
 #+BEGIN_SRC emacs-lisp :export nil
@@ -304,14 +311,6 @@ Moves the custom file into a temp file, effectively making it session local
     (add-hook 'slime-mode-hook #'lispy-mode)
     (add-hook 'emacs-lisp-mode-hook #'lispy-mode)
     (add-hook 'clojure-mode-hook #'lispy-mode)))
-#+END_SRC
-*** Org-evil
-#+BEGIN_SRC emacs-lisp
-(use-package org-evil
-  :commands org-evil
-  :config
-  (progn
-    (add-hook 'org-mode-hook 'org-evil)))
 #+END_SRC
 ** Company
 #+BEGIN_SRC emacs-lisp
