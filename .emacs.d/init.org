@@ -36,8 +36,7 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
 
   (add-to-list
    'package-archives
-   '("org" . "http://orgmode.org/elpa/")
-   t)
+   '("org" . "http://orgmode.org/elpa/") t)
   (package-initialize))
 
 (unless package-archive-contents
@@ -107,6 +106,8 @@ Make sure that use-package is installed and that ensure is always on so that use
 ;;(add-to-list 'default-frame-alist '(alpha . (99 . 90)))
 (when (fboundp 'windmove-default-keybindings)
   (windmove-default-keybindings))
+
+(global-auto-revert-mode 1)
 #+END_SRC
 *** Easily search for non ASCII Characters
 #+BEGIN_SRC emacs-lisp
@@ -154,14 +155,10 @@ Credit goes to [[https://www.reddit.com/r/emacs/comments/1zkj2d/advanced_usage_o
 ** Dos2Unix
 #+BEGIN_SRC emacs-lisp
 (defun dos2unix ()
-"Not exactly but it's easier to remember"
-(interactive)
-(set-buffer-file-coding-system 'unix 't) )
-
-(defun unix2dos ()
-"Not exactly but it's easier to remember"
-(interactive)
-(set-buffer-file-coding-system 'dos 't))
+  "Replace DOS eolns CR LF with Unix eolns CR"
+  (interactive)
+    (goto-char (point-min))
+    (while (search-forward "\r" nil t) (replace-match "")))
 #+END_SRC
 ** Clipboard
 #+BEGIN_SRC emacs-lisp
@@ -209,14 +206,6 @@ Show all files with human readable sizes
 (setq dired-listing-switches "-alh")
 #+END_SRC
 
-** Simple git push
-#+BEGIN_SRC emacs-lisp
-(defun git-push-all (commit-message)
-      (shell-command "git add -A")
-      (shell-command (concatenate
-                      'string "git commit -m \"" commit-message "\""))
-      (shell-command "git push origin master"))
-#+END_SRC
 ** Use rx for re builder
 [[http://francismurillo.github.io/2017-03-30-Exploring-Emacs-rx-Macro/][rx reference]]
 #+BEGIN_SRC emacs-lisp
@@ -251,31 +240,28 @@ Moves the custom file into a temp file, effectively making it session local
          ("C-c I" . counsel-imenu)
          ("\C-s" . swiper))
   :config
-  (progn
-    (ivy-mode 1)))
+  (ivy-mode 1))
 #+END_SRC
 ** Evil
 #+BEGIN_SRC emacs-lisp
 (use-package evil
-  :ensure evil-matchit
-  :ensure evil-surround
-  :ensure evil-commentary
-  :diminish evil-commentary
-  :diminish undo-tree
   :init (setq evil-want-integration nil)
   :config
-  (progn
 
-    (evil-mode 1)
-    ;;Disable evil in these modes
-    (evil-set-initial-state 'erc-mode 'emacs)
-    (evil-set-initial-state 'message-mode 'emacs)
-    (evil-set-initial-state 'compilation-mode 'emacs)
-    (evil-set-initial-state 'eww-mode 'emacs)
+  (evil-mode 1)
+  ;;Disable evil in these modes
+  (evil-set-initial-state 'erc-mode 'emacs)
+  (evil-set-initial-state 'message-mode 'emacs)
+  (evil-set-initial-state 'compilation-mode 'emacs)
+  (evil-set-initial-state 'eww-mode 'emacs))
 
-    (global-evil-surround-mode 1)
-    (global-evil-matchit-mode 1)
-    (evil-commentary-mode)))
+(use-package evil-matchit
+  :after evil
+  :config (global-evil-matchit-mode 1))
+
+(use-package evil-surround
+  :after evil
+  :config (global-evil-surround-mode 1))
 
 (use-package evil-collection
   :after evil
@@ -286,8 +272,7 @@ Moves the custom file into a temp file, effectively making it session local
 #+BEGIN_SRC emacs-lisp
 (use-package evil-cleverparens
   :config
-  (add-hook 'lisp-mode-hook 'evil-cleverparens-mode)
-  )
+  (add-hook 'lisp-mode-hook 'evil-cleverparens-mode))
 #+END_SRC
 *** Org-evil
 #+BEGIN_SRC emacs-lisp
@@ -296,21 +281,6 @@ Moves the custom file into a temp file, effectively making it session local
   :config
   (progn
     (add-hook 'org-mode-hook 'org-evil)))
-#+END_SRC
-*** Evil-Lispy
-#+BEGIN_SRC emacs-lisp :export nil
-(use-package lispy
-  :commands lispy-mode
-  :diminish lispy-mode
-  :diminish lispyville-mode
-  :disabled t
-  :ensure lispyville
-  :init
-  (progn
-    (add-hook 'lispy-mode-hook #'lispyville-mode)
-    (add-hook 'slime-mode-hook #'lispy-mode)
-    (add-hook 'emacs-lisp-mode-hook #'lispy-mode)
-    (add-hook 'clojure-mode-hook #'lispy-mode)))
 #+END_SRC
 ** Company
 #+BEGIN_SRC emacs-lisp
@@ -329,22 +299,8 @@ Moves the custom file into a temp file, effectively making it session local
 ** Flycheck
 #+BEGIN_SRC emacs-lisp
 (use-package flycheck
-  :commands global-flycheck-mode
-  :init
-  (progn
-    (add-hook 'after-init-hook 'global-flycheck-mode)))
-#+END_SRC
-** yasnippet
-#+BEGIN_SRC emacs-lisp
-(use-package yasnippet
-  :commands yas-minor-mode
-  :diminish yas-minor-mode
-  :init
-  (progn
-    (add-hook 'prog-mode-hook 'yas-minor-mode)))
-
-(use-package yasnippet-snippets
-  :after yasnippet)
+  :defer 1
+  :hook (after-init . global-flycheck-mode))
 #+END_SRC
 ** Pdf-tools
 #+BEGIN_SRC emacs-lisp
@@ -415,37 +371,9 @@ Moves the custom file into a temp file, effectively making it session local
   :bind ("<f6>" . spray-mode)
   :commands spray-mode)
 #+END_SRC
-** Currently disabled
-*** Relative Line Numbers
-Relative line numbers. Currently disabled, because having them seems a bit redundant with vim easymotions.
-#+BEGIN_SRC emacs-lisp
-;; Relative line package
-(use-package nlinum-relative
-  :commands nlinum-relative-mode
-  :disabled t
-  :init
-  (progn
-    (setq nlinum-relative-redisplay-delay 0)
-    (setq nlinum-relative-current-symbol "")
-    (setq nlinum-relative-offset 0)
-    (add-hook 'prog-mode-hook 'nlinum-relative-mode))
-  :config
-  (progn
-    (nlinum-relative-setup-evil)))
-#+END_SRC
-*** notmuch
-Currently using gnus for my email.
-#+BEGIN_SRC emacs-lisp
-(unless t
-  (autoload 'notmuch "notmuch" "notmuch mail" t)
-  (add-hook 'notmuch-hello-mode 'evil-emacs-state)
-  (add-hook 'notmuch-message-mode 'evil-emacs-state)
-  (add-hook 'notmuch-search-mode 'evil-emacs-state))
-#+END_SRC
-*** Projectile
+** Projectile
 #+BEGIN_SRC emacs-lisp
 (use-package projectile
-  :disabled t
   :commands projectile-mode
   :ensure counsel-projectile
   :config
@@ -473,19 +401,36 @@ Currently using gnus for my email.
       (elfeed-search-untag-all-unread))
     (define-key elfeed-search-mode-map (kbd "c") 'elfeed-mark-all-as-read)))
 #+END_SRC
+** Currently disabled
+*** Relative Line Numbers
+Relative line numbers. Currently disabled, because having them seems a bit redundant with vim easymotions.
+#+BEGIN_SRC emacs-lisp
+;; Relative line package
+(use-package nlinum-relative
+  :commands nlinum-relative-mode
+  :disabled t
+  :init
+  (progn
+    (setq nlinum-relative-redisplay-delay 0)
+    (setq nlinum-relative-current-symbol "")
+    (setq nlinum-relative-offset 0)
+    (add-hook 'prog-mode-hook 'nlinum-relative-mode))
+  :config
+  (progn
+    (nlinum-relative-setup-evil)))
+#+END_SRC
+*** notmuch
+Currently using gnus for my email.
+#+BEGIN_SRC emacs-lisp
+(unless t
+  (autoload 'notmuch "notmuch" "notmuch mail" t)
+  (add-hook 'notmuch-hello-mode 'evil-emacs-state)
+  (add-hook 'notmuch-message-mode 'evil-emacs-state)
+  (add-hook 'notmuch-search-mode 'evil-emacs-state))
+#+END_SRC
 * Programming Modes
 ** Language Independent Settings
 *** Indentation
-**** Whitespace mode
-Always enable whitespace mode
-#+BEGIN_SRC emacs-lisp
-(use-package whitespace
-  :commands whitespace-mode
-  :diminish whitespace-mode
-  :config
-  (add-hook 'prog-mode-hook 'whitespace-mode))
-#+END_SRC
-
 **** Aggressive indent
 Automatic indentation.
 #+BEGIN_SRC emacs-lisp
@@ -504,23 +449,10 @@ Automatic indentation.
   (auto-fill-mode 1))
 (add-hook 'prog-mode-hook 'comment-auto-fill)
 #+END_SRC
-**** Disabled
-***** Indent Guides
-Better indent guides. Currently disabled because they cause insane hangs in python mode.
-#+BEGIN_SRC emacs-lisp
-(use-package highlight-indent-guides
-  :disabled t
-  :commands highlight-indent-guides-mode
-  :diminish highlight-indent-guides-mode
-  :config
-  (progn
-    (setq highlight-indent-guides-method 'character)
-    (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)))
-#+END_SRC
 *** Parens
 #+BEGIN_SRC emacs-lisp
-(setq show-paren-delay 0)
 (show-paren-mode t)
+(setq show-paren-delay 0)
 (setq show-paren-style 'expression)
 #+END_SRC
 *** Misc
@@ -528,43 +460,12 @@ Better indent guides. Currently disabled because they cause insane hangs in pyth
 (add-hook 'prog-mode-hook 'electric-pair-mode)
 (setq electric-pair-inhibit-predicate 'electric-pair-conservative-inhibit)
 
+(defun neosloth-prog-mode-hook ()
+  (setq display-line-numbers 'relative))
 
-(use-package rainbow-delimiters
-  :commands rainbow-delimiters-mode
-  :disabled t
-  :init
-  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
-
+(add-hook 'prog-mode-hook 'neosloth-prog-mode-hook)
 #+END_SRC
-**** Disabled
 ** C-Mode
-*** Irony
-#+BEGIN_SRC emacs-lisp
-(use-package irony
-  :ensure company-irony
-  :ensure flycheck-irony
-  :init
-  (progn
-    (setq irony-additional-clang-options '("-std=c++11"))
-
-    (add-hook 'c++-mode-hook 'irony-mode)
-    (add-hook 'c-mode-hook 'irony-mode)
-    (add-hook 'objc-mode-hook 'irony-mode)
-
-    (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
-    (eval-after-load 'company
-      '(add-to-list 'company-backends 'company-irony))
-
-    (eval-after-load 'flycheck
-      '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
-
-    ;; Windows performance tweaks
-    (when (boundp 'w32-pipe-read-delay)
-      (setq w32-pipe-read-delay 0))
-    ;; Set the buffer size to 64K on Windows (from the original 4K)
-    (when (boundp 'w32-pipe-buffer-size)
-      (setq irony-server-w32-pipe-buffer-size (* 64 1024)))))
-#+END_SRC
 *** Indentation
 #+BEGIN_SRC emacs-lisp
 ;;Indent c++ code with 4 spaces
@@ -597,30 +498,6 @@ Better indent guides. Currently disabled because they cause insane hangs in pyth
                 (set (make-local-variable 'company-backends) '(company-jedi))))
     ))
 #+END_SRC
-*** Disabled
-**** Autopep8
-Using flycheck instead
-#+BEGIN_SRC emacs-lisp
-(use-package py-autopep8
-  :disabled t
-  :commands py-autopep8-enable-on-save
-  :mode (("\\.py$" . python-mode))
-  :init
-  (progn
-    (add-hook 'python-mode-hook 'py-autopep8-enable-on-save))
-  )
-#+END_SRC
-**** Anaconda
-#+BEGIN_SRC emacs-lisp
-(use-package anaconda-mode
-  :ensure company-anaconda
-  :disabled
-  :config
-  (add-hook 'python-mode-hook 'anaconda-mode)
-  (add-hook 'python-mode-hook 'anaconda-eldoc-mode)
-  (eval-after-load "company"
-    '(add-to-list 'company-backends 'company-anaconda)))
-#+END_SRC
 ** Javascript
 #+BEGIN_SRC emacs-lisp
 (use-package js2-mode
@@ -635,17 +512,6 @@ Using flycheck instead
 #+END_SRC
 ** Web/HTML
 #+BEGIN_SRC emacs-lisp
-(use-package web-mode
-  :ensure company-web
-  :disabled t
-  :config
-  (progn
-    (defun my-web-mode-hook ()
-      "Hooks for Web mode."
-      (setq web-mode-markup-indent-offset 2))
-
-    (add-hook 'web-mode-hook  'my-web-mode-hook)))
-
 (use-package emmet-mode
   :commands emmet-mode
   :init
@@ -668,16 +534,6 @@ Using flycheck instead
     (setq markdown-command "multimarkdown")
     (add-hook 'markdown-mode-hook 'visual-line-mode)))
 #+END_SRC
-** Shell
-#+BEGIN_SRC emacs-lisp
-(use-package company-shell
-  :mode (("\\.sh$" . shell-script-mode))
-  :config
-  (progn
-    (add-hook 'shell-script-mode-hook
-              (lambda ()
-                (set (make-local-variable 'company-backends) '(company-shell))))))
-#+END_SRC
 ** Lua
 #+BEGIN_SRC emacs-lisp
 (use-package lua-mode
@@ -697,25 +553,6 @@ Using flycheck instead
 (use-package flymake-lua
   :mode (("\\.lua" . lua-mode)))
 #+END_SRC
-** Love
-#+BEGIN_SRC emacs-lisp
-(use-package love-minor-mode
-  :commands (love-minor-mode)
-  :config
-  (progn
-    (add-hook 'love-minor-mode-hook
-              (lambda()
-                (set (make-local-variable 'compile-command)
-                     (concat "love " default-directory))))))
-#+END_SRC
-** Scheme
-#+BEGIN_SRC emacs-lisp
-(use-package geiser
-  :disabled t
-  :config
-  (progn
-    (setq geiser-active-implementations '(chicken))))
-#+END_SRC
 ** Slime
 #+BEGIN_SRC emacs-lisp
 (use-package slime
@@ -725,58 +562,6 @@ Using flycheck instead
   (setq inferior-lisp-program "sbcl")
   (slime-setup '(slime-fancy slime-company)))
 #+END_SRC
-** SQL
-#+BEGIN_SRC emacs-lisp
-(use-package sql-indent
-  :config
-  (eval-after-load "sql"
-    '(load-library "sql-indent")))
-#+END_SRC
-** Currently disabled
-*** Rust
-https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-emacs/
-#+BEGIN_SRC emacs-lisp
-(use-package cargo
-  :commands cargo-minor-mode
-  :disabled t
-  :ensure nil
-  :init
-  (progn
-    (add-hook 'rust-mode-hook 'cargo-minor-mode)))
-(use-package rust-mode
-  :mode (("\\.rs$" . rust-mode))
-  :disabled t
-  :ensure nil)
-
-(use-package racer
-  :commands racer-mode
-  :disabled t
-  :ensure nil
-  :init
-  (progn
-    (setq racer-rust-src-path (file-truename "/usr/src/rust/src"))
-    (add-hook 'rust-mode-hook #'racer-mode)
-    (add-hook 'racer-mode-hook #'eldoc-mode)))
-
-
-(use-package flycheck-rust
-  :commands flycheck-rust-setup
-  :disabled t
-  :ensure nil
-  :init
-  (progn
-    (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)))
-#+END_SRC
-*** Clojure
-#+BEGIN_SRC emacs-lisp
-(use-package cider
-  :commands (cider-jack-in)
-  :disabled t
-  :init
-  (progn
-    (add-to-list 'evil-emacs-state-modes 'cider-repl-mode)))
-#+END_SRC
-
 * Org Mode
 #+BEGIN_SRC emacs-lisp
 (use-package org
@@ -786,7 +571,7 @@ https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-em
   :ensure htmlize
   :config
   (progn
-    (set (make-local-variable 'company-backends) '(company-ispell company-dabbrev))
+    ;;(set (make-local-variable 'company-backends) '(company-ispell company-dabbrev))
 
     (setq org-src-preserve-indentation nil
           org-confirm-babel-evaluate nil
@@ -832,8 +617,6 @@ https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-em
     ;; Org-publish config
     (setq org-html-validation-link nil)
 
-
-
     (add-hook 'org-mode-hook 'flyspell-mode)
     (add-hook 'org-mode-hook 'org-toggle-pretty-entities)
     (add-hook 'org-mode-hook 'org-bullets-mode)
@@ -848,16 +631,8 @@ https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-em
    'org-babel-load-languages
    '((python . t)
      (java . t)
-     (C . t)
-     (gnuplot . t)
-     (sh . t)
-     (calc . t)
-     (scheme . t)
      (lisp . t)
-     (js . t)
-     (sqlite . t)
-     (ditaa . t)
-     )))
+     (js . t))))
 #+END_SRC
 
 ** Ox-hugo
@@ -933,7 +708,7 @@ https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-em
     (setq erc-nick "neosloth")
     (setq erc-kill-buffer-on-part t)
     (setq erc-autojoin-channels-alist
-          '((".*freenode.net" "#emacs")
+          '((".*freenode.net" "#emacs" "#clnoobs")
             (".*lainchan.org" "#lainchan")))
 
     (setq erc-interpret-mirc-color t)
@@ -963,17 +738,11 @@ https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-em
   :config
   (load-theme 'zerodark t))
 #+END_SRC
-
-** Feebleline
+** Modeline
 #+BEGIN_SRC emacs-lisp
-(use-package feebleline
-  :config
-  (setq feebleline-mode-line-text
-        '(("%s"    ((if (buffer-file-name) (buffer-file-name)
-                         (buffer-name))) (face feebleline-bufname-face))
-          ("%s"       ((if (and (buffer-file-name) (buffer-modified-p)) "*" "" ))
-           (face feebleline-asterisk-face))))
-  (feebleline-mode))
+(setq-default mode-line-format
+              '("%e" mode-line-front-space mode-line-mule-info mode-line-client mode-line-modified mode-line-remote mode-line-frame-identification mode-line-buffer-identification " " mode-line-position
+               " " mode-line-misc-info mode-line-end-spaces))
 #+END_SRC
 * Disabled :ARCHIVE:
 ** Gnus
@@ -1090,4 +859,16 @@ https://christian.kellner.me/2017/05/31/language-server-protocol-lsp-rust-and-em
             ("irc.lainchan.org" :port 6697 :encryption tls :channels ("#lainchan" "#xonotic"))))
 
     (setq rcirc-fill-flag nil)))
+#+END_SRC
+** Feebleline
+#+BEGIN_SRC emacs-lisp
+(use-package feebleline
+  :disabled t
+  :config
+  (setq feebleline-mode-line-text
+        '(("%s"    ((if (buffer-file-name) (buffer-file-name)
+                      (buffer-name))) (face feebleline-bufname-face))
+          ("%s"       ((if (and (buffer-file-name) (buffer-modified-p)) "*" "" ))
+           (face feebleline-asterisk-face))))
+  (feebleline-mode))
 #+END_SRC
