@@ -220,6 +220,10 @@ Show all files with human readable sizes
 #+BEGIN_SRC
 (setq auto-window-vscroll nil)
 #+END_SRC
+** Horizontal Scrolling
+#+BEGIN_SRC emacs-lisp
+(setq auto-hscroll-mode 'current-line)
+#+END_SRC
 ** Disable custom settings
 Moves the custom file into a temp file, effectively making it session local
 
@@ -297,8 +301,10 @@ Moves the custom file into a temp file, effectively making it session local
    company-tooltip-limit 20))
 #+END_SRC
 ** Flycheck
+Redundant(?) in 26.1
 #+BEGIN_SRC emacs-lisp
 (use-package flycheck
+  :disabled t
   :defer 1
   :hook (after-init . global-flycheck-mode))
 #+END_SRC
@@ -465,6 +471,11 @@ Automatic indentation.
 
 (add-hook 'prog-mode-hook 'neosloth-prog-mode-hook)
 #+END_SRC
+** LSP
+#+BEGIN_SRC emacs-lisp
+(use-package eglot
+  :commands eglot)
+#+END_SRC
 ** C-Mode
 *** Indentation
 #+BEGIN_SRC emacs-lisp
@@ -476,10 +487,12 @@ Automatic indentation.
 (add-hook 'c-mode-common-hook 'indent-c-mode-hook)
 #+END_SRC
 ** Python
+I'm gonna try to use LSP instead
 *** Elpy
 #+BEGIN_SRC emacs-lisp
 (use-package elpy
   :defer t
+  :disabled t
   :init
   (with-eval-after-load 'python (elpy-enable))
   :config
@@ -495,8 +508,7 @@ Automatic indentation.
   (progn
     (add-hook 'python-mode-hook
               (lambda ()
-                (set (make-local-variable 'company-backends) '(company-jedi))))
-    ))
+                (set (make-local-variable 'company-backends) '(company-jedi))))))
 #+END_SRC
 ** Javascript
 #+BEGIN_SRC emacs-lisp
@@ -517,7 +529,7 @@ Automatic indentation.
   :init
   (progn
     (add-hook 'web-mode-hook 'emmet-mode)
-    (add-hook 'html-mode-hook 'emmet-mode))
+    (add-hook 'mhtml-mode-hook 'emmet-mode))
   :config
   (progn
     (setq emmet-move-cursor-between-quotes t)))
@@ -551,6 +563,7 @@ Automatic indentation.
 *** Flycheck-lua
 #+BEGIN_SRC emacs-lisp
 (use-package flymake-lua
+  :disabled t
   :mode (("\\.lua" . lua-mode)))
 #+END_SRC
 ** Slime
