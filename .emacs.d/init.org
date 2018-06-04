@@ -526,13 +526,9 @@ I'm gonna try to use LSP instead
 #+BEGIN_SRC emacs-lisp
 (use-package emmet-mode
   :commands emmet-mode
-  :init
-  (progn
-    (add-hook 'web-mode-hook 'emmet-mode)
-    (add-hook 'mhtml-mode-hook 'emmet-mode))
+  :hook (web-mode html-mode sgml-mode mhtml-mode)
   :config
-  (progn
-    (setq emmet-move-cursor-between-quotes t)))
+  (setq emmet-move-cursor-between-quotes t))
 #+END_SRC
 ** Markdown
 #+BEGIN_SRC emacs-lisp
@@ -645,7 +641,8 @@ I'm gonna try to use LSP instead
    '((python . t)
      (java . t)
      (lisp . t)
-     (js . t))))
+     (js . t)
+     (restclient . t))))
 #+END_SRC
 
 ** Ox-hugo
@@ -658,6 +655,11 @@ I'm gonna try to use LSP instead
 #+BEGIN_SRC emacs-lisp
 (use-package org-ref
   :disabled t
+  :after org)
+#+END_SRC
+** Ob-restclient
+#+BEGIN_SRC emacs-lisp
+(use-package ob-restclient
   :after org)
 #+END_SRC
 ** Disabled
