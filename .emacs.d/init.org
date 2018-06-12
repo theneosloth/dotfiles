@@ -479,7 +479,6 @@ Automatic indentation.
 #+BEGIN_SRC emacs-lisp
 (defun neosloth-prog-mode-hook ()
   "My custom prog mode hook"
-  (setq display-line-numbers 'relative)
   (setq electric-pair-inhibit-predicate 'electric-pair-conservative-inhibit)
   (flymake-mode)
   (electric-pair-mode))
@@ -528,13 +527,9 @@ I'm gonna try to use LSP instead
 ** Javascript
 #+BEGIN_SRC emacs-lisp
 (use-package js2-mode
-  :ensure nil
-  :ensure company-tern
   :mode (("\\.js$" . js2-mode))
   :config
   (progn
-    (defun my-js-hook ()
-      (add-to-list 'company-backends 'company-tern))
     (add-hook 'js2-mode-hook 'my-js-hook)))
 #+END_SRC
 ** Web/HTML
