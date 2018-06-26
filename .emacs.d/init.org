@@ -193,6 +193,12 @@ Move the auto-save and backup files into the temp file directory so that emacs d
 
 (defun display-startup-echo-area-message()
   (message (emacs-init-time)))
+
+#+END_SRC
+*** Show agenda on load
+#+BEGIN_SRC emacs-lisp
+(setq org-agenda-window-setup 'current-window)
+(add-hook 'after-init-hook 'org-agenda-list)
 #+END_SRC
 ** Dired
 *** Dired quick copy/paste
@@ -389,7 +395,6 @@ Redundant(?) in 26.1
 ** Spray
 #+BEGIN_SRC emacs-lisp
 (use-package spray
-  :bind ("<f6>" . spray-mode)
   :commands spray-mode)
 #+END_SRC
 ** Projectile
@@ -402,25 +407,16 @@ Redundant(?) in 26.1
     (add-hook 'prog-mode-hook 'projectile-mode)
     (add-hook 'projectile-mode-hook 'counsel-projectile-on)))
 #+END_SRC
-*** Elfeed
+** Atomic Chrome
+Used with [[https://addons.mozilla.org/en-US/firefox/addon/ghosttext/][GhostText]]
 #+BEGIN_SRC emacs-lisp
-(use-package elfeed
-  :commands elfeed
-  :bind (("C-c e" . elfeed))
-  :disabled t
+(use-package atomic-chrome
+  :commands atomic-chrome-start-server
   :config
-  (progn
-    ;; Disable evil in all the elfeed panes
-    (add-to-list 'evil-emacs-state-modes 'elfeed-show-mode)
-    (add-to-list 'evil-emacs-state-modes 'elfeed-search-mode)
-    (elfeed-set-max-connections 64)
-    (elfeed-load-opml "~/Sync/Misc/subscriptions.opml")
-
-    (defun elfeed-mark-all-as-read ()
-      (interactive)
-      (mark-whole-buffer)
-      (elfeed-search-untag-all-unread))
-    (define-key elfeed-search-mode-map (kbd "c") 'elfeed-mark-all-as-read)))
+  (setq atomic-chrome-url-major-mode-alist
+        '(("github\\.com" . gfm-mode)
+          ("gitlab\\.com" . gfm-mode)
+          ("reddit\\.com" . markdown-mode))))
 #+END_SRC
 ** Currently disabled
 *** Relative Line Numbers
@@ -448,6 +444,26 @@ Currently using gnus for my email.
   (add-hook 'notmuch-hello-mode 'evil-emacs-state)
   (add-hook 'notmuch-message-mode 'evil-emacs-state)
   (add-hook 'notmuch-search-mode 'evil-emacs-state))
+#+END_SRC
+*** Elfeed
+#+BEGIN_SRC emacs-lisp
+(use-package elfeed
+  :commands elfeed
+  :bind (("C-c e" . elfeed))
+  :disabled t
+  :config
+  (progn
+    ;; Disable evil in all the elfeed panes
+    (add-to-list 'evil-emacs-state-modes 'elfeed-show-mode)
+    (add-to-list 'evil-emacs-state-modes 'elfeed-search-mode)
+    (elfeed-set-max-connections 64)
+    (elfeed-load-opml "~/Sync/Misc/subscriptions.opml")
+
+    (defun elfeed-mark-all-as-read ()
+      (interactive)
+      (mark-whole-buffer)
+      (elfeed-search-untag-all-unread))
+    (define-key elfeed-search-mode-map (kbd "c") 'elfeed-mark-all-as-read)))
 #+END_SRC
 * Programming Modes
 ** Language Independent Settings
@@ -488,7 +504,14 @@ Automatic indentation.
 ** LSP
 #+BEGIN_SRC emacs-lisp
 (use-package eglot
-  :commands eglot)
+  :commands (eglot eglot-ensure)
+  :init
+  (add-hook 'python-mode-hook 'eglot-ensure)
+  ;;(add-hook 'js2-mode-hook 'eglot-ensure)
+  :config
+  (add-to-list 'eglot-server-programs '(mhtml-mode . ("html-languageserver" "--stdio")))
+  (add-to-list 'eglot-server-programs '(js2-mode . ("javascript-typescript-stdio")))
+  (define-key eglot-mode-map (kbd "C-c h") 'eglot-help-at-point))
 #+END_SRC
 ** C-Mode
 *** Indentation
@@ -527,10 +550,7 @@ I'm gonna try to use LSP instead
 ** Javascript
 #+BEGIN_SRC emacs-lisp
 (use-package js2-mode
-  :mode (("\\.js$" . js2-mode))
-  :config
-  (progn
-    (add-hook 'js2-mode-hook 'my-js-hook)))
+  :mode (("\\.js$" . js2-mode)))
 #+END_SRC
 ** Web/HTML
 #+BEGIN_SRC emacs-lisp
@@ -587,11 +607,8 @@ I'm gonna try to use LSP instead
   :defer t
   :diminish (org-indent-mode visual-line-mode flyspell-mode)
   :ensure org-bullets
-  :ensure htmlize
   :config
   (progn
-    ;;(set (make-local-variable 'company-backends) '(company-ispell company-dabbrev))
-
     (setq org-src-preserve-indentation nil
           org-confirm-babel-evaluate nil
           org-return-follows-link t
@@ -636,14 +653,15 @@ I'm gonna try to use LSP instead
     ;; Org-publish config
     (setq org-html-validation-link nil)
 
-    ;;(add-hook 'org-mode-hook 'flyspell-mode)
+    (unless (eq system-type 'windows-nt)
+      (add-hook 'org-mode-hook 'flyspell-mode))
+
     (add-hook 'org-mode-hook 'org-toggle-pretty-entities)
     (add-hook 'org-mode-hook 'org-bullets-mode)
     (add-hook 'org-mode-hook 'org-indent-mode)
     (add-hook 'org-mode-hook 'visual-line-mode))
 
   (require 'org-bullets)
-  (require 'htmlize)
   (require 'ox-md)
 
   (org-babel-do-load-languages
@@ -658,6 +676,7 @@ I'm gonna try to use LSP instead
 ** Ox-hugo
 #+BEGIN_SRC emacs-lisp
 (use-package ox-hugo
+  :disabled t
   :after ox)
 #+END_SRC
 
@@ -670,6 +689,11 @@ I'm gonna try to use LSP instead
 ** Ob-restclient
 #+BEGIN_SRC emacs-lisp
 (use-package ob-restclient
+  :after org)
+#+END_SRC
+** Org-noter
+#+BEGIN_SRC emacs-lisp
+(use-package org-noter
   :after org)
 #+END_SRC
 ** Disabled
@@ -711,7 +735,7 @@ I'm gonna try to use LSP instead
   (defun irc-connect ()
     "Connect to IRC interactively."
     (interactive)
-    (let ((servers '("irc.freenode.net" "irc.lainchan.org")))
+    (let ((servers '("irc.freenode.net")))
       (mapc #'(lambda (server) (erc-tls :server server :port 6697)) servers)))
 
   :config
@@ -730,8 +754,7 @@ I'm gonna try to use LSP instead
   (setq erc-nick "neosloth")
   (setq erc-kill-buffer-on-part t)
   (setq erc-autojoin-channels-alist
-        '((".*freenode.net" "#emacs")
-          (".*lainchan.org" "#lainchan")))
+        '((".*freenode.net" "#emacs")))
 
   (setq erc-interpret-mirc-color t)
 
