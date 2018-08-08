@@ -397,15 +397,18 @@ Redundant(?) in 26.1
 (use-package spray
   :commands spray-mode)
 #+END_SRC
+** Writeroom
+#+BEGIN_SRC emacs-lisp
+(use-package writeroom-mode
+  :commands writeroom-mode)
+#+END_SRC
 ** Projectile
 #+BEGIN_SRC emacs-lisp
 (use-package projectile
   :commands projectile-mode
-  :ensure counsel-projectile
   :config
   (progn
-    (add-hook 'prog-mode-hook 'projectile-mode)
-    (add-hook 'projectile-mode-hook 'counsel-projectile-on)))
+    (add-hook 'prog-mode-hook 'projectile-mode)))
 #+END_SRC
 ** Atomic Chrome
 Used with [[https://addons.mozilla.org/en-US/firefox/addon/ghosttext/][GhostText]]
@@ -502,15 +505,16 @@ Automatic indentation.
 (add-hook 'prog-mode-hook 'neosloth-prog-mode-hook)
 #+END_SRC
 ** LSP
+Dependend on [[https://github.com/palantir/python-language-server][pyls]], [[https://github.com/sourcegraph/javascript-typescript-langserver][javascript-typescript-language-server]] and [[https://github.com/Microsoft/vscode/tree/master/extensions/html-language-features/server][html-language-server]]
 #+BEGIN_SRC emacs-lisp
 (use-package eglot
   :commands (eglot eglot-ensure)
   :init
   (add-hook 'python-mode-hook 'eglot-ensure)
-  ;;(add-hook 'js2-mode-hook 'eglot-ensure)
+  (add-hook 'js2-mode-hook 'eglot-ensure)
+  (add-hook 'mhtml-mode 'eglot-ensure)
   :config
   (add-to-list 'eglot-server-programs '(mhtml-mode . ("html-languageserver" "--stdio")))
-  (add-to-list 'eglot-server-programs '(js2-mode . ("javascript-typescript-stdio")))
   (define-key eglot-mode-map (kbd "C-c h") 'eglot-help-at-point))
 #+END_SRC
 ** C-Mode
@@ -589,7 +593,6 @@ I'm gonna try to use LSP instead
 *** Flycheck-lua
 #+BEGIN_SRC emacs-lisp
 (use-package flymake-lua
-  :disabled t
   :mode (("\\.lua" . lua-mode)))
 #+END_SRC
 ** Slime
@@ -672,28 +675,14 @@ I'm gonna try to use LSP instead
      (js . t)
      (restclient . t))))
 #+END_SRC
-
-** Ox-hugo
+** Interleave
 #+BEGIN_SRC emacs-lisp
-(use-package ox-hugo
-  :disabled t
-  :after ox)
-#+END_SRC
-
-** Org-ref
-#+BEGIN_SRC emacs-lisp
-(use-package org-ref
-  :disabled t
+(use-package interleave
   :after org)
 #+END_SRC
 ** Ob-restclient
 #+BEGIN_SRC emacs-lisp
 (use-package ob-restclient
-  :after org)
-#+END_SRC
-** Org-noter
-#+BEGIN_SRC emacs-lisp
-(use-package org-noter
   :after org)
 #+END_SRC
 ** Disabled
@@ -724,6 +713,37 @@ I'm gonna try to use LSP instead
              :recursive t
              :publishing-function org-publish-attachment)
             ("org" :components ("org-blog" "org-static"))))
+#+END_SRC
+*** org-caldav
+#+BEGIN_SRC emacs-lisp
+(use-package org-caldav
+  :after org
+  :disabled t
+  :config
+  (setq org-caldav-url "http://neosloth.duckdns.org/baikal/html/dav.php")
+  (setq org-caldav-calendar-id 1)
+  (setq org-caldav-inbox "~/Sync/Notes/dav.org")
+  (setq org-caldav-files '("~/Sync/Notes/appointments.org")))
+#+END_SRC
+
+*** Org-noter
+#+BEGIN_SRC emacs-lisp
+(use-package org-noter
+  :disabled t
+  :after org)
+#+END_SRC
+*** Ox-hugo
+#+BEGIN_SRC emacs-lisp
+(use-package ox-hugo
+  :disabled t
+  :after ox)
+#+END_SRC
+
+*** Org-ref
+#+BEGIN_SRC emacs-lisp
+(use-package org-ref
+  :disabled t
+  :after org)
 #+END_SRC
 * ERC
 #+BEGIN_SRC emacs-lisp
