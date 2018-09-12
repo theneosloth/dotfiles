@@ -8,6 +8,7 @@
 ;; Reset it to the default after initialization
 (add-hook 'after-init-hook (lambda () (setq gc-cons-threshold 800000)))
 #+END_SRC
+
 ** Automatic tangling
 Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
 #+BEGIN_SRC emacs-lisp
@@ -18,6 +19,7 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
                (expand-file-name (concat user-emacs-directory "init.org")))
     (let ((prog-mode-hook nil))
       (org-babel-tangle)
+      (concat user-emacs-directory "init.el")
       (load-file (expand-file-name (concat user-emacs-directory "init.el"))))))
 
 (add-hook 'after-save-hook 'tangle-init)
@@ -31,12 +33,12 @@ Taken from [[https://github.com/larstvei/dot-emacs/][larstvei]]
   (require 'package)
   (add-to-list
    'package-archives
-   '("melpa" . "http://melpa.org/packages/")
-   t)
+   '("melpa" . "http://melpa.org/packages/") t)
 
   (add-to-list
    'package-archives
    '("org" . "http://orgmode.org/elpa/") t)
+
   (package-initialize))
 
 (unless package-archive-contents
@@ -77,8 +79,6 @@ Make sure that use-package is installed and that ensure is always on so that use
 #+END_SRC
 ** Random Quality of Life Things
 #+BEGIN_SRC emacs-lisp
-;; Delete all the trailing whitespaces every time the file is saved
-(push 'delete-trailing-whitespace before-save-hook)
 ;;Show current buffer name
 (setq frame-title-format "emacs - %b")
 ;;Hide the toolbar scroll bar and menubar
@@ -101,12 +101,10 @@ Make sure that use-package is installed and that ensure is always on so that use
 (setq visible-bell nil)
 (setq ring-bell-function 'ignore)
 
-;; 99% opacity when the window is active, 90% when it is in the background.
-;;(set-frame-parameter (selected-frame) 'alpha '(99 . 90))
-;;(add-to-list 'default-frame-alist '(alpha . (99 . 90)))
 (when (fboundp 'windmove-default-keybindings)
   (windmove-default-keybindings))
 
+;; Keep the buffer up to date with disk changes
 (global-auto-revert-mode 1)
 #+END_SRC
 *** Easily search for non ASCII Characters
@@ -116,6 +114,7 @@ Make sure that use-package is installed and that ensure is always on so that use
 #+END_SRC
 *** Prettify symbols mode
 #+BEGIN_SRC emacs-lisp
+;; Causes lag on windows
 (unless (eq system-type 'windows-nt)
   (global-prettify-symbols-mode)
   (setq prettify-symbols-unprettify-at-point 'right-edge))
@@ -177,7 +176,7 @@ Move the auto-save and backup files into the temp file directory so that emacs d
       delete-old-versions t  ; Automatically delete excess backups
       kept-new-versions 20   ; how many of the newest versions to keep
       kept-old-versions 5    ; and how many of the old
-      )
+)
 
 (setq auto-save-file-name-transforms
       `((".*" , temporary-file-directory t)))
@@ -255,9 +254,8 @@ Moves the custom file into a temp file, effectively making it session local
 ** Evil
 #+BEGIN_SRC emacs-lisp
 (use-package evil
-  :init (setq evil-want-integration nil)
+  :init (setq evil-want-keybinding nil)
   :config
-
   (evil-mode 1)
   ;;Disable evil in these modes
   (evil-set-initial-state 'erc-mode 'emacs)
@@ -276,6 +274,10 @@ Moves the custom file into a temp file, effectively making it session local
 (use-package evil-collection
   :after evil
   :config (evil-collection-init))
+
+(use-package evil-commentary
+  :after evil
+  :config (evil-commentary-mode))
 #+END_SRC
 
 *** Evil-cleverparens
@@ -287,10 +289,9 @@ Moves the custom file into a temp file, effectively making it session local
 *** Org-evil
 #+BEGIN_SRC emacs-lisp
 (use-package org-evil
-  :commands org-evil
+  :commands org-evil-mode
   :config
-  (progn
-    (add-hook 'org-mode-hook 'org-evil)))
+  (add-hook 'org-mode-hook 'org-evil-mode))
 #+END_SRC
 ** Company
 #+BEGIN_SRC emacs-lisp
@@ -330,20 +331,7 @@ Redundant(?) in 26.1
 ** mtg-deck-mode
 #+BEGIN_SRC emacs-lisp
 (use-package mtg-deck-mode
-  :defer t
-  :config
-  (defun mtg-deck-count-cards ()
-    "Count cards both in deck and sideboard."
-    (interactive)
-    (save-excursion
-      (let (deck sideboard)
-        (goto-char (point-min))
-        (while (re-search-forward "^\\([[:digit:]]+\\)[[:space:]]+[[:word:]]+.*$" (point-max) t)
-          (push (string-to-number (match-string-no-properties 1)) deck))
-        (goto-char (point-min))
-        (while (re-search-forward "^SB:[[:space:]]*\\([[:digit:]]+\\)[[:space:]]+[[:word:]]+.*$" (point-max) t)
-          (push (string-to-number (match-string-no-properties 1)) sideboard))
-        (message "Deck: %d, Sideboard: %d " (apply #'+ deck) (apply #'+ sideboard))))))
+  :defer t)
 #+END_SRC
 ** E-reader
 #+BEGIN_SRC emacs-lisp
@@ -385,7 +373,6 @@ Redundant(?) in 26.1
   (company-auctex-init))
 #+END_SRC
 
-#+RESULTS:
 
 ** Pass
 #+BEGIN_SRC emacs-lisp
@@ -421,53 +408,6 @@ Used with [[https://addons.mozilla.org/en-US/firefox/addon/ghosttext/][GhostText
           ("gitlab\\.com" . gfm-mode)
           ("reddit\\.com" . markdown-mode))))
 #+END_SRC
-** Currently disabled
-*** Relative Line Numbers
-Relative line numbers. Currently disabled, because having them seems a bit redundant with vim easymotions.
-#+BEGIN_SRC emacs-lisp
-;; Relative line package
-(use-package nlinum-relative
-  :commands nlinum-relative-mode
-  :disabled t
-  :init
-  (progn
-    (setq nlinum-relative-redisplay-delay 0)
-    (setq nlinum-relative-current-symbol "")
-    (setq nlinum-relative-offset 0)
-    (add-hook 'prog-mode-hook 'nlinum-relative-mode))
-  :config
-  (progn
-    (nlinum-relative-setup-evil)))
-#+END_SRC
-*** notmuch
-Currently using gnus for my email.
-#+BEGIN_SRC emacs-lisp
-(unless t
-  (autoload 'notmuch "notmuch" "notmuch mail" t)
-  (add-hook 'notmuch-hello-mode 'evil-emacs-state)
-  (add-hook 'notmuch-message-mode 'evil-emacs-state)
-  (add-hook 'notmuch-search-mode 'evil-emacs-state))
-#+END_SRC
-*** Elfeed
-#+BEGIN_SRC emacs-lisp
-(use-package elfeed
-  :commands elfeed
-  :bind (("C-c e" . elfeed))
-  :disabled t
-  :config
-  (progn
-    ;; Disable evil in all the elfeed panes
-    (add-to-list 'evil-emacs-state-modes 'elfeed-show-mode)
-    (add-to-list 'evil-emacs-state-modes 'elfeed-search-mode)
-    (elfeed-set-max-connections 64)
-    (elfeed-load-opml "~/Sync/Misc/subscriptions.opml")
-
-    (defun elfeed-mark-all-as-read ()
-      (interactive)
-      (mark-whole-buffer)
-      (elfeed-search-untag-all-unread))
-    (define-key elfeed-search-mode-map (kbd "c") 'elfeed-mark-all-as-read)))
-#+END_SRC
 * Programming Modes
 ** Language Independent Settings
 *** Indentation
@@ -481,7 +421,7 @@ Automatic indentation.
   (add-to-list 'aggressive-indent-excluded-modes 'python-mode)
   (add-to-list 'aggressive-indent-excluded-modes 'slime-repl-mode))
 #+END_SRC
-**** Auto fill
+**** Auto fill comments
 #+BEGIN_SRC emacs-lisp
 (defun comment-auto-fill ()
   (setq-local comment-auto-fill-only-comments t)
@@ -494,6 +434,12 @@ Automatic indentation.
 (setq show-paren-delay 0)
 (setq show-paren-style 'expression)
 #+END_SRC
+*** Whitespace
+#+BEGIN_SRC emacs-lisp
+(use-package ws-butler
+  :commands ws-butler-mode
+  :init (add-hook 'prog-mode-hook 'ws-butler-mode))
+#+END_SRC
 *** Misc
 #+BEGIN_SRC emacs-lisp
 (defun neosloth-prog-mode-hook ()
@@ -504,8 +450,13 @@ Automatic indentation.
 
 (add-hook 'prog-mode-hook 'neosloth-prog-mode-hook)
 #+END_SRC
+** TODO Guess foreign indentation
+#+BEGIN_SRC emacs-lisp
+(use-package dtrt-indent
+  :disabled t)
+#+END_SRC
 ** LSP
-Dependend on [[https://github.com/palantir/python-language-server][pyls]], [[https://github.com/sourcegraph/javascript-typescript-langserver][javascript-typescript-language-server]] and [[https://github.com/Microsoft/vscode/tree/master/extensions/html-language-features/server][html-language-server]]
+Dependent on [[https://github.com/palantir/python-language-server][pyls]], [[https://github.com/sourcegraph/javascript-typescript-langserver][javascript-typescript-language-server]] and [[https://github.com/Microsoft/vscode/tree/master/extensions/html-language-features/server][html-language-server]]
 #+BEGIN_SRC emacs-lisp
 (use-package eglot
   :commands (eglot eglot-ensure)
@@ -526,30 +477,6 @@ Dependend on [[https://github.com/palantir/python-language-server][pyls]], [[htt
         c-indent-level 4
         c-default-style "linux"))
 (add-hook 'c-mode-common-hook 'indent-c-mode-hook)
-#+END_SRC
-** Python
-I'm gonna try to use LSP instead
-*** Elpy
-#+BEGIN_SRC emacs-lisp
-(use-package elpy
-  :defer t
-  :disabled t
-  :init
-  (with-eval-after-load 'python (elpy-enable))
-  :config
-  (progn
-    (add-hook 'elpy-mode-hook (lambda () (highlight-indentation-mode -1)))))
-#+END_SRC
-*** Company-Jedi
-#+BEGIN_SRC emacs-lisp
-(use-package company-jedi
-  :mode (("\\.py$" . python-mode))
-  :disabled t
-  :config
-  (progn
-    (add-hook 'python-mode-hook
-              (lambda ()
-                (set (make-local-variable 'company-backends) '(company-jedi))))))
 #+END_SRC
 ** Javascript
 #+BEGIN_SRC emacs-lisp
@@ -575,25 +502,6 @@ I'm gonna try to use LSP instead
   (progn
     (setq markdown-command "multimarkdown")
     (add-hook 'markdown-mode-hook 'visual-line-mode)))
-#+END_SRC
-** Lua
-#+BEGIN_SRC emacs-lisp
-(use-package lua-mode
-  :mode (("\\.lua" . lua-mode)))
-#+END_SRC
-*** Company-lua
-#+BEGIN_SRC emacs-lisp
-(use-package company-lua
-  :mode (("\\.lua" . lua-mode))
-  :config
-  (progn
-    (add-hook 'lua-mode-hook (lambda()
-                               (setq-local company-backends '(company-lua))))))
-#+END_SRC
-*** Flycheck-lua
-#+BEGIN_SRC emacs-lisp
-(use-package flymake-lua
-  :mode (("\\.lua" . lua-mode)))
 #+END_SRC
 ** Slime
 #+BEGIN_SRC emacs-lisp
@@ -645,13 +553,7 @@ I'm gonna try to use LSP instead
     (add-hook 'org-shiftdown-final-hook 'windmove-down)
     (add-hook 'org-shiftright-final-hook 'windmove-right)
 
-    (setq org-capture-templates
-          '(("t" "Todo" entry (file+headline org-todo-location "Tasks")
-             "* TODO %?\n  %i\n  %a")
-            ("c" "Clipboard" entry (file+headline org-todo-location "Links")
-             "* %?\n %x")
-            ("s" "Scheduled" entry (file+headline org-todo-location "Events")
-             "* %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n")))
+
 
     ;; Org-publish config
     (setq org-html-validation-link nil)
@@ -675,6 +577,23 @@ I'm gonna try to use LSP instead
      (js . t)
      (restclient . t))))
 #+END_SRC
+** Org Capture
+#+BEGIN_SRC emacs-lisp
+(use-package org-capture
+  :ensure nil
+  :after org
+  :custom
+  (org-capture-templates
+   '(("t" "Todo" entry (file+headline org-todo-location "Tasks")
+      "* TODO %?\n  %i\n  %a")
+     ("p" "Clipboard" entry (file+headline org-todo-location "Links")
+      "* %?\n %x")
+     ("c" "Contact" entry (file+headline "~/Sync/Notes/contacts.org" "Contacts"),
+      my/org-contacts-template
+      :empty-lines 1 )
+     ("s" "Scheduled" entry (file+headline org-todo-location "Events")
+      "* %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n"))))
+#+END_SRC
 ** Interleave
 #+BEGIN_SRC emacs-lisp
 (use-package interleave
@@ -683,66 +602,6 @@ I'm gonna try to use LSP instead
 ** Ob-restclient
 #+BEGIN_SRC emacs-lisp
 (use-package ob-restclient
-  :after org)
-#+END_SRC
-** Disabled
-*** Org publish
-#+BEGIN_SRC emacs-lisp :tangle no
-(setq org-publish-project-alist
-          '(("org-blog"
-             ;;The directory containing our blog posts
-             :base-directory "~/Sync/Notes/blog/blog/"
-             ;; The directory where the final result will be copied to
-             :publishing-directory "~/Sync/Notes/blog/publish/"
-             :publishing-function org-html-publish-to-html
-             ;; Generate a list of all posts
-             :auto-sitemap t
-             :author "neosloth"
-             :sitemap-filename "index.org"
-             :sitemap-title "Neosloth's Blog"
-             :sitemap-file-entry-format "\"%t\" by %a on %d."
-             :sitemap-date-format "%B %dth, %Y"
-             :sitemap-sort-files t
-             :auto-preamble t
-             :html-head "<link rel=\"stylesheet\"
-                       href=\"./css/style.css\" type=\"text/css\"/>")
-            ("org-static"
-             :base-directory "~/Sync/Notes/blog/blog/"
-             :base-extension "css\\|js\\|png\\|jpg\\|gif\\|pdf\\|mp3\\|ogg\\|swf\\|ico"
-             :publishing-directory "~/Sync/Notes/blog/publish/"
-             :recursive t
-             :publishing-function org-publish-attachment)
-            ("org" :components ("org-blog" "org-static"))))
-#+END_SRC
-*** org-caldav
-#+BEGIN_SRC emacs-lisp
-(use-package org-caldav
-  :after org
-  :disabled t
-  :config
-  (setq org-caldav-url "http://neosloth.duckdns.org/baikal/html/dav.php")
-  (setq org-caldav-calendar-id 1)
-  (setq org-caldav-inbox "~/Sync/Notes/dav.org")
-  (setq org-caldav-files '("~/Sync/Notes/appointments.org")))
-#+END_SRC
-
-*** Org-noter
-#+BEGIN_SRC emacs-lisp
-(use-package org-noter
-  :disabled t
-  :after org)
-#+END_SRC
-*** Ox-hugo
-#+BEGIN_SRC emacs-lisp
-(use-package ox-hugo
-  :disabled t
-  :after ox)
-#+END_SRC
-
-*** Org-ref
-#+BEGIN_SRC emacs-lisp
-(use-package org-ref
-  :disabled t
   :after org)
 #+END_SRC
 * ERC
@@ -794,132 +653,4 @@ I'm gonna try to use LSP instead
 (setq-default mode-line-format
               '("%e" mode-line-front-space mode-line-mule-info mode-line-client mode-line-modified mode-line-remote mode-line-frame-identification mode-line-buffer-identification " " mode-line-position
                " " mode-line-misc-info mode-line-end-spaces))
-#+END_SRC
-* Disabled :ARCHIVE:
-** Gnus
-#+BEGIN_SRC emacs-lisp :tangle no
-(use-package gnus
-  :commands gnus
-  :disabled t
-  :config
-
-  ;; @see http://www.emacswiki.org/emacs/GnusGmail#toc1
-  (setq gnus-select-method '(nntp "news.gmane.org")) ;; if you read news groups
-
-  (defun my-gnus-group-list-subscribed-groups ()
-    "List all subscribed groups with or without un-read messages"
-    (interactive)
-    (gnus-group-list-all-groups 5))
-
-  (add-hook 'gnus-group-mode-hook
-            ;; list all the subscribed groups even they contain zero un-read messages
-            (lambda () (local-set-key "o" 'my-gnus-group-list-subscribed-groups )))
-
-  ;; ask encryption password once
-  (setq epa-file-cache-passphrase-for-symmetric-encryption t)
-
-  (setq gnus-thread-sort-functions
-        '(gnus-thread-sort-by-most-recent-date
-          (not gnus-thread-sort-by-number)))
-
-  (setq gnus-thread-hide-subtree t)
-  (setq user-mail-address "neosloth@disroot.org"
-        user-full-name "Stefan Kuznetsov")
-
-  (setq nnmail-expiry-wait 'immediate)
-
-  (setq gnus-select-method
-        '(nnimap "main"
-                 (nnimap-address "imap.gmail.com")
-                 (nnimap-server-port "imaps")
-                 (nnimap-stream ssl)))
-
-  (setq gnus-secondary-select-methods
-        '(
-          (nnimap "disroot"
-                  (nnimap-address "disroot.org")
-                  (nnimap-server-port "imaps")
-                  (nnimap-server-port 993))
-          (nnimap "official"
-                  (nnimap-address "imap.gmail.com")
-                  (nnimap-server-port "imaps")
-                  (nnimap-stream ssl))
-          (nnimap "hotmail"
-                  (nnimap-address "outlook.office365.com")
-                  (nnimap-server-port "imaps")
-                  (nnimap-server-port 993))))
-
-  (setq gnus-posting-styles
-        '(((header "to" "superstepag@gmail.com")
-           (address "superstepag@gmail.com"))
-          ((header "to" "stepan.s.kuznetsov@gmail.com")
-           (address "stepan.s.kuznetsov@gmail.com"))
-          ((header "cc" "superstepag@gmail.com")
-           (address "superstepag@gmail.com"))
-          ((header "cc" "stepan.s.kuznetsov@gmail.com")
-           (address "stepan.s.kuznetsov@gmail.com"))))
-
-  ;;send mail config
-  (setq message-send-mail-function 'smtpmail-send-it
-        smtpmail-smtp-server "disroot.org"
-        smtpmail-smtp-service 587
-        gnus-ignored-newsgroups "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\"]\"[#'()]")
-
-  (defun my-message-mode-setup ()
-    "Turn on auto fill when composing emails."
-    (flyspell-mode t)
-    (setq fill-column 72)
-    (turn-on-auto-fill))
-
-  (add-hook 'message-mode-hook 'my-message-mode-setup)
-
-  (defun exit-gnus-on-exit ()
-    (if (and (fboundp 'gnus-group-exit)
-             (gnus-alive-p))
-        (with-current-buffer (get-buffer "*Group*")
-          (let (gnus-interactive-exit)
-            (gnus-group-exit)))))
-
-  (add-hook 'kill-emacs-hook 'exit-gnus-on-exit))
-#+END_SRC
-** rcirc
-#+BEGIN_SRC emacs-lisp :tangle no
-(use-package rcirc
-  :commands irc
-  :bind ("C-c i" . irc)
-  :ensure rcirc-styles
-  :disabled t
-  :config
-  (progn
-    ;;ircauth contains nickserv passwords
-    (when
-        (file-readable-p "~/.emacs.d/.ircauth.el.gpg")
-      (load "~/.emacs.d/.ircauth.el.gpg"))
-
-    (add-hook 'rcirc-mode-hook (lambda ()
-                                 (flyspell-mode 1)
-                                 (visual-line-mode)
-                                 ;; Scroll to bottom
-                                 (set (make-local-variable 'scroll-conservatively) 8192)))
-
-    (setq rcirc-default-nick "neosloth")
-    (set-face-foreground 'rcirc-my-nick "yellow" nil)
-
-    (setq rcirc-server-alist
-          '(("irc.freenode.net" :port 6697 :encryption tls :channels ("#emacs"))
-            ("irc.lainchan.org" :port 6697 :encryption tls :channels ("#lainchan" "#xonotic"))))
-
-    (setq rcirc-fill-flag nil)))
-#+END_SRC
-** Feebleline
-#+BEGIN_SRC emacs-lisp
-(use-package feebleline
-  :disabled t
-  :config
-  (setq feebleline-mode-line-text
-        '(("%s"    ((if (buffer-file-name) (buffer-file-name)
-                      (buffer-name))) (face feebleline-bufname-face))
-          ("%s"       ((if (and (buffer-file-name) (buffer-modified-p)) "*" "" ))
-           (face feebleline-asterisk-face))))
-  (feebleline-mode))
 #+END_SRC
